@@ -1,6 +1,28 @@
-# Welcome to your Expo app 👋
+# Fitnexia
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Marketplace app connecting athletes, instructors, and gyms. Mobile client built with [Expo](https://expo.dev) and [Expo Router](https://docs.expo.dev/router/introduction/).
+
+## API documentation
+
+The backend API is shared by **web**, **mobile**, and the **admin panel**:
+
+- [API reference (Markdown)](./docs/API.md)
+- [OpenAPI 3 spec](./docs/openapi.yaml) — use with Swagger UI or client codegen
+- [TypeScript types](./types/api.ts) — shared client types
+
+Staging base URL: `https://api.staging.fitnexia.com/v1` (set `EXPO_PUBLIC_API_URL` in `.env` when integrating).
+
+## Mobile UI (mock data)
+
+The app includes a full MVP UI with mock data (no backend required yet):
+
+1. Run `npm install` then `npx expo start`
+2. Complete onboarding → **Login** → use **Quick demo** buttons (Athlete / Coach / Gym) or register with a profile type
+3. Flows: search & book classes, instructor dashboard, gym control panel
+
+**Athlete:** Home, Search, Bookings, Profile (+ class detail, payment, reviews)  
+**Instructor:** Dashboard, Classes, Calendar, Earnings, Profile (+ create class)  
+**Gym:** Dashboard, Staff, Classes, Metrics, Institution profile
 
 ## Get started
 
