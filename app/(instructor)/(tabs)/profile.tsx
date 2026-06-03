@@ -48,8 +48,8 @@ export default function InstructorProfileScreen() {
   const disciplinesLabel =
     profile.disciplines.length > 0 ? profile.disciplines.join(', ') : 'None selected';
   const certificationsLabel =
-    profile.certifications.length > 0
-      ? `${profile.certifications.length} added`
+    (profile.certifications?.length ?? 0) > 0
+      ? `${profile.certifications!.length} added`
       : 'None added';
   const scheduleLabel = formatWeeklyScheduleSummary(
     profile.weeklySchedule ?? defaultWeeklySchedule(),

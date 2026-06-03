@@ -247,10 +247,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ? { ...prev.notificationPreferences, ...updates.notificationPreferences }
           : prev.notificationPreferences,
         paymentMethods: updates.paymentMethods ?? prev.paymentMethods,
-        instructorProfile:
-          updates.instructorProfile && prev.instructorProfile
+        instructorProfile: updates.instructorProfile
+          ? prev.instructorProfile
             ? { ...prev.instructorProfile, ...updates.instructorProfile }
-            : prev.instructorProfile,
+            : prev.role === 'instructor'
+              ? {
+                  ...defaultInstructorProfile(prev.firstName, prev.lastName),
+                  ...updates.instructorProfile,
+                }
+              : undefined
+          : prev.instructorProfile,
         institutionProfile:
           updates.institutionProfile && prev.institutionProfile
             ? { ...prev.institutionProfile, ...updates.institutionProfile }

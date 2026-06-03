@@ -211,6 +211,13 @@ export function getInstructorById(id: string): Instructor | undefined {
   return MOCK_INSTRUCTORS.find((i) => i.id === id);
 }
 
+export function updateMockInstructor(id: string, patch: Partial<Instructor>): void {
+  const index = MOCK_INSTRUCTORS.findIndex((i) => i.id === id);
+  if (index >= 0) {
+    MOCK_INSTRUCTORS[index] = { ...MOCK_INSTRUCTORS[index], ...patch };
+  }
+}
+
 export function getBookingById(id: string): Booking | undefined {
   return MOCK_BOOKINGS.find((b) => b.id === id);
 }
