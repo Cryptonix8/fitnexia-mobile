@@ -1,58 +1,155 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
+import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
-import { MOCK_INSTITUTIONS } from '@/data/mock';
+import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
-import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
+import { formatClassDate } from '@/data/mock';
+import { Radius, Spacing } from '@/constants/fitnexia';
+import {
+  computeClassBooked,
+  computeGymDashboardStats,
+  resolveInstitutionId,
+} from '@/utils/gym-classes';
+import { formatAttendanceRate, formatRevenueCompact } from '@/utils/gym-metrics';
 
 export default function GymDashboardScreen() {
+  const { user } = useAuth();
+  const { colors } = useAppTheme();
   const { classes } = useClasses();
-  const gym = MOCK_INSTITUTIONS[0];
-  const gymClasses = classes.filter((c) => c.institution?.id === gym.id);
+  const institutionId = resolveInstitutionId(user);
+  const profile = user?.institutionProfile;
+  const stats = computeGymDashboardStats(institutionId, classes);
 
   return (
     <Screen scroll>
-      <Text style={styles.greet}>{gym.name}</Text>
-      <Text style={styles.title}>Control panel</Text>
+      <Text style={[styles.greet, { color: colors.textMuted }]}>
+        {profile?.name ?? 'Gym'}
+      </Text>
+      <Text style={[styles.title, { color: colors.text }]}>Control panel</Text>
 
       <View style={styles.stats}>
-        <MiniStat label="Bookings today" value="12" />
-        <MiniStat label="Revenue (week)" value="$2.4k" />
-        <MiniStat label="Occupancy" value="78%" />
+        <MiniStat
+          label="Bookings today"
+          value={String(stats.todayBookings)}
+          colors={colors}
+        />
+        <MiniStat
+          label="Revenue (booked)"
+          value={formatRevenueCompact(stats.weekRevenueCents)}
+          colors={colors}
+        />
+        <MiniStat
+          label="Occupancy"
+          value={formatAttendanceRate(stats.occupancyRate)}
+          colors={colors}
+        />
       </View>
 
-      <Text style={styles.section}>Group classes</Text>
-      {gymClasses.length ? (
-        gymClasses.map((c) => <ClassCard key={c.id} item={c} />)
+      <View style={styles.row}>
+        <Text style={[styles.section, { color: colors.text }]}>{"Today's schedule"}</Text>
+        <Button title="+ New" size="sm" onPress={() => router.push('/create-class')} />
+      </View>
+
+      {stats.todayClasses.length === 0 ? (
+        <Text style={[styles.empty, { color: colors.textMuted }]}>
+          No group classes scheduled today.
+        </Text>
       ) : (
-        <Text style={styles.empty}>No group classes yet</Text>
+        stats.todayClasses.map((c) => {
+          const booked = computeClassBooked(c);
+          const cap = c.capacity ?? 0;
+          return (
+            <View key={c.id} style={styles.scheduleItem}>
+              <View
+                style={[
+                  styles.scheduleCard,
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                ]}>
+                <View style={styles.scheduleHeader}>
+                  <Text style={[styles.scheduleTime, { color: colors.primary }]}>
+                    {formatClassDate(c.startAt)}
+                  </Text>
+                  <Text style={[styles.occupancyBadge, { color: colors.textMuted }]}>
+                    {booked}/{cap} booked
+                  </Text>
+                </View>
+                <Text style={[styles.scheduleTitle, { color: colors.text }]}>{c.title}</Text>
+                <Text style={[styles.scheduleMeta, { color: colors.textMuted }]}>
+                  {c.instructor.displayName} · {cap - booked} spots left
+                </Text>
+                <Pressable
+                  onPress={() =>
+                    router.push({ pathname: '/edit-class/[id]', params: { id: c.id } })
+                  }>
+                  <Text style={[styles.editLink, { color: colors.primary }]}>Manage</Text>
+                </Pressable>
+              </View>
+            </View>
+          );
+        })
+      )}
+
+      <Text style={[styles.section, { color: colors.text, marginTop: Spacing.lg }]}>
+        All group classes
+      </Text>
+      {stats.gymClasses.length ? (
+        stats.gymClasses.map((c) => <ClassCard key={c.id} item={c} />)
+      ) : (
+        <Text style={[styles.empty, { color: colors.textMuted }]}>No group classes yet</Text>
       )}
     </Screen>
   );
 }
 
-function MiniStat({ label, value }: { label: string; value: string }) {
+function MiniStat({
+  label,
+  value,
+  colors,
+}: {
+  label: string;
+  value: string;
+  colors: { surface: string; primary: string; textMuted: string };
+}) {
   return (
-    <View style={styles.stat}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+    <View style={[styles.stat, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.statValue, { color: colors.primary }]}>{value}</Text>
+      <Text style={[styles.statLabel, { color: colors.textMuted }]}>{label}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  greet: { fontSize: 14, color: FitnexiaColors.gray500 },
+  greet: { fontSize: 14 },
   title: { fontSize: 26, fontWeight: '800', marginBottom: Spacing.md },
   stats: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg },
   stat: {
     flex: 1,
-    backgroundColor: FitnexiaColors.white,
     borderRadius: Radius.lg,
     padding: Spacing.md,
   },
-  statValue: { fontSize: 18, fontWeight: '800', color: FitnexiaColors.primary },
-  statLabel: { fontSize: 11, color: FitnexiaColors.gray500, marginTop: 4 },
-  section: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.md },
-  empty: { color: FitnexiaColors.gray500 },
+  statValue: { fontSize: 18, fontWeight: '800' },
+  statLabel: { fontSize: 11, marginTop: 4 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md },
+  section: { fontSize: 18, fontWeight: '700' },
+  empty: { fontSize: 15, lineHeight: 22, marginBottom: Spacing.md },
+  scheduleItem: { marginBottom: Spacing.sm },
+  scheduleCard: {
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    padding: Spacing.md,
+  },
+  scheduleHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  scheduleTime: { fontSize: 12, fontWeight: '600' },
+  occupancyBadge: { fontSize: 12, fontWeight: '600' },
+  scheduleTitle: { fontSize: 16, fontWeight: '700', marginTop: 4 },
+  scheduleMeta: { fontSize: 13, marginTop: 4 },
+  editLink: { fontSize: 14, fontWeight: '600', marginTop: Spacing.sm },
 });

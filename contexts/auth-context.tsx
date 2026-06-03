@@ -30,6 +30,13 @@ export interface InstructorProfileData {
   verified: boolean;
 }
 
+export interface InstructorInvite {
+  id: string;
+  email: string;
+  sentAt: string;
+  status: 'pending' | 'accepted';
+}
+
 export interface InstitutionProfileData {
   name: string;
   description: string;
@@ -39,6 +46,7 @@ export interface InstitutionProfileData {
   verified: boolean;
   gallery: string[];
   instructorIds: string[];
+  pendingInvites: InstructorInvite[];
 }
 
 export interface AuthUser {
@@ -88,6 +96,7 @@ export function defaultInstitutionProfile(name: string): InstitutionProfileData 
     verified: false,
     gallery: [],
     instructorIds: [],
+    pendingInvites: [],
   };
 }
 

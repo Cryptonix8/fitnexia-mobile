@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ export default function GymInstructorsScreen() {
   const { user } = useAuth();
   const { colors } = useAppTheme();
   const instructorIds = user?.institutionProfile?.instructorIds ?? [];
+  const pendingInvites = user?.institutionProfile?.pendingInvites ?? [];
   const linked = instructorIds
     .map((id) => MOCK_INSTRUCTORS.find((i) => i.id === id))
     .filter((i): i is (typeof MOCK_INSTRUCTORS)[number] => Boolean(i));
@@ -21,7 +22,7 @@ export default function GymInstructorsScreen() {
   return (
     <Screen scroll>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Instructors</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Staff</Text>
         <Button
           title="Manage"
           size="sm"
@@ -29,9 +30,28 @@ export default function GymInstructorsScreen() {
         />
       </View>
 
+      {pendingInvites.length > 0 ? (
+        <>
+          <Text style={[styles.section, { color: colors.textMuted }]}>
+            Pending invites ({pendingInvites.length})
+          </Text>
+          {pendingInvites.map((invite) => (
+            <View
+              key={invite.id}
+              style={[
+                styles.pendingCard,
+                { backgroundColor: colors.warningMuted, borderColor: colors.border },
+              ]}>
+              <Ionicons name="mail-outline" size={20} color={colors.textSecondary} />
+              <Text style={[styles.pendingEmail, { color: colors.text }]}>{invite.email}</Text>
+            </View>
+          ))}
+        </>
+      ) : null}
+
       {linked.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textMuted }]}>
-          No instructors linked yet. Add them from your gym profile.
+          No instructors linked yet. Invite staff or add from the roster.
         </Text>
       ) : (
         linked.map((i) => (
@@ -53,9 +73,14 @@ export default function GymInstructorsScreen() {
 
       <Button
         title="Invite instructor"
-        variant="outline"
-        onPress={() => Alert.alert('Invite', 'Email invite flow (mock).')}
+        onPress={() => router.push('/(gym)/profile/invite-instructor')}
         style={{ marginTop: Spacing.lg }}
+      />
+      <Button
+        title="Add from roster"
+        variant="outline"
+        onPress={() => router.push('/(gym)/profile/instructors')}
+        style={{ marginTop: Spacing.sm }}
       />
     </Screen>
   );
@@ -69,6 +94,17 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   title: { fontSize: 26, fontWeight: '800' },
+  section: { fontSize: 14, fontWeight: '600', marginBottom: Spacing.sm },
+  pendingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    marginBottom: Spacing.sm,
+  },
+  pendingEmail: { fontSize: 14, fontWeight: '500' },
   empty: { fontSize: 15, lineHeight: 22 },
   card: {
     flexDirection: 'row',

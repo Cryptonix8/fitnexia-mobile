@@ -127,6 +127,12 @@ export default function GymManageInstructorsScreen() {
       ) : null}
 
       <Button title="Done" variant="outline" onPress={() => router.back()} style={{ marginTop: Spacing.lg }} />
+      <Button
+        title="Invite by email"
+        variant="outline"
+        onPress={() => router.push('/(gym)/profile/invite-instructor')}
+        style={{ marginTop: Spacing.sm }}
+      />
     </Screen>
   );
 }

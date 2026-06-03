@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
+import { InstructorPicker } from '@/components/instructor-picker';
 import { DateTimeField } from '@/components/date-time-field';
 import { FilterChip } from '@/components/ui/filter-chip';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,12 @@ import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
+import { getInstitutionById } from '@/data/mock';
+import {
+  getLinkedInstructors,
+  gymLocationLabel,
+  resolveInstitutionId,
+} from '@/utils/gym-classes';
 import { getLinkedInstructorId } from '@/utils/instructor';
 import { combineDateAndTime, defaultClassStart } from '@/utils/schedule';
 import type { ClassFormat, Modality } from '@/types/api';
@@ -21,6 +28,13 @@ export default function CreateClassScreen() {
   const { user } = useAuth();
   const { addClass } = useClasses();
   const defaults = defaultClassStart();
+  const isGym = user?.role === 'institution';
+  const institutionId = resolveInstitutionId(user);
+  const institutionProfile = user?.institutionProfile;
+  const linkedInstructors = useMemo(
+    () => getLinkedInstructors(institutionProfile?.instructorIds ?? []),
+    [institutionProfile?.instructorIds],
+  );
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -33,25 +47,28 @@ export default function CreateClassScreen() {
   const [price, setPrice] = useState('25');
   const [capacity, setCapacity] = useState('12');
   const [recurring, setRecurring] = useState(false);
+  const [selectedInstructorId, setSelectedInstructorId] = useState<string | null>(
+    linkedInstructors[0]?.id ?? null,
+  );
 
   useEffect(() => {
-    if (classFormat === 'individual') {
+    if (isGym && linkedInstructors.length > 0 && !selectedInstructorId) {
+      setSelectedInstructorId(linkedInstructors[0].id);
+    }
+  }, [isGym, linkedInstructors, selectedInstructorId]);
+
+  useEffect(() => {
+    if (!isGym && classFormat === 'individual') {
       setCapacity('1');
     }
-  }, [classFormat]);
+  }, [classFormat, isGym]);
 
   const publish = () => {
     if (!title.trim()) {
       Alert.alert('Missing info', 'Class name is required.');
       return;
     }
-    if (classFormat === 'group') {
-      const cap = parseInt(capacity, 10);
-      if (Number.isNaN(cap) || cap < 2) {
-        Alert.alert('Invalid capacity', 'Group classes need at least 2 spots.');
-        return;
-      }
-    }
+
     const durationMinutes = parseInt(duration, 10);
     if (Number.isNaN(durationMinutes) || durationMinutes < 15) {
       Alert.alert('Invalid duration', 'Duration must be at least 15 minutes.');
@@ -63,8 +80,64 @@ export default function CreateClassScreen() {
       return;
     }
 
-    const cap = classFormat === 'individual' ? 1 : parseInt(capacity, 10);
     const startAt = combineDateAndTime(startDate, startTime);
+
+    if (isGym) {
+      const cap = parseInt(capacity, 10);
+      if (Number.isNaN(cap) || cap < 2) {
+        Alert.alert('Invalid capacity', 'Group classes need at least 2 spots.');
+        return;
+      }
+      if (!selectedInstructorId) {
+        Alert.alert('Select instructor', 'Choose a linked instructor to teach this class.');
+        return;
+      }
+      const instructor = linkedInstructors.find((i) => i.id === selectedInstructorId);
+      if (!instructor) return;
+
+      const gymName = institutionProfile?.name ?? getInstitutionById(institutionId)?.name ?? 'Gym';
+      const locationLabel = gymLocationLabel(institutionProfile, institutionId);
+      const mockGym = getInstitutionById(institutionId);
+
+      addClass({
+        title: title.trim(),
+        discipline,
+        modality,
+        classFormat: 'group',
+        startAt: startAt.toISOString(),
+        durationMinutes,
+        price: { amount: priceAmount, currency: 'USD' },
+        capacity: cap,
+        spotsLeft: cap,
+        instructor: { id: instructor.id, displayName: instructor.displayName },
+        institution: { id: institutionId, name: gymName },
+        location:
+          modality === 'in_person'
+            ? {
+                lat: mockGym?.location?.lat ?? -34.6037,
+                lng: mockGym?.location?.lng ?? -58.3816,
+                label: locationLabel,
+              }
+            : undefined,
+      });
+
+      Alert.alert(
+        'Published',
+        `"${title.trim()}" is live with ${instructor.displayName} · ${cap} spots.`,
+        [{ text: 'OK', onPress: () => router.back() }],
+      );
+      return;
+    }
+
+    if (classFormat === 'group') {
+      const cap = parseInt(capacity, 10);
+      if (Number.isNaN(cap) || cap < 2) {
+        Alert.alert('Invalid capacity', 'Group classes need at least 2 spots.');
+        return;
+      }
+    }
+
+    const instructorCap = classFormat === 'individual' ? 1 : parseInt(capacity, 10);
     const instructorId = getLinkedInstructorId(user);
 
     addClass({
@@ -75,8 +148,8 @@ export default function CreateClassScreen() {
       startAt: startAt.toISOString(),
       durationMinutes,
       price: { amount: priceAmount, currency: 'USD' },
-      capacity: cap,
-      spotsLeft: cap,
+      capacity: instructorCap,
+      spotsLeft: instructorCap,
       instructor: {
         id: instructorId,
         displayName: user?.instructorProfile?.displayName ?? 'Instructor',
@@ -84,7 +157,7 @@ export default function CreateClassScreen() {
     });
 
     const formatLabel =
-      classFormat === 'individual' ? 'Individual (1-on-1)' : `Group (${cap} spots)`;
+      classFormat === 'individual' ? 'Individual (1-on-1)' : `Group (${instructorCap} spots)`;
     const recurNote = recurring ? ' Repeats weekly.' : '';
     Alert.alert(
       'Published',
@@ -98,7 +171,14 @@ export default function CreateClassScreen() {
 
   return (
     <Screen scroll>
-      <Header title="New class" showBack />
+      <Header title={isGym ? 'New group class' : 'New class'} showBack />
+
+      {isGym ? (
+        <Text style={[styles.gymHint, { color: colors.textMuted }]}>
+          Group classes at your gym with limited capacity. Assign a linked instructor.
+        </Text>
+      ) : null}
+
       <Input
         label="Class name"
         value={title}
@@ -112,6 +192,15 @@ export default function CreateClassScreen() {
         placeholder="What athletes should expect..."
         multiline
       />
+
+      {isGym ? (
+        <InstructorPicker
+          instructors={linkedInstructors}
+          selectedId={selectedInstructorId}
+          onSelect={setSelectedInstructorId}
+          label="Assign instructor"
+        />
+      ) : null}
 
       <Text style={[styles.label, { color: colors.textSecondary }]}>Date & time</Text>
       <DateTimeField
@@ -130,27 +219,37 @@ export default function CreateClassScreen() {
         placeholder="e.g. 60"
       />
 
-      <Text style={[styles.label, { color: colors.textSecondary }]}>Class type</Text>
-      <View style={styles.row}>
-        <FilterChip
-          label="Individual"
-          active={classFormat === 'individual'}
-          onPress={() => setClassFormat('individual')}
-        />
-        <FilterChip
-          label="Group"
-          active={classFormat === 'group'}
-          onPress={() => {
-            setClassFormat('group');
-            if (capacity === '1') setCapacity('12');
-          }}
-        />
-      </View>
-      <Text style={[styles.helper, { color: colors.textMuted }]}>
-        {classFormat === 'individual'
-          ? 'Private 1-on-1 session. Capacity is fixed at 1 athlete.'
-          : 'Open session for multiple athletes. Set max capacity below.'}
-      </Text>
+      {!isGym ? (
+        <>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Class type</Text>
+          <View style={styles.row}>
+            <FilterChip
+              label="Individual"
+              active={classFormat === 'individual'}
+              onPress={() => setClassFormat('individual')}
+            />
+            <FilterChip
+              label="Group"
+              active={classFormat === 'group'}
+              onPress={() => {
+                setClassFormat('group');
+                if (capacity === '1') setCapacity('12');
+              }}
+            />
+          </View>
+          <Text style={[styles.helper, { color: colors.textMuted }]}>
+            {classFormat === 'individual'
+              ? 'Private 1-on-1 session. Capacity is fixed at 1 athlete.'
+              : 'Open session for multiple athletes. Set max capacity below.'}
+          </Text>
+        </>
+      ) : (
+        <View style={[styles.groupBadge, { backgroundColor: colors.primaryMuted }]}>
+          <Text style={[styles.groupBadgeText, { color: colors.primaryText }]}>
+            Group class · limited spots
+          </Text>
+        </View>
+      )}
 
       <Text style={[styles.label, { color: colors.textSecondary }]}>Discipline</Text>
       <View style={styles.row}>
@@ -180,39 +279,62 @@ export default function CreateClassScreen() {
 
       <Input label="Price (USD)" value={price} onChangeText={setPrice} keyboardType="decimal-pad" />
 
-      {classFormat === 'group' ? (
-        <Input
-          label="Max capacity"
-          value={capacity}
-          onChangeText={setCapacity}
-          keyboardType="number-pad"
-          placeholder="e.g. 12"
-        />
-      ) : (
+      {!isGym && classFormat === 'individual' ? (
         <View style={[styles.individualCap, { backgroundColor: colors.surfaceMuted }]}>
           <Text style={[styles.individualCapText, { color: colors.textSecondary }]}>
             Capacity: 1 athlete
           </Text>
         </View>
+      ) : (
+        <Input
+          label="Max capacity"
+          value={capacity}
+          onChangeText={setCapacity}
+          keyboardType="number-pad"
+          placeholder="e.g. 20"
+        />
       )}
 
-      <View style={styles.recurRow}>
-        <FilterChip
-          label={recurring ? '✓ Repeats weekly' : 'Repeat weekly'}
-          active={recurring}
-          onPress={() => setRecurring(!recurring)}
-        />
-      </View>
+      {!isGym ? (
+        <View style={styles.recurRow}>
+          <FilterChip
+            label={recurring ? '✓ Repeats weekly' : 'Repeat weekly'}
+            active={recurring}
+            onPress={() => setRecurring(!recurring)}
+          />
+        </View>
+      ) : null}
 
-      <Button title="Publish class" onPress={publish} style={{ marginTop: Spacing.md }} />
+      {isGym && linkedInstructors.length === 0 ? (
+        <Button
+          title="Add staff first"
+          variant="outline"
+          onPress={() => router.push('/(gym)/profile/instructors')}
+          style={{ marginBottom: Spacing.sm }}
+        />
+      ) : null}
+
+      <Button
+        title="Publish class"
+        onPress={publish}
+        disabled={isGym && linkedInstructors.length === 0}
+        style={{ marginTop: Spacing.md }}
+      />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  gymHint: { fontSize: 14, lineHeight: 20, marginBottom: Spacing.md },
   label: { fontSize: 14, fontWeight: '600', marginBottom: Spacing.sm },
   helper: { fontSize: 13, lineHeight: 20, marginBottom: Spacing.md },
   row: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: Spacing.sm },
+  groupBadge: {
+    padding: Spacing.md,
+    borderRadius: 12,
+    marginBottom: Spacing.md,
+  },
+  groupBadgeText: { fontSize: 14, fontWeight: '600' },
   individualCap: {
     padding: Spacing.md,
     borderRadius: 12,

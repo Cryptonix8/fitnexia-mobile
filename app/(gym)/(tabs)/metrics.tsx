@@ -6,6 +6,7 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
+import { formatMoney } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { getLinkedInstitutionId } from '@/utils/institution';
 import {
@@ -76,6 +77,7 @@ export default function GymMetricsScreen() {
         chartId="revenue"
         data={revenueSeries}
         formatValue={formatRevenueAxis}
+        formatTooltip={(p) => formatMoney({ amount: p.value, currency: 'USD' })}
         color={colors.primary}
         height={220}
       />
