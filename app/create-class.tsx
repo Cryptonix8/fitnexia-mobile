@@ -30,7 +30,6 @@ export default function CreateClassScreen() {
   const [startDate, setStartDate] = useState(defaults.date);
   const [startTime, setStartTime] = useState(defaults.time);
   const [duration, setDuration] = useState('60');
-  const [location, setLocation] = useState('');
   const [price, setPrice] = useState('25');
   const [capacity, setCapacity] = useState('12');
   const [recurring, setRecurring] = useState(false);
@@ -63,10 +62,6 @@ export default function CreateClassScreen() {
       Alert.alert('Invalid price', 'Enter a valid price.');
       return;
     }
-    if (modality === 'in_person' && !location.trim()) {
-      Alert.alert('Missing location', 'Add a location for in-person classes.');
-      return;
-    }
 
     const cap = classFormat === 'individual' ? 1 : parseInt(capacity, 10);
     const startAt = combineDateAndTime(startDate, startTime);
@@ -86,10 +81,6 @@ export default function CreateClassScreen() {
         id: instructorId,
         displayName: user?.instructorProfile?.displayName ?? 'Instructor',
       },
-      location:
-        modality === 'in_person'
-          ? { lat: -34.6, lng: -58.38, label: location.trim() }
-          : undefined,
     });
 
     const formatLabel =
@@ -186,15 +177,6 @@ export default function CreateClassScreen() {
           onPress={() => setModality('online')}
         />
       </View>
-
-      {modality === 'in_person' ? (
-        <Input
-          label="Location"
-          value={location}
-          onChangeText={setLocation}
-          placeholder="e.g. Central Courts, Studio A"
-        />
-      ) : null}
 
       <Input label="Price (USD)" value={price} onChangeText={setPrice} keyboardType="decimal-pad" />
 
