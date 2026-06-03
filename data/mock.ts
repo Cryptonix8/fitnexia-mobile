@@ -190,6 +190,41 @@ export const MOCK_CREDITS: CreditBalance = {
   maxFreeClassValue: { amount: 3000, currency: 'USD' },
 };
 
+export type GymDayMetric = {
+  label: string;
+  bookings: number;
+  revenueCents: number;
+  attendancePct: number;
+};
+
+export type GymWeeklyMetrics = {
+  bookings: number;
+  revenueCents: number;
+  attendanceRate: number;
+  bookingsChangePct: number;
+  revenueChangePct: number;
+  attendanceChangePct: number;
+  daily: GymDayMetric[];
+};
+
+export const MOCK_GYM_WEEKLY_METRICS: GymWeeklyMetrics = {
+  bookings: 47,
+  revenueCents: 284000,
+  attendanceRate: 0.82,
+  bookingsChangePct: 0.12,
+  revenueChangePct: 0.08,
+  attendanceChangePct: 0.05,
+  daily: [
+    { label: 'Mon', bookings: 6, revenueCents: 36000, attendancePct: 0.65 },
+    { label: 'Tue', bookings: 8, revenueCents: 48000, attendancePct: 0.82 },
+    { label: 'Wed', bookings: 5, revenueCents: 30000, attendancePct: 0.45 },
+    { label: 'Thu', bookings: 9, revenueCents: 54000, attendancePct: 0.9 },
+    { label: 'Fri', bookings: 8, revenueCents: 48000, attendancePct: 0.78 },
+    { label: 'Sat', bookings: 7, revenueCents: 42000, attendancePct: 0.95 },
+    { label: 'Sun', bookings: 4, revenueCents: 26000, attendancePct: 0.55 },
+  ],
+};
+
 export function formatMoney(m: { amount: number; currency: string }): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
