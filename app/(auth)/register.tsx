@@ -21,6 +21,8 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [favoriteSports, setFavoriteSports] = useState<string[]>([]);
+  const [disciplines, setDisciplines] = useState<string[]>([]);
+  const [institutionName, setInstitutionName] = useState('');
   const [loading, setLoading] = useState(false);
 
   const toggleSport = (sport: string) => {
@@ -29,9 +31,19 @@ export default function RegisterScreen() {
     );
   };
 
+  const toggleDiscipline = (sport: string) => {
+    setDisciplines((prev) =>
+      prev.includes(sport) ? prev.filter((s) => s !== sport) : [...prev, sport],
+    );
+  };
+
   const submit = async () => {
     if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
       Alert.alert('Missing info', 'Please fill in all fields.');
+      return;
+    }
+    if (role === 'institution' && !institutionName.trim()) {
+      Alert.alert('Missing info', 'Gym / school name is required.');
       return;
     }
     setLoading(true);
@@ -44,6 +56,8 @@ export default function RegisterScreen() {
         lastName: lastName.trim(),
         avatarUri,
         favoriteSports: role === 'athlete' ? favoriteSports : [],
+        disciplines: role === 'instructor' ? disciplines : [],
+        institutionName: role === 'institution' ? institutionName.trim() : undefined,
       });
       router.replace('/');
     } finally {
@@ -78,7 +92,21 @@ export default function RegisterScreen() {
         </>
       ) : (
         <>
-          <AvatarPicker uri={avatarUri} onChange={setAvatarUri} size={96} />
+          <AvatarPicker
+            uri={avatarUri}
+            onChange={setAvatarUri}
+            size={96}
+            kind={role === 'institution' ? 'institution' : role === 'instructor' ? 'instructor' : 'user'}
+            label={role === 'institution' ? 'Logo / photo' : 'Profile photo'}
+          />
+          {role === 'institution' ? (
+            <Input
+              label="Gym / school name"
+              value={institutionName}
+              onChangeText={setInstitutionName}
+              placeholder="Your facility name"
+            />
+          ) : null}
           <Input label="First name" value={firstName} onChangeText={setFirstName} />
           <Input label="Last name" value={lastName} onChangeText={setLastName} />
           <Input
@@ -94,6 +122,25 @@ export default function RegisterScreen() {
             onChangeText={setPassword}
             secureTextEntry
           />
+
+          {role === 'instructor' ? (
+            <>
+              <Text style={styles.sportsLabel}>Disciplines (optional)</Text>
+              <View style={styles.sportsGrid}>
+                {DISCIPLINES.map((sport) => {
+                  const active = disciplines.includes(sport);
+                  return (
+                    <Pressable
+                      key={sport}
+                      style={[styles.chip, active && styles.chipActive]}
+                      onPress={() => toggleDiscipline(sport)}>
+                      <Text style={[styles.chipText, active && styles.chipTextActive]}>{sport}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </>
+          ) : null}
 
           {role === 'athlete' ? (
             <>
