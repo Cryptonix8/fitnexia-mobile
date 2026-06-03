@@ -6,7 +6,8 @@ import {
   type PressableProps,
 } from 'react-native';
 
-import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { Radius, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 
@@ -26,14 +27,27 @@ export function Button({
   style,
   ...rest
 }: ButtonProps) {
+  const { colors } = useAppTheme();
   const isDisabled = disabled || loading;
+
+  const variantStyles = {
+    primary: { bg: colors.primary, text: colors.surface, border: colors.primary },
+    secondary: { bg: colors.text, text: colors.surface, border: colors.text },
+    outline: { bg: 'transparent', text: colors.primary, border: colors.primary },
+    ghost: { bg: colors.primaryMuted, text: colors.primaryText, border: colors.primaryMuted },
+    danger: { bg: colors.error, text: colors.surface, border: colors.error },
+  }[variant];
 
   return (
     <Pressable
       style={({ pressed }) => [
         styles.base,
         styles[size],
-        styles[variant],
+        {
+          backgroundColor: variantStyles.bg,
+          borderColor: variantStyles.border,
+          borderWidth: variant === 'outline' ? 1.5 : 0,
+        },
         pressed && !isDisabled && styles.pressed,
         isDisabled && styles.disabled,
         style,
@@ -41,9 +55,16 @@ export function Button({
       disabled={isDisabled}
       {...rest}>
       {loading ? (
-        <ActivityIndicator color={variant === 'outline' ? FitnexiaColors.primary : FitnexiaColors.white} />
+        <ActivityIndicator color={variantStyles.text} />
       ) : (
-        <Text style={[styles.text, styles[`text_${variant}`], styles[`text_${size}`]]}>{title}</Text>
+        <Text
+          style={[
+            styles.text,
+            styles[`text_${size}`],
+            { color: variantStyles.text },
+          ]}>
+          {title}
+        </Text>
       )}
     </Pressable>
   );
@@ -58,23 +79,9 @@ const styles = StyleSheet.create({
   sm: { paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md, minHeight: 36 },
   md: { paddingVertical: 14, paddingHorizontal: Spacing.lg, minHeight: 48 },
   lg: { paddingVertical: Spacing.md, paddingHorizontal: Spacing.xl, minHeight: 56 },
-  primary: { backgroundColor: FitnexiaColors.primary },
-  secondary: { backgroundColor: FitnexiaColors.gray900 },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: FitnexiaColors.primary,
-  },
-  ghost: { backgroundColor: FitnexiaColors.primaryLight },
-  danger: { backgroundColor: FitnexiaColors.error },
   pressed: { opacity: 0.88 },
   disabled: { opacity: 0.5 },
   text: { fontWeight: '600' },
-  text_primary: { color: FitnexiaColors.white },
-  text_secondary: { color: FitnexiaColors.white },
-  text_outline: { color: FitnexiaColors.primary },
-  text_ghost: { color: FitnexiaColors.primaryDark },
-  text_danger: { color: FitnexiaColors.white },
   text_sm: { fontSize: 14 },
   text_md: { fontSize: 16 },
   text_lg: { fontSize: 17 },

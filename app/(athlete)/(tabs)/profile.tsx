@@ -2,15 +2,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { ProfileMenuItem } from '@/components/profile/menu-item';
+import { DarkModeToggle } from '@/components/profile/dark-mode-toggle';
 import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
+import { useAppTheme } from '@/contexts/theme-context';
 import { MOCK_CREDITS } from '@/data/mock';
-import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { Radius, Spacing } from '@/constants/fitnexia';
 
 export default function AthleteProfileScreen() {
   const { user, logout } = useAuth();
+  const { colors } = useAppTheme();
   const credits = MOCK_CREDITS;
 
   const favoriteSportsLabel =
@@ -33,50 +37,52 @@ export default function AthleteProfileScreen() {
   return (
     <Screen scroll>
       <View style={styles.headerRow}>
-        <Text style={styles.screenTitle}>Profile</Text>
+        <Text style={[styles.screenTitle, { color: colors.text }]}>Profile</Text>
         <Pressable onPress={() => router.push('/(athlete)/profile/edit')} hitSlop={8}>
-          <Text style={styles.editLink}>Edit</Text>
+          <Text style={[styles.editLink, { color: colors.primary }]}>Edit</Text>
         </Pressable>
       </View>
 
       <View style={styles.header}>
         <UserAvatar size={72} kind="user" uri={user?.avatarUri} style={styles.avatar} />
         <View style={styles.headerText}>
-          <Text style={styles.name}>
+          <Text style={[styles.name, { color: colors.text }]}>
             {user?.firstName} {user?.lastName}
           </Text>
-          <Text style={styles.email}>{user?.email}</Text>
+          <Text style={[styles.email, { color: colors.textMuted }]}>{user?.email}</Text>
         </View>
       </View>
 
-      <View style={styles.creditsCard}>
+      <View style={[styles.creditsCard, { backgroundColor: colors.surface }]}>
         <View style={styles.creditsTop}>
-          <Ionicons name="gift" size={24} color={FitnexiaColors.primary} />
-          <Text style={styles.creditsTitle}>Loyalty credits</Text>
+          <Ionicons name="gift" size={24} color={colors.primary} />
+          <Text style={[styles.creditsTitle, { color: colors.text }]}>Loyalty credits</Text>
         </View>
-        <Text style={styles.creditsBalance}>
-          {credits.balance} <Text style={styles.creditsOf}>/ 10</Text>
+        <Text style={[styles.creditsBalance, { color: colors.primary }]}>
+          {credits.balance} <Text style={{ color: colors.textMuted }}>/ 10</Text>
         </Text>
-        <View style={styles.progressBg}>
-          <View style={[styles.progressFill, { width: `${(credits.balance / 10) * 100}%` }]} />
+        <View style={[styles.progressBg, { backgroundColor: colors.surfaceMuted }]}>
+          <View style={[styles.progressFill, { width: `${(credits.balance / 10) * 100}%`, backgroundColor: colors.primary }]} />
         </View>
-        <Text style={styles.creditsHint}>
+        <Text style={[styles.creditsHint, { color: colors.textMuted }]}>
           {credits.creditsUntilReward} more for a free class (up to $30)
         </Text>
       </View>
 
-      <MenuItem
+      <DarkModeToggle />
+
+      <ProfileMenuItem
         icon="heart-outline"
         label="Favorite sports"
         value={favoriteSportsLabel}
         onPress={() => router.push('/(athlete)/profile/favorite-sports')}
       />
-      <MenuItem
+      <ProfileMenuItem
         icon="notifications-outline"
         label="Notifications"
         onPress={() => router.push('/(athlete)/profile/notifications')}
       />
-      <MenuItem
+      <ProfileMenuItem
         icon="card-outline"
         label="Payment methods"
         value={
@@ -86,7 +92,7 @@ export default function AthleteProfileScreen() {
         }
         onPress={() => router.push('/(athlete)/profile/payment-methods')}
       />
-      <MenuItem
+      <ProfileMenuItem
         icon="help-circle-outline"
         label="Help & support"
         onPress={() => router.push('/(athlete)/profile/support')}
@@ -97,31 +103,6 @@ export default function AthleteProfileScreen() {
   );
 }
 
-function MenuItem({
-  icon,
-  label,
-  value,
-  onPress,
-}: {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  value?: string;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable style={styles.menuItem} onPress={onPress}>
-      <Ionicons name={icon} size={22} color={FitnexiaColors.gray700} />
-      <Text style={styles.menuLabel}>{label}</Text>
-      {value ? (
-        <Text style={styles.menuValue} numberOfLines={1}>
-          {value}
-        </Text>
-      ) : null}
-      <Ionicons name="chevron-forward" size={20} color={FitnexiaColors.gray400} />
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
@@ -129,41 +110,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.md,
   },
-  screenTitle: { fontSize: 26, fontWeight: '800', color: FitnexiaColors.gray900 },
-  editLink: { fontSize: 16, fontWeight: '600', color: FitnexiaColors.primary },
+  screenTitle: { fontSize: 26, fontWeight: '800' },
+  editLink: { fontSize: 16, fontWeight: '600' },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.lg },
   avatar: { marginRight: Spacing.md },
   headerText: { flex: 1 },
-  name: { fontSize: 22, fontWeight: '800', color: FitnexiaColors.gray900 },
-  email: { fontSize: 14, color: FitnexiaColors.gray500, marginTop: 2 },
+  name: { fontSize: 22, fontWeight: '800' },
+  email: { fontSize: 14, marginTop: 2 },
   creditsCard: {
-    backgroundColor: FitnexiaColors.white,
     borderRadius: Radius.lg,
     padding: Spacing.md,
     marginBottom: Spacing.lg,
   },
   creditsTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  creditsTitle: { fontSize: 16, fontWeight: '700', color: FitnexiaColors.gray900 },
-  creditsBalance: { fontSize: 36, fontWeight: '800', color: FitnexiaColors.primary, marginTop: Spacing.sm },
-  creditsOf: { fontSize: 20, color: FitnexiaColors.gray400 },
+  creditsTitle: { fontSize: 16, fontWeight: '700' },
+  creditsBalance: { fontSize: 36, fontWeight: '800', marginTop: Spacing.sm },
   progressBg: {
     height: 8,
-    backgroundColor: FitnexiaColors.gray100,
     borderRadius: 4,
     marginTop: Spacing.sm,
     overflow: 'hidden',
   },
-  progressFill: { height: '100%', backgroundColor: FitnexiaColors.primary },
-  creditsHint: { fontSize: 13, color: FitnexiaColors.gray500, marginTop: Spacing.sm },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: FitnexiaColors.white,
-    padding: Spacing.md,
-    borderRadius: Radius.md,
-    marginBottom: Spacing.sm,
-    gap: Spacing.md,
-  },
-  menuLabel: { flex: 1, fontSize: 16, color: FitnexiaColors.gray900 },
-  menuValue: { fontSize: 13, color: FitnexiaColors.gray500, maxWidth: 120 },
+  progressFill: { height: '100%' },
+  creditsHint: { fontSize: 13, marginTop: Spacing.sm },
 });

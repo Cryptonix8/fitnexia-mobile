@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { Radius, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
 
 type BadgeVariant = 'default' | 'success' | 'warning' | 'verified';
 
@@ -11,9 +12,18 @@ export function Badge({
   label: string;
   variant?: BadgeVariant;
 }) {
+  const { colors, isDark } = useAppTheme();
+
+  const palette = {
+    default: { bg: colors.surfaceMuted, text: colors.textSecondary },
+    success: { bg: colors.successMuted, text: isDark ? colors.success : '#166534' },
+    warning: { bg: colors.warningMuted, text: isDark ? colors.warning : '#854D0E' },
+    verified: { bg: colors.primaryMuted, text: colors.primaryText },
+  }[variant];
+
   return (
-    <View style={[styles.badge, styles[variant]]}>
-      <Text style={[styles.text, styles[`text_${variant}`]]}>{label}</Text>
+    <View style={[styles.badge, { backgroundColor: palette.bg }]}>
+      <Text style={[styles.text, { color: palette.text }]}>{label}</Text>
     </View>
   );
 }
@@ -25,13 +35,5 @@ const styles = StyleSheet.create({
     borderRadius: Radius.full,
     alignSelf: 'flex-start',
   },
-  default: { backgroundColor: FitnexiaColors.gray100 },
-  success: { backgroundColor: '#DCFCE7' },
-  warning: { backgroundColor: '#FEF9C3' },
-  verified: { backgroundColor: FitnexiaColors.primaryLight },
   text: { fontSize: 11, fontWeight: '600' },
-  text_default: { color: FitnexiaColors.gray700 },
-  text_success: { color: '#166534' },
-  text_warning: { color: '#854D0E' },
-  text_verified: { color: FitnexiaColors.primaryDark },
 });

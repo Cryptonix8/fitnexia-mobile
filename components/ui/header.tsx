@@ -2,7 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
 
 export function Header({
   title,
@@ -15,21 +16,23 @@ export function Header({
   showBack?: boolean;
   right?: React.ReactNode;
 }) {
+  const { colors } = useAppTheme();
+
   return (
     <View style={styles.row}>
       {showBack ? (
         <Pressable onPress={() => router.back()} style={styles.back} hitSlop={12}>
-          <Ionicons name="chevron-back" size={24} color={FitnexiaColors.gray900} />
+          <Ionicons name="chevron-back" size={24} color={colors.text} />
         </Pressable>
       ) : (
         <View style={styles.backPlaceholder} />
       )}
       <View style={styles.center}>
-        <Text style={styles.title} numberOfLines={1}>
+        <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
           {title}
         </Text>
         {subtitle ? (
-          <Text style={styles.subtitle} numberOfLines={1}>
+          <Text style={[styles.subtitle, { color: colors.textMuted }]} numberOfLines={1}>
             {subtitle}
           </Text>
         ) : null}
@@ -49,7 +52,7 @@ const styles = StyleSheet.create({
   back: { width: 40 },
   backPlaceholder: { width: 40 },
   center: { flex: 1, alignItems: 'center' },
-  title: { fontSize: 18, fontWeight: '700', color: FitnexiaColors.gray900 },
-  subtitle: { fontSize: 13, color: FitnexiaColors.gray500, marginTop: 2 },
+  title: { fontSize: 18, fontWeight: '700' },
+  subtitle: { fontSize: 13, marginTop: 2 },
   right: { width: 40, alignItems: 'flex-end' },
 });

@@ -1,6 +1,7 @@
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
 
-import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { Radius, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
 
 type InputProps = TextInputProps & {
   label?: string;
@@ -8,15 +9,25 @@ type InputProps = TextInputProps & {
 };
 
 export function Input({ label, error, style, ...rest }: InputProps) {
+  const { colors } = useAppTheme();
+
   return (
     <View style={styles.wrap}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+      {label ? <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text> : null}
       <TextInput
-        style={[styles.input, error && styles.inputError, style]}
-        placeholderTextColor={FitnexiaColors.gray400}
+        style={[
+          styles.input,
+          {
+            backgroundColor: colors.input,
+            borderColor: error ? colors.error : colors.border,
+            color: colors.text,
+          },
+          style,
+        ]}
+        placeholderTextColor={colors.textMuted}
         {...rest}
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? <Text style={[styles.error, { color: colors.error }]}>{error}</Text> : null}
     </View>
   );
 }
@@ -26,19 +37,14 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: FitnexiaColors.gray700,
     marginBottom: Spacing.sm,
   },
   input: {
-    backgroundColor: FitnexiaColors.white,
     borderWidth: 1,
-    borderColor: FitnexiaColors.gray200,
     borderRadius: Radius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: 14,
     fontSize: 16,
-    color: FitnexiaColors.gray900,
   },
-  inputError: { borderColor: FitnexiaColors.error },
-  error: { fontSize: 12, color: FitnexiaColors.error, marginTop: Spacing.xs },
+  error: { fontSize: 12, marginTop: Spacing.xs },
 });

@@ -1,7 +1,8 @@
 import { ScrollView, StyleSheet, View, type ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
 
 type ScreenProps = ViewProps & {
   scroll?: boolean;
@@ -17,6 +18,7 @@ export function Screen({
   style,
   ...rest
 }: ScreenProps) {
+  const { colors } = useAppTheme();
   const insets = useSafeAreaInsets();
   const paddingTop = edges.includes('top') ? insets.top : 0;
   const paddingBottom = edges.includes('bottom') ? insets.bottom : 0;
@@ -37,7 +39,7 @@ export function Screen({
   if (scroll) {
     return (
       <ScrollView
-        style={styles.root}
+        style={[styles.root, { backgroundColor: colors.background }]}
         contentContainerStyle={[
           styles.scrollContent,
           padded && styles.padded,
@@ -53,13 +55,16 @@ export function Screen({
     );
   }
 
-  return <View style={styles.root}>{content}</View>;
+  return (
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
+      {content}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: FitnexiaColors.gray50,
   },
   scrollContent: {
     flexGrow: 1,

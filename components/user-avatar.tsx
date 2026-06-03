@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { StyleSheet, View, type ViewStyle } from 'react-native';
 
-import { FitnexiaColors } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
 
 export type AvatarKind = 'user' | 'instructor' | 'institution';
 
@@ -20,6 +20,7 @@ type UserAvatarProps = {
 };
 
 export function UserAvatar({ size = 48, kind = 'user', uri, style }: UserAvatarProps) {
+  const { colors } = useAppTheme();
   const iconSize = Math.round(size * 0.48);
 
   if (uri) {
@@ -31,7 +32,7 @@ export function UserAvatar({ size = 48, kind = 'user', uri, style }: UserAvatarP
             width: size,
             height: size,
             borderRadius: size / 2,
-            backgroundColor: FitnexiaColors.gray100,
+            backgroundColor: colors.surfaceMuted,
           },
           style,
         ]}
@@ -47,17 +48,17 @@ export function UserAvatar({ size = 48, kind = 'user', uri, style }: UserAvatarP
           width: size,
           height: size,
           borderRadius: size / 2,
+          backgroundColor: colors.primaryMuted,
         },
         style,
       ]}>
-      <Ionicons name={ICONS[kind]} size={iconSize} color={FitnexiaColors.primary} />
+      <Ionicons name={ICONS[kind]} size={iconSize} color={colors.primary} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   circle: {
-    backgroundColor: FitnexiaColors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -2,16 +2,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { FitnexiaColors } from '@/constants/fitnexia';
+import { useTabBarOptions } from '@/hooks/use-tab-bar-options';
 
 export default function GymTabs() {
+  const tabBarOptions = useTabBarOptions();
+
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: FitnexiaColors.primary,
-        tabBarInactiveTintColor: FitnexiaColors.gray400,
-        tabBarStyle: { backgroundColor: FitnexiaColors.white },
+        ...tabBarOptions,
         tabBarButton: HapticTab,
       }}>
       <Tabs.Screen
