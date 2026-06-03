@@ -6,19 +6,23 @@ import { Badge } from '@/components/ui/badge';
 import { ClassCard } from '@/components/class-card';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
-import { getInstructorById, MOCK_CLASSES } from '@/data/mock';
-import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
+import { getInstructorById } from '@/data/mock';
+import { useClasses } from '@/contexts/classes-context';
+import { Radius, Spacing } from '@/constants/fitnexia';
 
 export default function InstructorProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { colors } = useAppTheme();
+  const { classes } = useClasses();
   const instructor = getInstructorById(id ?? '');
-  const classes = MOCK_CLASSES.filter((c) => c.instructor.id === id);
+  const instructorClasses = classes.filter((c) => c.instructor.id === id);
 
   if (!instructor) {
     return (
       <Screen>
         <Header title="Instructor" showBack />
-        <Text>Instructor not found</Text>
+        <Text style={{ color: colors.text }}>Instructor not found</Text>
       </Screen>
     );
   }
@@ -28,27 +32,43 @@ export default function InstructorProfileScreen() {
       <Header title="Instructor" showBack />
       <View style={styles.hero}>
         <UserAvatar size={100} kind="instructor" style={styles.photo} />
-        <Text style={styles.name}>{instructor.displayName}</Text>
+        <Text style={[styles.name, { color: colors.text }]}>{instructor.displayName}</Text>
         <View style={styles.meta}>
           {instructor.verified ? <Badge label="Verified" variant="verified" /> : null}
           {instructor.availableNow ? (
             <Badge label="Available now" variant="success" />
           ) : null}
         </View>
-        <Text style={styles.rating}>
+        <Text style={[styles.rating, { color: colors.textMuted }]}>
           ★ {instructor.averageRating} ({instructor.reviewCount} reviews)
         </Text>
-        <Text style={styles.bio}>{instructor.bio}</Text>
-        <Text style={styles.disciplines}>
+        <Text style={[styles.bio, { color: colors.textSecondary }]}>{instructor.bio}</Text>
+        <Text style={[styles.disciplines, { color: colors.primary }]}>
           {instructor.disciplines.join(' · ')}
         </Text>
       </View>
 
-      <Text style={styles.section}>Upcoming classes</Text>
-      {classes.length ? (
-        classes.map((c) => <ClassCard key={c.id} item={c} />)
+      {instructor.certifications?.length ? (
+        <>
+          <Text style={[styles.section, { color: colors.text }]}>Certifications</Text>
+          {instructor.certifications.map((cert) => (
+            <View
+              key={`${cert.name}-${cert.year}`}
+              style={[styles.certCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Text style={[styles.certName, { color: colors.text }]}>{cert.name}</Text>
+              <Text style={[styles.certMeta, { color: colors.textMuted }]}>
+                {cert.issuer} · {cert.year}
+              </Text>
+            </View>
+          ))}
+        </>
+      ) : null}
+
+      <Text style={[styles.section, { color: colors.text }]}>Upcoming classes</Text>
+      {instructorClasses.length ? (
+        instructorClasses.map((c) => <ClassCard key={c.id} item={c} />)
       ) : (
-        <Text style={styles.empty}>No upcoming classes</Text>
+        <Text style={{ color: colors.textMuted }}>No upcoming classes</Text>
       )}
     </Screen>
   );
@@ -57,18 +77,24 @@ export default function InstructorProfileScreen() {
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', marginBottom: Spacing.lg },
   photo: { marginBottom: Spacing.md },
-  name: { fontSize: 24, fontWeight: '800', color: FitnexiaColors.gray900 },
+  name: { fontSize: 24, fontWeight: '800' },
   meta: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm },
-  rating: { fontSize: 15, color: FitnexiaColors.gray500, marginTop: Spacing.sm },
+  rating: { fontSize: 15, marginTop: Spacing.sm },
   bio: {
     fontSize: 15,
-    color: FitnexiaColors.gray700,
     textAlign: 'center',
     marginTop: Spacing.md,
     lineHeight: 22,
     paddingHorizontal: Spacing.md,
   },
-  disciplines: { fontSize: 14, color: FitnexiaColors.primary, fontWeight: '600', marginTop: Spacing.sm },
+  disciplines: { fontSize: 14, fontWeight: '600', marginTop: Spacing.sm },
   section: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.md },
-  empty: { color: FitnexiaColors.gray500 },
+  certCard: {
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    marginBottom: Spacing.sm,
+  },
+  certName: { fontSize: 15, fontWeight: '600' },
+  certMeta: { fontSize: 13, marginTop: 2 },
 });

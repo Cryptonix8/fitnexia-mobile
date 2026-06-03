@@ -6,11 +6,13 @@ import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-nativ
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
-import { getBookingById, getClassById } from '@/data/mock';
+import { getBookingById } from '@/data/mock';
+import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
 
 export default function ReviewScreen() {
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
+  const { getClassById } = useClasses();
   const booking = getBookingById(bookingId ?? '');
   const cls = booking ? getClassById(booking.classId) : undefined;
   const [rating, setRating] = useState(5);

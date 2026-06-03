@@ -4,12 +4,13 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
 import { Screen } from '@/components/ui/screen';
-import { MOCK_CLASSES } from '@/data/mock';
+import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 
 export default function AthleteHomeScreen() {
-  const nearby = MOCK_CLASSES.slice(0, 3);
-  const recommended = [...MOCK_CLASSES].reverse().slice(0, 3);
+  const { classes } = useClasses();
+  const nearby = classes.slice(0, 3);
+  const recommended = [...classes].reverse().slice(0, 3);
 
   return (
     <Screen scroll>

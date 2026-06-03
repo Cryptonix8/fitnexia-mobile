@@ -7,12 +7,13 @@ import { Screen } from '@/components/ui/screen';
 import {
   formatClassDate,
   formatMoney,
-  getClassById,
   MOCK_BOOKINGS,
 } from '@/data/mock';
+import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 
 export default function BookingsScreen() {
+  const { getClassById } = useClasses();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const upcoming = MOCK_BOOKINGS.filter((b) => b.status === 'confirmed');

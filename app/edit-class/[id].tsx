@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
@@ -13,27 +13,42 @@ import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
 import { getLinkedInstructorId } from '@/utils/instructor';
-import { combineDateAndTime, defaultClassStart } from '@/utils/schedule';
+import { combineDateAndTime } from '@/utils/schedule';
 import type { ClassFormat, Modality } from '@/types/api';
 
-export default function CreateClassScreen() {
+export default function EditClassScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useAppTheme();
   const { user } = useAuth();
-  const { addClass } = useClasses();
-  const defaults = defaultClassStart();
+  const { getClassById, updateClass, cancelClass } = useClasses();
+  const cls = getClassById(id ?? '');
+  const instructorId = getLinkedInstructorId(user);
 
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [discipline, setDiscipline] = useState<string>(DISCIPLINES[0]);
   const [classFormat, setClassFormat] = useState<ClassFormat>('group');
   const [modality, setModality] = useState<Modality>('in_person');
-  const [startDate, setStartDate] = useState(defaults.date);
-  const [startTime, setStartTime] = useState(defaults.time);
+  const [startDate, setStartDate] = useState(new Date());
+  const [startTime, setStartTime] = useState(new Date());
   const [duration, setDuration] = useState('60');
   const [location, setLocation] = useState('');
   const [price, setPrice] = useState('25');
   const [capacity, setCapacity] = useState('12');
-  const [recurring, setRecurring] = useState(false);
+
+  useEffect(() => {
+    if (!cls) return;
+    const start = new Date(cls.startAt);
+    setTitle(cls.title);
+    setDiscipline(cls.discipline);
+    setClassFormat(cls.classFormat ?? (cls.capacity === 1 ? 'individual' : 'group'));
+    setModality(cls.modality);
+    setStartDate(start);
+    setStartTime(start);
+    setDuration(String(cls.durationMinutes));
+    setLocation(cls.location?.label ?? '');
+    setPrice(String(cls.price.amount / 100));
+    setCapacity(String(cls.capacity ?? 12));
+  }, [cls]);
 
   useEffect(() => {
     if (classFormat === 'individual') {
@@ -41,17 +56,28 @@ export default function CreateClassScreen() {
     }
   }, [classFormat]);
 
-  const publish = () => {
+  if (!cls) {
+    return (
+      <Screen>
+        <Header title="Edit class" showBack />
+        <Text style={{ color: colors.text }}>Class not found</Text>
+      </Screen>
+    );
+  }
+
+  if (cls.instructor.id !== instructorId) {
+    return (
+      <Screen>
+        <Header title="Edit class" showBack />
+        <Text style={{ color: colors.text }}>You can only edit your own classes.</Text>
+      </Screen>
+    );
+  }
+
+  const save = () => {
     if (!title.trim()) {
       Alert.alert('Missing info', 'Class name is required.');
       return;
-    }
-    if (classFormat === 'group') {
-      const cap = parseInt(capacity, 10);
-      if (Number.isNaN(cap) || cap < 2) {
-        Alert.alert('Invalid capacity', 'Group classes need at least 2 spots.');
-        return;
-      }
     }
     const durationMinutes = parseInt(duration, 10);
     if (Number.isNaN(durationMinutes) || durationMinutes < 15) {
@@ -63,16 +89,16 @@ export default function CreateClassScreen() {
       Alert.alert('Invalid price', 'Enter a valid price.');
       return;
     }
-    if (modality === 'in_person' && !location.trim()) {
-      Alert.alert('Missing location', 'Add a location for in-person classes.');
+    const cap = classFormat === 'individual' ? 1 : parseInt(capacity, 10);
+    if (classFormat === 'group' && (Number.isNaN(cap) || cap < 2)) {
+      Alert.alert('Invalid capacity', 'Group classes need at least 2 spots.');
       return;
     }
-
-    const cap = classFormat === 'individual' ? 1 : parseInt(capacity, 10);
+    const booked = (cls.capacity ?? cap) - (cls.spotsLeft ?? cap);
+    const spotsLeft = Math.max(0, cap - booked);
     const startAt = combineDateAndTime(startDate, startTime);
-    const instructorId = getLinkedInstructorId(user);
 
-    addClass({
+    updateClass(cls.id, {
       title: title.trim(),
       discipline,
       modality,
@@ -81,25 +107,28 @@ export default function CreateClassScreen() {
       durationMinutes,
       price: { amount: priceAmount, currency: 'USD' },
       capacity: cap,
-      spotsLeft: cap,
-      instructor: {
-        id: instructorId,
-        displayName: user?.instructorProfile?.displayName ?? 'Instructor',
-      },
+      spotsLeft,
       location:
-        modality === 'in_person'
-          ? { lat: -34.6, lng: -58.38, label: location.trim() }
+        modality === 'in_person' && location.trim()
+          ? { lat: cls.location?.lat ?? -34.6, lng: cls.location?.lng ?? -58.38, label: location.trim() }
           : undefined,
     });
 
-    const formatLabel =
-      classFormat === 'individual' ? 'Individual (1-on-1)' : `Group (${cap} spots)`;
-    const recurNote = recurring ? ' Repeats weekly.' : '';
-    Alert.alert(
-      'Published',
-      `"${title.trim()}" is scheduled for ${startAt.toLocaleString()} as a ${formatLabel} class.${recurNote}`,
-      [{ text: 'OK', onPress: () => router.back() }],
-    );
+    Alert.alert('Saved', 'Class updated.', [{ text: 'OK', onPress: () => router.back() }]);
+  };
+
+  const remove = () => {
+    Alert.alert('Cancel class', 'Remove this class from your schedule? Existing bookings would be refunded in production.', [
+      { text: 'Keep class', style: 'cancel' },
+      {
+        text: 'Cancel class',
+        style: 'destructive',
+        onPress: () => {
+          cancelClass(cls.id);
+          router.back();
+        },
+      },
+    ]);
   };
 
   const minDate = new Date();
@@ -107,22 +136,9 @@ export default function CreateClassScreen() {
 
   return (
     <Screen scroll>
-      <Header title="New class" showBack />
-      <Input
-        label="Class name"
-        value={title}
-        onChangeText={setTitle}
-        placeholder="e.g. Morning Yoga"
-      />
-      <Input
-        label="Description"
-        value={description}
-        onChangeText={setDescription}
-        placeholder="What athletes should expect..."
-        multiline
-      />
+      <Header title="Edit class" showBack />
 
-      <Text style={[styles.label, { color: colors.textSecondary }]}>Date & time</Text>
+      <Input label="Class name" value={title} onChangeText={setTitle} />
       <DateTimeField
         label="Date"
         mode="date"
@@ -136,7 +152,6 @@ export default function CreateClassScreen() {
         value={duration}
         onChangeText={setDuration}
         keyboardType="number-pad"
-        placeholder="e.g. 60"
       />
 
       <Text style={[styles.label, { color: colors.textSecondary }]}>Class type</Text>
@@ -155,23 +170,6 @@ export default function CreateClassScreen() {
           }}
         />
       </View>
-      <Text style={[styles.helper, { color: colors.textMuted }]}>
-        {classFormat === 'individual'
-          ? 'Private 1-on-1 session. Capacity is fixed at 1 athlete.'
-          : 'Open session for multiple athletes. Set max capacity below.'}
-      </Text>
-
-      <Text style={[styles.label, { color: colors.textSecondary }]}>Discipline</Text>
-      <View style={styles.row}>
-        {DISCIPLINES.slice(0, 5).map((d) => (
-          <FilterChip
-            key={d}
-            label={d}
-            active={discipline === d}
-            onPress={() => setDiscipline(d)}
-          />
-        ))}
-      </View>
 
       <Text style={[styles.label, { color: colors.textSecondary }]}>Modality</Text>
       <View style={styles.row}>
@@ -188,12 +186,7 @@ export default function CreateClassScreen() {
       </View>
 
       {modality === 'in_person' ? (
-        <Input
-          label="Location"
-          value={location}
-          onChangeText={setLocation}
-          placeholder="e.g. Central Courts, Studio A"
-        />
+        <Input label="Location" value={location} onChangeText={setLocation} />
       ) : null}
 
       <Input label="Price (USD)" value={price} onChangeText={setPrice} keyboardType="decimal-pad" />
@@ -204,38 +197,16 @@ export default function CreateClassScreen() {
           value={capacity}
           onChangeText={setCapacity}
           keyboardType="number-pad"
-          placeholder="e.g. 12"
         />
-      ) : (
-        <View style={[styles.individualCap, { backgroundColor: colors.surfaceMuted }]}>
-          <Text style={[styles.individualCapText, { color: colors.textSecondary }]}>
-            Capacity: 1 athlete
-          </Text>
-        </View>
-      )}
+      ) : null}
 
-      <View style={styles.recurRow}>
-        <FilterChip
-          label={recurring ? '✓ Repeats weekly' : 'Repeat weekly'}
-          active={recurring}
-          onPress={() => setRecurring(!recurring)}
-        />
-      </View>
-
-      <Button title="Publish class" onPress={publish} style={{ marginTop: Spacing.md }} />
+      <Button title="Save changes" onPress={save} style={{ marginTop: Spacing.md }} />
+      <Button title="Cancel class" variant="outline" onPress={remove} style={{ marginTop: Spacing.sm }} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '600', marginBottom: Spacing.sm },
-  helper: { fontSize: 13, lineHeight: 20, marginBottom: Spacing.md },
   row: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: Spacing.sm },
-  individualCap: {
-    padding: Spacing.md,
-    borderRadius: 12,
-    marginBottom: Spacing.md,
-  },
-  individualCapText: { fontSize: 15, fontWeight: '500' },
-  recurRow: { flexDirection: 'row', marginBottom: Spacing.md },
 });

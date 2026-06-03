@@ -15,12 +15,13 @@ import {
   type ScheduleFilter,
 } from '@/constants/fitnexia';
 import { useAppTheme } from '@/contexts/theme-context';
-import { MOCK_CLASSES } from '@/data/mock';
+import { useClasses } from '@/contexts/classes-context';
 import { filterClasses, sortClassesByDate } from '@/utils/class-filters';
 import type { Modality } from '@/types/api';
 
 export default function SearchScreen() {
   const { colors } = useAppTheme();
+  const { classes } = useClasses();
   const [query, setQuery] = useState('');
   const [discipline, setDiscipline] = useState<string | null>(null);
   const [modality, setModality] = useState<Modality | null>(null);
@@ -32,7 +33,7 @@ export default function SearchScreen() {
   const priceRange = PRICE_RANGES.find((p) => p.id === priceRangeId) ?? PRICE_RANGES[0];
 
   const results = useMemo(() => {
-    const filtered = filterClasses(MOCK_CLASSES, {
+    const filtered = filterClasses(classes, {
       query,
       discipline,
       modality,
@@ -42,7 +43,7 @@ export default function SearchScreen() {
       priceMax: Number.isFinite(priceRange.max) ? priceRange.max : null,
     });
     return sortClassesByDate(filtered);
-  }, [query, discipline, modality, location, schedule, priceRange]);
+  }, [classes, query, discipline, modality, location, schedule, priceRange]);
 
   const activeFilterCount = [
     discipline,

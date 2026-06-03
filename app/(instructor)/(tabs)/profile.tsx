@@ -11,6 +11,7 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
+import { formatWeeklyScheduleSummary, defaultWeeklySchedule } from '@/utils/schedule';
 
 export default function InstructorProfileScreen() {
   const { user, logout, updateProfile } = useAuth();
@@ -46,6 +47,13 @@ export default function InstructorProfileScreen() {
 
   const disciplinesLabel =
     profile.disciplines.length > 0 ? profile.disciplines.join(', ') : 'None selected';
+  const certificationsLabel =
+    profile.certifications.length > 0
+      ? `${profile.certifications.length} added`
+      : 'None added';
+  const scheduleLabel = formatWeeklyScheduleSummary(
+    profile.weeklySchedule ?? defaultWeeklySchedule(),
+  );
 
   return (
     <Screen scroll>
@@ -90,6 +98,18 @@ export default function InstructorProfileScreen() {
 
       <DarkModeToggle />
 
+      <ProfileMenuItem
+        icon="calendar-outline"
+        label="Schedule & availability"
+        value={scheduleLabel}
+        onPress={() => router.push('/(instructor)/profile/availability')}
+      />
+      <ProfileMenuItem
+        icon="school-outline"
+        label="Certifications"
+        value={certificationsLabel}
+        onPress={() => router.push('/(instructor)/profile/certifications')}
+      />
       <ProfileMenuItem
         icon="fitness-outline"
         label="Disciplines"

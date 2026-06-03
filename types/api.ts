@@ -5,6 +5,8 @@
 
 export type UserRole = 'athlete' | 'instructor' | 'institution' | 'admin';
 
+export type ClassFormat = 'individual' | 'group';
+
 export type Modality = 'in_person' | 'online';
 
 export type ClassLevel = 'beginner' | 'intermediate' | 'advanced';
@@ -119,6 +121,16 @@ export interface ClassRecurrence {
   until: string;
 }
 
+/** 0 = Sunday … 6 = Saturday */
+export interface WeeklyDaySchedule {
+  weekday: number;
+  enabled: boolean;
+  startTime: string;
+  endTime: string;
+}
+
+export type WeeklySchedule = WeeklyDaySchedule[];
+
 export interface ClassListItem {
   id: string;
   title: string;
@@ -133,6 +145,7 @@ export interface ClassListItem {
   institution?: Pick<Institution, 'id' | 'name'> | null;
   location?: { lat: number; lng: number; label: string };
   averageRating?: number;
+  classFormat?: ClassFormat;
 }
 
 export interface Class extends ClassListItem {

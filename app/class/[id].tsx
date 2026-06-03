@@ -10,13 +10,14 @@ import { Screen } from '@/components/ui/screen';
 import {
   formatClassDate,
   formatMoney,
-  getClassById,
   getInstructorById,
 } from '@/data/mock';
+import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 
 export default function ClassDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { getClassById } = useClasses();
   const cls = getClassById(id ?? '');
   const instructor = cls ? getInstructorById(cls.instructor.id) : undefined;
 

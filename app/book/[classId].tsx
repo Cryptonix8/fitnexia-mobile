@@ -5,7 +5,8 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
-import { formatMoney, getClassById } from '@/data/mock';
+import { formatMoney } from '@/data/mock';
+import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import type { PaymentModel } from '@/types/api';
 
@@ -17,6 +18,7 @@ const PAYMENT_OPTIONS: { id: PaymentModel; label: string; desc: string }[] = [
 
 export default function BookScreen() {
   const { classId, waitlist } = useLocalSearchParams<{ classId: string; waitlist?: string }>();
+  const { getClassById } = useClasses();
   const cls = getClassById(classId ?? '');
   const [paymentModel, setPaymentModel] = useState<PaymentModel>('per_class');
   const [loading, setLoading] = useState(false);

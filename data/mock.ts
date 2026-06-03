@@ -19,6 +19,10 @@ export const MOCK_INSTRUCTORS: Instructor[] = [
     reviewCount: 124,
     plan: 'pro',
     hourlyRate: { amount: 5000, currency: 'USD' },
+    certifications: [
+      { name: 'PTR Certified', issuer: 'PTR', year: 2018 },
+      { name: 'Sports Psychology', issuer: 'ITF', year: 2020 },
+    ],
   },
   {
     id: 'inst-2',
@@ -32,6 +36,7 @@ export const MOCK_INSTRUCTORS: Instructor[] = [
     reviewCount: 89,
     plan: 'basic',
     hourlyRate: { amount: 3500, currency: 'USD' },
+    certifications: [{ name: 'RYT-500', issuer: 'Yoga Alliance', year: 2019 }],
   },
   {
     id: 'inst-3',

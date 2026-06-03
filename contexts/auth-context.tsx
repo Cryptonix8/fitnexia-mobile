@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
-import type { UserRole } from '@/types/api';
+import type { Certification, UserRole, WeeklySchedule } from '@/types/api';
+import { defaultWeeklySchedule } from '@/utils/schedule';
 
 export interface NotificationPreferences {
   bookingConfirmed: boolean;
@@ -22,7 +23,9 @@ export interface InstructorProfileData {
   displayName: string;
   bio: string;
   disciplines: string[];
+  certifications: Certification[];
   availableNow: boolean;
+  weeklySchedule: WeeklySchedule;
   hourlyRate: string;
   verified: boolean;
 }
@@ -46,6 +49,7 @@ export interface AuthUser {
   favoriteSports: string[];
   notificationPreferences: NotificationPreferences;
   paymentMethods: PaymentMethod[];
+  instructorId?: string;
   instructorProfile?: InstructorProfileData;
   institutionProfile?: InstitutionProfileData;
 }
@@ -63,7 +67,9 @@ export function defaultInstructorProfile(firstName: string, lastName: string, di
     displayName: `${firstName} ${lastName}`.trim(),
     bio: '',
     disciplines,
+    certifications: [],
     availableNow: false,
+    weeklySchedule: defaultWeeklySchedule(),
     hourlyRate: '',
     verified: false,
   };
@@ -152,12 +158,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(
         createUser({
           ...base,
+          instructorId: 'inst-1',
           instructorProfile: {
             ...defaultInstructorProfile('Demo', 'User', ['Tennis', 'Padel']),
             bio: 'PTR certified tennis coach with 10+ years experience.',
             availableNow: true,
+            weeklySchedule: defaultWeeklySchedule(),
             hourlyRate: '50',
             verified: true,
+            certifications: [
+              { name: 'PTR Certified', issuer: 'PTR', year: 2018 },
+              { name: 'Sports Psychology', issuer: 'ITF', year: 2020 },
+            ],
           },
         }),
       );
@@ -199,6 +211,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(
         createUser({
           ...base,
+          instructorId: `inst-${Date.now()}`,
           instructorProfile: defaultInstructorProfile(
             params.firstName,
             params.lastName,

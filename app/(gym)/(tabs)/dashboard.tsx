@@ -2,12 +2,14 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
 import { Screen } from '@/components/ui/screen';
-import { MOCK_CLASSES, MOCK_INSTITUTIONS } from '@/data/mock';
+import { MOCK_INSTITUTIONS } from '@/data/mock';
+import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 
 export default function GymDashboardScreen() {
+  const { classes } = useClasses();
   const gym = MOCK_INSTITUTIONS[0];
-  const gymClasses = MOCK_CLASSES.filter((c) => c.institution?.id === gym.id);
+  const gymClasses = classes.filter((c) => c.institution?.id === gym.id);
 
   return (
     <Screen scroll>
