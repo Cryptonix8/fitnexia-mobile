@@ -37,6 +37,8 @@ export interface InstitutionProfileData {
   city: string;
   country: string;
   verified: boolean;
+  gallery: string[];
+  instructorIds: string[];
 }
 
 export interface AuthUser {
@@ -51,6 +53,7 @@ export interface AuthUser {
   paymentMethods: PaymentMethod[];
   instructorId?: string;
   instructorProfile?: InstructorProfileData;
+  institutionId?: string;
   institutionProfile?: InstitutionProfileData;
 }
 
@@ -83,6 +86,8 @@ export function defaultInstitutionProfile(name: string): InstitutionProfileData 
     city: '',
     country: '',
     verified: false,
+    gallery: [],
+    instructorIds: [],
   };
 }
 
@@ -180,6 +185,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(
         createUser({
           ...base,
+          institutionId: 'gym-1',
           institutionProfile: {
             ...defaultInstitutionProfile('FitHub Downtown'),
             description: 'Premium fitness studio in the city center.',
@@ -187,6 +193,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             city: 'Buenos Aires',
             country: 'AR',
             verified: true,
+            instructorIds: ['inst-1', 'inst-2', 'inst-3'],
           },
         }),
       );
@@ -228,6 +235,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(
         createUser({
           ...base,
+          institutionId: `gym-${Date.now()}`,
           institutionProfile: defaultInstitutionProfile(gymName),
         }),
       );
@@ -257,10 +265,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }
               : undefined
           : prev.instructorProfile,
-        institutionProfile:
-          updates.institutionProfile && prev.institutionProfile
+        institutionProfile: updates.institutionProfile
+          ? prev.institutionProfile
             ? { ...prev.institutionProfile, ...updates.institutionProfile }
-            : prev.institutionProfile,
+            : prev.role === 'institution'
+              ? {
+                  ...defaultInstitutionProfile(`${prev.firstName} ${prev.lastName}`.trim() || 'Gym'),
+                  ...updates.institutionProfile,
+                }
+              : undefined
+          : prev.institutionProfile,
       });
     });
   }, []);

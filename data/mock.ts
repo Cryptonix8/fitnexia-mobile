@@ -66,6 +66,11 @@ export const MOCK_INSTITUTIONS: Institution[] = [
       lat: -34.6037,
       lng: -58.3816,
     },
+    instructors: [
+      { id: 'inst-1', displayName: 'Carlos Ruiz' },
+      { id: 'inst-2', displayName: 'Mia Chen' },
+      { id: 'inst-3', displayName: 'James Okonkwo' },
+    ],
   },
 ];
 
@@ -209,6 +214,17 @@ export function getClassById(id: string): ClassListItem | undefined {
 
 export function getInstructorById(id: string): Instructor | undefined {
   return MOCK_INSTRUCTORS.find((i) => i.id === id);
+}
+
+export function getInstitutionById(id: string): Institution | undefined {
+  return MOCK_INSTITUTIONS.find((g) => g.id === id);
+}
+
+export function updateMockInstitution(id: string, patch: Partial<Institution>): void {
+  const index = MOCK_INSTITUTIONS.findIndex((g) => g.id === id);
+  if (index >= 0) {
+    MOCK_INSTITUTIONS[index] = { ...MOCK_INSTITUTIONS[index], ...patch };
+  }
 }
 
 export function updateMockInstructor(id: string, patch: Partial<Instructor>): void {

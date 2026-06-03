@@ -5,6 +5,8 @@ export default function GymLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="profile/edit" />
+      <Stack.Screen name="profile/gallery" />
+      <Stack.Screen name="profile/instructors" />
       <Stack.Screen name="profile/notifications" />
       <Stack.Screen name="profile/payment-methods" />
       <Stack.Screen name="profile/support" />

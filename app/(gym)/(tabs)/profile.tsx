@@ -1,5 +1,7 @@
+import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { DarkModeToggle } from '@/components/profile/dark-mode-toggle';
 import { ProfileMenuItem } from '@/components/profile/menu-item';
@@ -9,7 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
-import { Spacing } from '@/constants/fitnexia';
+import { MOCK_INSTRUCTORS } from '@/data/mock';
+import { Radius, Spacing } from '@/constants/fitnexia';
 
 export default function GymProfileScreen() {
   const { user, logout } = useAuth();
@@ -39,6 +42,11 @@ export default function GymProfileScreen() {
   }
 
   const locationLabel = [profile.address, profile.city].filter(Boolean).join(', ') || 'Not set';
+  const gallery = profile.gallery ?? [];
+  const instructorIds = profile.instructorIds ?? [];
+  const linkedInstructors = instructorIds
+    .map((id) => MOCK_INSTRUCTORS.find((i) => i.id === id))
+    .filter((i): i is (typeof MOCK_INSTRUCTORS)[number] => Boolean(i));
 
   return (
     <Screen scroll>
@@ -65,6 +73,67 @@ export default function GymProfileScreen() {
       {profile.description ? (
         <Text style={[styles.desc, { color: colors.textMuted }]}>{profile.description}</Text>
       ) : null}
+
+      <View style={styles.sectionHeader}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Photo gallery</Text>
+        <Pressable onPress={() => router.push('/(gym)/profile/gallery')} hitSlop={8}>
+          <Text style={[styles.sectionLink, { color: colors.primary }]}>Manage</Text>
+        </Pressable>
+      </View>
+      {gallery.length === 0 ? (
+        <Pressable
+          style={[styles.galleryEmpty, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          onPress={() => router.push('/(gym)/profile/gallery')}>
+          <Ionicons name="images-outline" size={28} color={colors.textMuted} />
+          <Text style={[styles.galleryEmptyText, { color: colors.textMuted }]}>
+            Add photos of your facility
+          </Text>
+        </Pressable>
+      ) : (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.galleryRow}>
+          {gallery.map((uri, index) => (
+            <Image
+              key={`${uri}-${index}`}
+              source={{ uri }}
+              style={styles.galleryThumb}
+              contentFit="cover"
+            />
+          ))}
+        </ScrollView>
+      )}
+
+      <View style={styles.sectionHeader}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Instructors</Text>
+        <Pressable onPress={() => router.push('/(gym)/profile/instructors')} hitSlop={8}>
+          <Text style={[styles.sectionLink, { color: colors.primary }]}>Manage</Text>
+        </Pressable>
+      </View>
+      {linkedInstructors.length === 0 ? (
+        <Pressable
+          style={[styles.galleryEmpty, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          onPress={() => router.push('/(gym)/profile/instructors')}>
+          <Ionicons name="people-outline" size={28} color={colors.textMuted} />
+          <Text style={[styles.galleryEmptyText, { color: colors.textMuted }]}>
+            Link instructors to your gym
+          </Text>
+        </Pressable>
+      ) : (
+        linkedInstructors.map((i) => (
+          <Pressable
+            key={i.id}
+            style={[styles.instructorRow, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            onPress={() => router.push(`/instructor/${i.id}`)}>
+            <UserAvatar size={44} kind="instructor" />
+            <View style={styles.instructorBody}>
+              <Text style={[styles.instructorName, { color: colors.text }]}>{i.displayName}</Text>
+              <Text style={[styles.instructorMeta, { color: colors.textMuted }]}>
+                {i.disciplines.join(' · ')}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+          </Pressable>
+        ))
+      )}
 
       <DarkModeToggle />
 
@@ -126,4 +195,43 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: Spacing.lg,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
+  sectionTitle: { fontSize: 18, fontWeight: '700' },
+  sectionLink: { fontSize: 14, fontWeight: '600' },
+  galleryEmpty: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.lg,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    marginBottom: Spacing.md,
+    gap: Spacing.sm,
+  },
+  galleryEmptyText: { fontSize: 14 },
+  galleryRow: { marginBottom: Spacing.md },
+  galleryThumb: {
+    width: 120,
+    height: 90,
+    borderRadius: Radius.md,
+    marginRight: Spacing.sm,
+  },
+  instructorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    marginBottom: Spacing.sm,
+    gap: Spacing.md,
+  },
+  instructorBody: { flex: 1 },
+  instructorName: { fontSize: 16, fontWeight: '700' },
+  instructorMeta: { fontSize: 13, marginTop: 2 },
 });
