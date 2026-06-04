@@ -38,7 +38,7 @@ export const FEATURES = {
   analyticsMetrics: false,
   platformSupport: false,
   savedPaymentMethods: false,
-  geolocationMap: false,
+  geolocationMap: true,
 } as const;
 
 export type FeatureKey = keyof typeof FEATURES;

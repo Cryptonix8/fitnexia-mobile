@@ -159,3 +159,16 @@ export const ROLE_DESCRIPTIONS = {
   institution: 'Manage instructors and group classes',
   admin: '',
 } as const;
+
+export const GEO_LABELS = {
+  nearMe: 'Near me',
+  listView: 'List',
+  mapView: 'Map',
+  youAreHere: 'You are here',
+  locationHint: 'City, neighborhood, or venue...',
+  mapWebFallback: 'Interactive map is available on iOS and Android.',
+  noMapPins: 'No in-person classes with a map location match your filters.',
+  enableNearMeHint: 'Turn on Near me to show classes around your location.',
+  locationDenied: 'Location access denied. Enable it in settings or search by area name.',
+  withinRadius: (km: number) => `Within ${km} km`,
+} as const;

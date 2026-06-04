@@ -1,5 +1,6 @@
 import type { ClassListItem } from '@/types/api';
 import type { ScheduleFilter } from '@/constants/fitnexia';
+import { isWithinRadius } from '@/utils/geo';
 
 export interface ClassSearchFilters {
   query: string;
@@ -9,6 +10,11 @@ export interface ClassSearchFilters {
   schedule: ScheduleFilter;
   priceMin: number | null;
   priceMax: number | null;
+  /** When set with lat/lng, keep only in-person classes within radiusKm. */
+  nearMe?: boolean;
+  userLat?: number | null;
+  userLng?: number | null;
+  radiusKm?: number;
 }
 
 function classHour(iso: string): number {
@@ -68,6 +74,19 @@ export function filterClasses(
 
     if (!matchesLocation(item, filters.location)) return false;
     if (!matchesSchedule(item, filters.schedule)) return false;
+
+    if (
+      filters.nearMe &&
+      filters.userLat != null &&
+      filters.userLng != null &&
+      !isWithinRadius(
+        item,
+        { lat: filters.userLat, lng: filters.userLng },
+        filters.radiusKm ?? 10,
+      )
+    ) {
+      return false;
+    }
 
     if (filters.query.trim()) {
       const q = filters.query.toLowerCase();

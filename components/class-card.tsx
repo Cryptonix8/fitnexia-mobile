@@ -10,7 +10,15 @@ import { useAppTheme } from '@/contexts/theme-context';
 import { formatClassDate, formatMoney } from '@/data/mock';
 import type { ClassListItem } from '@/types/api';
 
-export function ClassCard({ item, compact }: { item: ClassListItem; compact?: boolean }) {
+export function ClassCard({
+  item,
+  compact,
+  distanceLabel,
+}: {
+  item: ClassListItem;
+  compact?: boolean;
+  distanceLabel?: string;
+}) {
   const { colors } = useAppTheme();
   const full = item.spotsLeft === 0;
 
@@ -51,6 +59,7 @@ export function ClassCard({ item, compact }: { item: ClassListItem; compact?: bo
             />
             <Text style={[styles.tagText, { color: colors.textMuted }]}>
               {modalityLocationLabel(item.modality, item.location?.label)}
+              {distanceLabel ? ` · ${distanceLabel}` : ''}
             </Text>
           </View>
           {item.spotsLeft != null && !full ? (

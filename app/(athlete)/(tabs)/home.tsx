@@ -1,15 +1,43 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useEffect, useMemo } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
 import { Screen } from '@/components/ui/screen';
 import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { useFeature } from '@/hooks/use-feature';
+import { useUserLocation } from '@/hooks/use-user-location';
+import {
+  classDistanceKm,
+  DEFAULT_RADIUS_KM,
+  filterClassesNearUser,
+  formatDistanceKm,
+  sortClassesByDistance,
+} from '@/utils/geo';
 
 export default function AthleteHomeScreen() {
   const { classes } = useClasses();
-  const nearby = classes.slice(0, 3);
+  const geoEnabled = useFeature('geolocationMap');
+  const { coords, requestLocation } = useUserLocation();
+
+  useEffect(() => {
+    if (geoEnabled) {
+      requestLocation();
+    }
+  }, [geoEnabled, requestLocation]);
+
+  const nearby = useMemo(() => {
+    if (geoEnabled && coords) {
+      return sortClassesByDistance(
+        filterClassesNearUser(classes, coords, DEFAULT_RADIUS_KM),
+        coords,
+      ).slice(0, 3);
+    }
+    return classes.slice(0, 3);
+  }, [classes, coords, geoEnabled]);
+
   const recommended = [...classes].reverse().slice(0, 3);
 
   return (
@@ -34,9 +62,20 @@ export default function AthleteHomeScreen() {
         />
       </View>
 
-      <Text style={styles.section}>Nearby</Text>
+      <Text style={styles.section}>{geoEnabled && coords ? 'Nearby' : 'Upcoming'}</Text>
       {nearby.map((c) => (
-        <ClassCard key={c.id} item={c} />
+        <ClassCard
+          key={c.id}
+          item={c}
+          distanceLabel={
+            geoEnabled && coords
+              ? (() => {
+                  const km = classDistanceKm(c, coords);
+                  return km != null ? formatDistanceKm(km) : undefined;
+                })()
+              : undefined
+          }
+        />
       ))}
 
       <Text style={styles.section}>Recommended for you</Text>

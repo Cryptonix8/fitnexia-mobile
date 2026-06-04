@@ -21,7 +21,7 @@ Feature flags: [`constants/features.ts`](../constants/features.ts).
 |---------|------|--------|
 | Google sign-in | `googleSignIn` | v2 |
 | Advanced search (level, language, gender) | `advancedSearch` | v2 |
-| Map / geolocation | `geolocationMap` | v2 |
+| Map / geolocation | `geolocationMap` | v2 (enabled in dev) |
 | Recurring classes | `recurringClasses` | v2 |
 | Live streaming | `liveStreaming` | v2 |
 | Recorded VOD | `recordedClasses` | v3 |
