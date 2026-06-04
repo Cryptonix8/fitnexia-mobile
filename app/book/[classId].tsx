@@ -9,6 +9,7 @@ import { formatMoney } from '@/data/mock';
 import { useClasses } from '@/contexts/classes-context';
 import { useFeature } from '@/hooks/use-feature';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
 import type { PaymentModel } from '@/types/api';
 
 const ALL_PAYMENT_OPTIONS: { id: PaymentModel; label: string; desc: string }[] = [
@@ -48,7 +49,7 @@ export default function BookScreen() {
     return (
       <Screen>
         <Header title="Book" showBack />
-        <Text>Class not found</Text>
+        <Text>{SCREEN_TITLES.classNotFound}</Text>
       </Screen>
     );
   }
@@ -71,7 +72,10 @@ export default function BookScreen() {
 
   return (
     <Screen scroll>
-      <Header title={isWaitlist ? 'Join waitlist' : 'Confirm booking'} showBack />
+      <Header
+        title={isWaitlist ? BUTTON_LABELS.joinWaitlistShort : BUTTON_LABELS.confirmBooking}
+        showBack
+      />
       <View style={styles.summary}>
         <Text style={styles.className}>{cls.title}</Text>
         <Text style={styles.instructor}>{cls.instructor.displayName}</Text>
@@ -119,7 +123,13 @@ export default function BookScreen() {
       ) : null}
 
       <Button
-        title={isWaitlist ? 'Join waitlist' : integratedPayments ? 'Pay & confirm' : 'Confirm booking'}
+        title={
+          isWaitlist
+            ? BUTTON_LABELS.joinWaitlistShort
+            : integratedPayments
+              ? BUTTON_LABELS.payAndConfirm
+              : BUTTON_LABELS.confirmBooking
+        }
         loading={loading}
         onPress={confirm}
         style={{ marginTop: Spacing.lg }}

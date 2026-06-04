@@ -1,29 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { ROLE_LABELS, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { ROLE_DESCRIPTIONS } from '@/constants/labels';
 import type { UserRole } from '@/types/api';
 
-const ROLE_CONFIG: Record<
-  UserRole,
-  { icon: keyof typeof Ionicons.glyphMap; title: string; desc: string }
-> = {
-  athlete: {
-    icon: 'fitness',
-    title: 'Athlete',
-    desc: 'Find and book classes near you',
-  },
-  instructor: {
-    icon: 'school',
-    title: 'Instructor',
-    desc: 'Teach and manage your schedule',
-  },
-  institution: {
-    icon: 'business',
-    title: 'Gym / School',
-    desc: 'Manage instructors and group classes',
-  },
-  admin: { icon: 'shield', title: 'Admin', desc: '' },
+const ROLE_ICONS: Record<UserRole, keyof typeof Ionicons.glyphMap> = {
+  athlete: 'fitness',
+  instructor: 'school',
+  institution: 'business',
+  admin: 'shield',
 };
 
 export function RoleCard({
@@ -35,8 +21,10 @@ export function RoleCard({
   selected: boolean;
   onPress: () => void;
 }) {
-  const cfg = ROLE_CONFIG[role];
   if (role === 'admin') return null;
+
+  const title = ROLE_LABELS[role as keyof typeof ROLE_LABELS] ?? role;
+  const desc = ROLE_DESCRIPTIONS[role as keyof typeof ROLE_DESCRIPTIONS] ?? '';
 
   return (
     <Pressable
@@ -44,14 +32,14 @@ export function RoleCard({
       onPress={onPress}>
       <View style={[styles.iconWrap, selected && styles.iconSelected]}>
         <Ionicons
-          name={cfg.icon}
+          name={ROLE_ICONS[role]}
           size={28}
           color={selected ? FitnexiaColors.white : FitnexiaColors.primary}
         />
       </View>
       <View style={styles.text}>
-        <Text style={[styles.title, selected && styles.titleSelected]}>{cfg.title}</Text>
-        <Text style={styles.desc}>{cfg.desc}</Text>
+        <Text style={[styles.title, selected && styles.titleSelected]}>{title}</Text>
+        <Text style={styles.desc}>{desc}</Text>
       </View>
       {selected ? (
         <Ionicons name="checkmark-circle" size={24} color={FitnexiaColors.primary} />

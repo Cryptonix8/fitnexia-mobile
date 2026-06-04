@@ -10,6 +10,12 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import {
+  ALERT_LABELS,
+  BUTTON_LABELS,
+  PROFILE_MENU_LABELS,
+  SCREEN_TITLES,
+} from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { MOCK_CREDITS } from '@/data/mock';
 
@@ -25,10 +31,10 @@ export default function AthleteProfileScreen() {
     user?.favoriteSports.length ? user.favoriteSports.join(', ') : 'None selected';
 
   const signOut = () => {
-    Alert.alert('Sign out', 'Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(ALERT_LABELS.signOutTitle, ALERT_LABELS.signOutMessage, [
+      { text: ALERT_LABELS.cancel, style: 'cancel' },
       {
-        text: 'Sign out',
+        text: BUTTON_LABELS.signOut,
         style: 'destructive',
         onPress: () => {
           logout();
@@ -41,9 +47,9 @@ export default function AthleteProfileScreen() {
   return (
     <Screen scroll>
       <View style={styles.headerRow}>
-        <Text style={[styles.screenTitle, { color: colors.text }]}>Profile</Text>
+        <Text style={[styles.screenTitle, { color: colors.text }]}>{SCREEN_TITLES.profile}</Text>
         <Pressable onPress={() => router.push('/(athlete)/profile/edit')} hitSlop={8}>
-          <Text style={[styles.editLink, { color: colors.primary }]}>Edit</Text>
+          <Text style={[styles.editLink, { color: colors.primary }]}>{BUTTON_LABELS.edit}</Text>
         </Pressable>
       </View>
 
@@ -84,19 +90,19 @@ export default function AthleteProfileScreen() {
 
       <ProfileMenuItem
         icon="heart-outline"
-        label="Favorite sports"
+        label={PROFILE_MENU_LABELS.favoriteSports}
         value={favoriteSportsLabel}
         onPress={() => router.push('/(athlete)/profile/favorite-sports')}
       />
       <ProfileMenuItem
         icon="notifications-outline"
-        label="Notifications"
+        label={PROFILE_MENU_LABELS.notifications}
         onPress={() => router.push('/(athlete)/profile/notifications')}
       />
       {showPaymentMethods ? (
         <ProfileMenuItem
           icon="card-outline"
-          label="Payment methods"
+          label={PROFILE_MENU_LABELS.paymentMethods}
           value={
             user?.paymentMethods.length
               ? `${user.paymentMethods.length} saved`
@@ -108,12 +114,12 @@ export default function AthleteProfileScreen() {
       {showSupport ? (
         <ProfileMenuItem
           icon="help-circle-outline"
-          label="Help & support"
+          label={PROFILE_MENU_LABELS.helpSupport}
           onPress={() => router.push('/(athlete)/profile/support')}
         />
       ) : null}
 
-      <Button title="Sign out" variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
+      <Button title={BUTTON_LABELS.signOut} variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
     </Screen>
   );
 }

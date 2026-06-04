@@ -13,6 +13,13 @@ import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { MOCK_INSTRUCTORS } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import {
+  ALERT_LABELS,
+  BADGE_LABELS,
+  BUTTON_LABELS,
+  PROFILE_MENU_LABELS,
+  SCREEN_TITLES,
+} from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 
 export default function GymProfileScreen() {
@@ -23,10 +30,10 @@ export default function GymProfileScreen() {
   const profile = user?.institutionProfile;
 
   const signOut = () => {
-    Alert.alert('Sign out', 'Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(ALERT_LABELS.signOutTitle, ALERT_LABELS.signOutMessage, [
+      { text: ALERT_LABELS.cancel, style: 'cancel' },
       {
-        text: 'Sign out',
+        text: BUTTON_LABELS.signOut,
         style: 'destructive',
         onPress: () => {
           logout();
@@ -54,9 +61,9 @@ export default function GymProfileScreen() {
   return (
     <Screen scroll>
       <View style={styles.headerRow}>
-        <Text style={[styles.screenTitle, { color: colors.text }]}>Gym profile</Text>
+        <Text style={[styles.screenTitle, { color: colors.text }]}>{SCREEN_TITLES.gymProfile}</Text>
         <Pressable onPress={() => router.push('/(gym)/profile/edit')} hitSlop={8}>
-          <Text style={[styles.editLink, { color: colors.primary }]}>Edit</Text>
+          <Text style={[styles.editLink, { color: colors.primary }]}>{BUTTON_LABELS.edit}</Text>
         </Pressable>
       </View>
 
@@ -67,7 +74,7 @@ export default function GymProfileScreen() {
           <Text style={[styles.email, { color: colors.textMuted }]}>{user.email}</Text>
           {profile.verified ? (
             <View style={styles.badgeWrap}>
-              <Badge label="Verified" variant="verified" />
+              <Badge label={BADGE_LABELS.verified} variant="verified" />
             </View>
           ) : null}
         </View>
@@ -78,7 +85,7 @@ export default function GymProfileScreen() {
       ) : null}
 
       <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Photo gallery</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{PROFILE_MENU_LABELS.photoGallery}</Text>
         <Pressable onPress={() => router.push('/(gym)/profile/gallery')} hitSlop={8}>
           <Text style={[styles.sectionLink, { color: colors.primary }]}>Manage</Text>
         </Pressable>
@@ -106,7 +113,7 @@ export default function GymProfileScreen() {
       )}
 
       <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Instructors</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{PROFILE_MENU_LABELS.instructors}</Text>
         <Pressable onPress={() => router.push('/(gym)/profile/instructors')} hitSlop={8}>
           <Text style={[styles.sectionLink, { color: colors.primary }]}>Manage</Text>
         </Pressable>
@@ -142,25 +149,25 @@ export default function GymProfileScreen() {
 
       <ProfileMenuItem
         icon="location-outline"
-        label="Location"
+        label={PROFILE_MENU_LABELS.location}
         value={locationLabel}
         onPress={() => router.push('/(gym)/profile/edit')}
       />
       <ProfileMenuItem
         icon="ribbon-outline"
-        label="Plan & commission"
+        label={PROFILE_MENU_LABELS.planCommission}
         value="Institutional · 5%"
         onPress={() => router.push('/(gym)/profile/plan')}
       />
       <ProfileMenuItem
         icon="notifications-outline"
-        label="Notifications"
+        label={PROFILE_MENU_LABELS.notifications}
         onPress={() => router.push('/(gym)/profile/notifications')}
       />
       {showPaymentMethods ? (
         <ProfileMenuItem
           icon="card-outline"
-          label="Payout account"
+          label={PROFILE_MENU_LABELS.payoutAccount}
           value={
             user.paymentMethods.length
               ? `${user.paymentMethods.length} saved`
@@ -172,12 +179,12 @@ export default function GymProfileScreen() {
       {showSupport ? (
         <ProfileMenuItem
           icon="help-circle-outline"
-          label="Help & support"
+          label={PROFILE_MENU_LABELS.helpSupport}
           onPress={() => router.push('/(gym)/profile/support')}
         />
       ) : null}
 
-      <Button title="Sign out" variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
+      <Button title={BUTTON_LABELS.signOut} variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
     </Screen>
   );
 }

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import type { UserRole } from '@/types/api';
 
@@ -31,18 +32,18 @@ export default function LoginScreen() {
   return (
     <Screen scroll>
       <Text style={styles.logo}>Fitnexia</Text>
-      <Text style={styles.title}>Welcome back</Text>
-      <Text style={styles.sub}>Sign in to continue</Text>
+      <Text style={styles.title}>{AUTH_LABELS.welcomeBack}</Text>
+      <Text style={styles.sub}>{AUTH_LABELS.signInSubtitle}</Text>
 
       <Input
-        label="Email"
+        label={AUTH_LABELS.email}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
       />
       <Input
-        label="Password"
+        label={AUTH_LABELS.password}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -52,7 +53,7 @@ export default function LoginScreen() {
         <Text style={styles.forgot}>Forgot password?</Text>
       </Pressable>
 
-      <Button title="Sign in" loading={loading} onPress={() => handleLogin()} />
+      <Button title={BUTTON_LABELS.signIn} loading={loading} onPress={() => handleLogin()} />
 
       {googleSignIn ? (
         <Pressable

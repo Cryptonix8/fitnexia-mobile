@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { modalityLocationLabel } from '@/constants/labels';
 import { formatClassDate } from '@/data/mock';
 import type { ClassListItem } from '@/types/api';
 import { startOfMonth, toDateKey } from '@/utils/calendar';
@@ -113,7 +114,7 @@ export default function InstructorCalendarScreen() {
             <Text style={[styles.time, { color: colors.primary }]}>{formatClassDate(c.startAt)}</Text>
             <Text style={[styles.eventTitle, { color: colors.text }]}>{c.title}</Text>
             <Text style={[styles.meta, { color: colors.textMuted }]}>
-              {c.modality === 'online' ? 'Online' : c.location?.label ?? 'In person'}
+              {modalityLocationLabel(c.modality, c.location?.label)}
               {c.classFormat === 'individual' ? ' · 1-on-1' : ''}
               {c.spotsLeft != null ? ` · ${c.spotsLeft} spots left` : ''}
             </Text>

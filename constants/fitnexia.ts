@@ -1,3 +1,5 @@
+/** UI copy (labels, buttons, screen titles): see `constants/labels.ts`. */
+
 /** Semantic theme tokens for light & dark mode */
 export type AppThemeColors = {
   background: string;

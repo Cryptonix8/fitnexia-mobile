@@ -1,11 +1,12 @@
 import { Header } from '@/components/ui/header';
 import { NotificationsSettings } from '@/components/profile/notifications-settings';
+import { SCREEN_TITLES } from '@/constants/labels';
 import { Screen } from '@/components/ui/screen';
 
 export default function GymNotificationsScreen() {
   return (
     <Screen scroll>
-      <Header title="Notifications" showBack />
+      <Header title={SCREEN_TITLES.notifications} showBack />
       <NotificationsSettings />
     </Screen>
   );

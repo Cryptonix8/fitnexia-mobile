@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { SCREEN_TITLES } from '@/constants/labels';
 
 const PLANS = [
   { id: 'basic', name: 'Basic', fee: 'Free', commission: '15%', active: false },
@@ -14,7 +15,7 @@ const PLANS = [
 export default function InstructorPlanScreen() {
   return (
     <Screen scroll>
-      <Header title="Plan & commission" showBack />
+      <Header title={SCREEN_TITLES.planCommission} showBack />
       <Text style={styles.hint}>Your platform fee is deducted automatically from each payout.</Text>
       {PLANS.map((plan) => (
         <View key={plan.id} style={[styles.card, plan.active && styles.cardActive]}>

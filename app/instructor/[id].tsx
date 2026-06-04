@@ -12,6 +12,7 @@ import { useAppTheme } from '@/contexts/theme-context';
 import { getInstructorById } from '@/data/mock';
 import { useClasses } from '@/contexts/classes-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { BADGE_LABELS } from '@/constants/labels';
 
 export default function InstructorProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -38,9 +39,9 @@ export default function InstructorProfileScreen() {
         <UserAvatar size={100} kind="instructor" style={styles.photo} />
         <Text style={[styles.name, { color: colors.text }]}>{instructor.displayName}</Text>
         <View style={styles.meta}>
-          {instructor.verified ? <Badge label="Verified" variant="verified" /> : null}
+          {instructor.verified ? <Badge label={BADGE_LABELS.verified} variant="verified" /> : null}
           {instructor.availableNow ? (
-            <Badge label="Available now" variant="success" />
+            <Badge label={BADGE_LABELS.availableNow} variant="success" />
           ) : null}
         </View>
         <Text style={[styles.rating, { color: colors.textMuted }]}>

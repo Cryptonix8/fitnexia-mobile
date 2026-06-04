@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { Spacing } from '@/constants/fitnexia';
+import { AUTH_LABELS, BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
 
 export default function EditProfileScreen() {
   const { user, updateProfile } = useAuth();
@@ -40,18 +41,18 @@ export default function EditProfileScreen() {
 
   return (
     <Screen scroll>
-      <Header title="Edit profile" showBack />
+      <Header title={SCREEN_TITLES.editProfile} showBack />
       <AvatarPicker uri={avatarUri} onChange={setAvatarUri} size={96} />
-      <Input label="First name" value={firstName} onChangeText={setFirstName} />
-      <Input label="Last name" value={lastName} onChangeText={setLastName} />
+      <Input label={AUTH_LABELS.firstName} value={firstName} onChangeText={setFirstName} />
+      <Input label={AUTH_LABELS.lastName} value={lastName} onChangeText={setLastName} />
       <Input
-        label="Email"
+        label={AUTH_LABELS.email}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
       />
-      <Button title="Save changes" onPress={save} style={{ marginTop: Spacing.md }} />
+      <Button title={BUTTON_LABELS.saveChanges} onPress={save} style={{ marginTop: Spacing.md }} />
     </Screen>
   );
 }

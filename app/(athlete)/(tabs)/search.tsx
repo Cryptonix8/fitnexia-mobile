@@ -14,6 +14,7 @@ import {
   Spacing,
   type ScheduleFilter,
 } from '@/constants/fitnexia';
+import { MODALITY_LABELS } from '@/constants/labels';
 import { useAppTheme } from '@/contexts/theme-context';
 import { useClasses } from '@/contexts/classes-context';
 import { filterClasses, sortClassesByDate } from '@/utils/class-filters';
@@ -152,12 +153,12 @@ export default function SearchScreen() {
           <FilterSection label="Modality" colors={colors}>
             <View style={styles.chipWrap}>
               <FilterChip
-                label="In person"
+                label={MODALITY_LABELS.inPerson}
                 active={modality === 'in_person'}
                 onPress={() => setModality(modality === 'in_person' ? null : 'in_person')}
               />
               <FilterChip
-                label="Online"
+                label={MODALITY_LABELS.online}
                 active={modality === 'online'}
                 onPress={() => setModality(modality === 'online' ? null : 'online')}
               />

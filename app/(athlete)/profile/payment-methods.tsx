@@ -7,6 +7,7 @@ import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useAuth, type PaymentMethod } from '@/contexts/auth-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { SCREEN_TITLES } from '@/constants/labels';
 
 export default function PaymentMethodsScreen() {
   const { user, updateProfile } = useAuth();
@@ -49,7 +50,7 @@ export default function PaymentMethodsScreen() {
 
   return (
     <Screen scroll>
-      <Header title="Payment methods" showBack />
+      <Header title={SCREEN_TITLES.paymentMethods} showBack />
       <Text style={styles.hint}>
         Cards are stored securely by Mercado Pago. This is a mock UI until the API is connected.
       </Text>

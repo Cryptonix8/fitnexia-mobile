@@ -7,6 +7,7 @@ import { Header } from '@/components/ui/header';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { SCREEN_TITLES } from '@/constants/labels';
 
 const CATEGORIES = ['General', 'Booking', 'Payment', 'Account'] as const;
 
@@ -29,7 +30,7 @@ export default function SupportScreen() {
 
   return (
     <Screen scroll>
-      <Header title="Help & support" showBack />
+      <Header title={SCREEN_TITLES.helpSupport} showBack />
       <Text style={styles.hint}>Describe your issue and we will get back to you by email.</Text>
 
       <Text style={styles.label}>Category</Text>

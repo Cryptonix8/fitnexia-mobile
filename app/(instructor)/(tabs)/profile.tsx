@@ -11,6 +11,13 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
+import {
+  ALERT_LABELS,
+  BADGE_LABELS,
+  BUTTON_LABELS,
+  PROFILE_MENU_LABELS,
+  SCREEN_TITLES,
+} from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { formatWeeklyScheduleSummary, defaultWeeklySchedule } from '@/utils/schedule';
 
@@ -27,10 +34,10 @@ export default function InstructorProfileScreen() {
   };
 
   const signOut = () => {
-    Alert.alert('Sign out', 'Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(ALERT_LABELS.signOutTitle, ALERT_LABELS.signOutMessage, [
+      { text: ALERT_LABELS.cancel, style: 'cancel' },
       {
-        text: 'Sign out',
+        text: BUTTON_LABELS.signOut,
         style: 'destructive',
         onPress: () => {
           logout();
@@ -61,9 +68,9 @@ export default function InstructorProfileScreen() {
   return (
     <Screen scroll>
       <View style={styles.headerRow}>
-        <Text style={[styles.screenTitle, { color: colors.text }]}>Profile</Text>
+        <Text style={[styles.screenTitle, { color: colors.text }]}>{SCREEN_TITLES.profile}</Text>
         <Pressable onPress={() => router.push('/(instructor)/profile/edit')} hitSlop={8}>
-          <Text style={[styles.editLink, { color: colors.primary }]}>Edit</Text>
+          <Text style={[styles.editLink, { color: colors.primary }]}>{BUTTON_LABELS.edit}</Text>
         </Pressable>
       </View>
 
@@ -73,8 +80,8 @@ export default function InstructorProfileScreen() {
           <Text style={[styles.name, { color: colors.text }]}>{profile.displayName}</Text>
           <Text style={[styles.email, { color: colors.textMuted }]}>{user.email}</Text>
           <View style={styles.badges}>
-            {profile.verified ? <Badge label="Verified" variant="verified" /> : null}
-            {profile.availableNow ? <Badge label="Available now" variant="success" /> : null}
+            {profile.verified ? <Badge label={BADGE_LABELS.verified} variant="verified" /> : null}
+            {profile.availableNow ? <Badge label={BADGE_LABELS.availableNow} variant="success" /> : null}
           </View>
         </View>
       </View>
@@ -103,37 +110,37 @@ export default function InstructorProfileScreen() {
 
       <ProfileMenuItem
         icon="calendar-outline"
-        label="Schedule & availability"
+        label={PROFILE_MENU_LABELS.scheduleAvailability}
         value={scheduleLabel}
         onPress={() => router.push('/(instructor)/profile/availability')}
       />
       <ProfileMenuItem
         icon="school-outline"
-        label="Certifications"
+        label={PROFILE_MENU_LABELS.certifications}
         value={certificationsLabel}
         onPress={() => router.push('/(instructor)/profile/certifications')}
       />
       <ProfileMenuItem
         icon="fitness-outline"
-        label="Disciplines"
+        label={PROFILE_MENU_LABELS.disciplines}
         value={disciplinesLabel}
         onPress={() => router.push('/(instructor)/profile/edit')}
       />
       <ProfileMenuItem
         icon="ribbon-outline"
-        label="Plan & commission"
+        label={PROFILE_MENU_LABELS.planCommission}
         value="Pro · 8%"
         onPress={() => router.push('/(instructor)/profile/plan')}
       />
       <ProfileMenuItem
         icon="notifications-outline"
-        label="Notifications"
+        label={PROFILE_MENU_LABELS.notifications}
         onPress={() => router.push('/(instructor)/profile/notifications')}
       />
       {showPaymentMethods ? (
         <ProfileMenuItem
           icon="card-outline"
-          label="Payout account"
+          label={PROFILE_MENU_LABELS.payoutAccount}
           value={
             user.paymentMethods.length
               ? `${user.paymentMethods.length} saved`
@@ -145,12 +152,12 @@ export default function InstructorProfileScreen() {
       {showSupport ? (
         <ProfileMenuItem
           icon="help-circle-outline"
-          label="Help & support"
+          label={PROFILE_MENU_LABELS.helpSupport}
           onPress={() => router.push('/(instructor)/profile/support')}
         />
       ) : null}
 
-      <Button title="Sign out" variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
+      <Button title={BUTTON_LABELS.signOut} variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
     </Screen>
   );
 }

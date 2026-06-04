@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { Spacing } from '@/constants/fitnexia';
+import { AUTH_LABELS, BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
 
 export default function GymEditProfileScreen() {
   const { user, updateProfile } = useAuth();
@@ -45,16 +46,16 @@ export default function GymEditProfileScreen() {
 
   return (
     <Screen scroll>
-      <Header title="Edit profile" showBack />
+      <Header title={SCREEN_TITLES.editProfile} showBack />
       <AvatarPicker
         uri={avatarUri}
         onChange={setAvatarUri}
         size={96}
         kind="institution"
-        label="Logo / photo"
+        label={AUTH_LABELS.logoPhoto}
       />
-      <Input label="Gym / school name" value={name} onChangeText={setName} />
-      <Input label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
+      <Input label={AUTH_LABELS.gymSchoolName} value={name} onChangeText={setName} />
+      <Input label={AUTH_LABELS.email} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
       <Input
         label="Description"
         value={description}

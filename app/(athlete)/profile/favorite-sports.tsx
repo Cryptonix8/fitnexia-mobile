@@ -7,6 +7,7 @@ import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { SCREEN_TITLES } from '@/constants/labels';
 
 export default function FavoriteSportsScreen() {
   const { user, updateProfile } = useAuth();
@@ -27,7 +28,7 @@ export default function FavoriteSportsScreen() {
 
   return (
     <Screen scroll>
-      <Header title="Favorite sports" showBack />
+      <Header title={SCREEN_TITLES.favoriteSports} showBack />
       <Text style={styles.hint}>Select sports you enjoy. We use this to personalize your feed.</Text>
       <View style={styles.grid}>
         {DISCIPLINES.map((sport) => {

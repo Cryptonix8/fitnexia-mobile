@@ -15,6 +15,14 @@ import {
 import { useClasses } from '@/contexts/classes-context';
 import { useFeature } from '@/hooks/use-feature';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import {
+  BADGE_LABELS,
+  BUTTON_LABELS,
+  CLASS_DETAIL_LABELS,
+  SCREEN_TITLES,
+  classSpotsLabel,
+  modalityBadgeLabel,
+} from '@/constants/labels';
 
 export default function ClassDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -27,55 +35,49 @@ export default function ClassDetailScreen() {
   if (!cls) {
     return (
       <Screen>
-        <Header title="Class" showBack />
-        <Text>Class not found</Text>
+        <Header title={SCREEN_TITLES.class} showBack />
+        <Text>{SCREEN_TITLES.classNotFound}</Text>
       </Screen>
     );
   }
 
   const full = cls.spotsLeft === 0;
   const onlineLabel = liveStreaming
-    ? 'Live stream on Fitnexia'
-    : 'Online session (link shared after booking)';
+    ? CLASS_DETAIL_LABELS.liveStream
+    : CLASS_DETAIL_LABELS.onlineSessionLink;
 
   return (
     <Screen scroll>
-      <Header title="Class details" showBack />
+      <Header title={SCREEN_TITLES.classDetails} showBack />
       <View style={styles.hero}>
         <Text style={styles.title}>{cls.title}</Text>
         <View style={styles.tags}>
           <Badge label={cls.discipline} />
           <Badge
-            label={cls.modality === 'online' ? 'Online' : 'In person'}
+            label={modalityBadgeLabel(cls.modality)}
             variant="success"
           />
         </View>
       </View>
 
       <View style={styles.card}>
-        <Row icon="calendar-outline" label="When" value={formatClassDate(cls.startAt)} />
-        <Row icon="time-outline" label="Duration" value={`${cls.durationMinutes} min`} />
+        <Row icon="calendar-outline" label={CLASS_DETAIL_LABELS.when} value={formatClassDate(cls.startAt)} />
+        <Row icon="time-outline" label={CLASS_DETAIL_LABELS.duration} value={`${cls.durationMinutes} min`} />
         <Row
           icon="location-outline"
-          label="Where"
+          label={CLASS_DETAIL_LABELS.where}
           value={
             cls.modality === 'online'
               ? onlineLabel
-              : (cls.location?.label ?? 'TBD')
+              : (cls.location?.label ?? CLASS_DETAIL_LABELS.locationTbd)
           }
         />
-        <Row icon="cash-outline" label="Price" value={formatMoney(cls.price)} />
+        <Row icon="cash-outline" label={CLASS_DETAIL_LABELS.price} value={formatMoney(cls.price)} />
         {cls.capacity ? (
           <Row
             icon="people-outline"
-            label="Spots"
-            value={
-              full
-                ? waitlistEnabled
-                  ? 'Full — waitlist available'
-                  : 'Full'
-                : `${cls.spotsLeft} of ${cls.capacity} left`
-            }
+            label={CLASS_DETAIL_LABELS.spots}
+            value={classSpotsLabel(cls.spotsLeft ?? 0, cls.capacity ?? 0, { waitlistEnabled })}
           />
         ) : null}
       </View>
@@ -87,7 +89,7 @@ export default function ClassDetailScreen() {
         onPress={() => router.push(`/instructor/${cls.instructor.id}`)}
       />
 
-      <Text style={styles.section}>About</Text>
+      <Text style={styles.section}>{CLASS_DETAIL_LABELS.about}</Text>
       <Text style={styles.desc}>
         Join {cls.instructor.displayName} for an engaging {cls.discipline.toLowerCase()} session.
         Suitable for all levels. Bring water and comfortable gear.
@@ -96,15 +98,15 @@ export default function ClassDetailScreen() {
       {full ? (
         waitlistEnabled ? (
           <Button
-            title="Join waiting list"
+            title={BUTTON_LABELS.joinWaitlist}
             variant="secondary"
             onPress={() => router.push(`/book/${cls.id}?waitlist=1`)}
           />
         ) : (
-          <Button title="Class full" disabled />
+          <Button title={BUTTON_LABELS.classFull} disabled />
         )
       ) : (
-        <Button title="Book now" onPress={() => router.push(`/book/${cls.id}`)} />
+        <Button title={BUTTON_LABELS.bookNow} onPress={() => router.push(`/book/${cls.id}`)} />
       )}
     </Screen>
   );
@@ -146,12 +148,12 @@ function PressableInstructor({
       <UserAvatar size={56} kind="instructor" />
       <View style={{ flex: 1 }}>
         <Text style={styles.instructorName}>{name}</Text>
-        {verified ? <Badge label="Verified" variant="verified" /> : null}
+        {verified ? <Badge label={BADGE_LABELS.verified} variant="verified" /> : null}
         {rating ? (
           <Text style={styles.rating}>★ {rating.toFixed(1)}</Text>
         ) : null}
       </View>
-      <Button title="Profile" variant="ghost" size="sm" onPress={onPress} />
+      <Button title={BUTTON_LABELS.viewProfile} variant="ghost" size="sm" onPress={onPress} />
     </View>
   );
 }

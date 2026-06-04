@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
+import { MODALITY_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { getInstitutionById } from '@/data/mock';
 import {
@@ -268,12 +269,12 @@ export default function CreateClassScreen() {
       <Text style={[styles.label, { color: colors.textSecondary }]}>Modality</Text>
       <View style={styles.row}>
         <FilterChip
-          label="In person"
+          label={MODALITY_LABELS.inPerson}
           active={modality === 'in_person'}
           onPress={() => setModality('in_person')}
         />
         <FilterChip
-          label="Online"
+          label={MODALITY_LABELS.online}
           active={modality === 'online'}
           onPress={() => setModality('online')}
         />

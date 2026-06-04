@@ -19,6 +19,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { updateMockInstructor } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { PROFILE_MENU_LABELS } from '@/constants/labels';
 import { getLinkedInstructorId } from '@/utils/instructor';
 import type { Certification } from '@/types/api';
 
@@ -136,7 +137,7 @@ export default function InstructorCertificationsScreen() {
   if (!profile) {
     return (
       <Screen>
-        <Header title="Certifications" showBack />
+        <Header title={PROFILE_MENU_LABELS.certifications} showBack />
         <Text style={{ color: colors.text }}>Profile not available</Text>
       </Screen>
     );
@@ -145,7 +146,7 @@ export default function InstructorCertificationsScreen() {
   return (
     <Screen scroll>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <Header title="Certifications" showBack />
+        <Header title={PROFILE_MENU_LABELS.certifications} showBack />
         <Text style={[styles.hint, { color: colors.textMuted }]}>
           Add professional credentials shown on your public profile.
         </Text>

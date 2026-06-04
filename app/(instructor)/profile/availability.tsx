@@ -10,6 +10,7 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { PROFILE_MENU_LABELS } from '@/constants/labels';
 import type { WeeklyDaySchedule } from '@/types/api';
 import {
   dateToTimeString,
@@ -33,7 +34,7 @@ export default function InstructorAvailabilityScreen() {
   if (!profile) {
     return (
       <Screen>
-        <Header title="Schedule & availability" showBack />
+        <Header title={PROFILE_MENU_LABELS.scheduleAvailability} showBack />
         <Text>Profile not available</Text>
       </Screen>
     );
@@ -77,7 +78,7 @@ export default function InstructorAvailabilityScreen() {
 
   return (
     <Screen scroll>
-      <Header title="Schedule & availability" showBack />
+      <Header title={PROFILE_MENU_LABELS.scheduleAvailability} showBack />
 
       <Text style={[styles.sectionTitle, { color: colors.text }]}>Available now</Text>
       <Text style={[styles.sectionHint, { color: colors.textMuted }]}>

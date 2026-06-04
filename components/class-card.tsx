@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { UserAvatar } from '@/components/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { BADGE_LABELS, CLASS_CARD_LABELS, modalityLocationLabel } from '@/constants/labels';
 import { useAppTheme } from '@/contexts/theme-context';
 import { formatClassDate, formatMoney } from '@/data/mock';
 import type { ClassListItem } from '@/types/api';
@@ -30,7 +31,7 @@ export function ClassCard({ item, compact }: { item: ClassListItem; compact?: bo
           <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
             {item.title}
           </Text>
-          {full ? <Badge label="Full" variant="warning" /> : null}
+          {full ? <Badge label={BADGE_LABELS.full} variant="warning" /> : null}
         </View>
         <Text style={[styles.meta, { color: colors.textMuted }]}>
           {item.discipline} · {formatClassDate(item.startAt)}
@@ -49,12 +50,12 @@ export function ClassCard({ item, compact }: { item: ClassListItem; compact?: bo
               color={colors.textMuted}
             />
             <Text style={[styles.tagText, { color: colors.textMuted }]}>
-              {item.modality === 'online' ? 'Online' : item.location?.label ?? 'In person'}
+              {modalityLocationLabel(item.modality, item.location?.label)}
             </Text>
           </View>
           {item.spotsLeft != null && !full ? (
             <Text style={[styles.spots, { color: colors.primary }]}>
-              {item.spotsLeft} spots left
+              {CLASS_CARD_LABELS.spotsLeft(item.spotsLeft)}
             </Text>
           ) : null}
         </View>

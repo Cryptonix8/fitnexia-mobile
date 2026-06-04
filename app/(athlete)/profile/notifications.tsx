@@ -8,6 +8,7 @@ import { Screen } from '@/components/ui/screen';
 import { DEFAULT_NOTIFICATIONS, useAuth, type NotificationPreferences } from '@/contexts/auth-context';
 import { isNotificationPrefVisible } from '@/constants/features';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
 
 const ALL_ITEMS: { key: keyof NotificationPreferences; label: string; desc: string }[] = [
   { key: 'bookingConfirmed', label: 'Booking confirmations', desc: 'When a class is booked or cancelled' },
@@ -36,7 +37,7 @@ export default function NotificationsScreen() {
 
   return (
     <Screen scroll>
-      <Header title="Notifications" showBack />
+      <Header title={SCREEN_TITLES.notifications} showBack />
       <Text style={styles.hint}>Choose what you want to receive by push and email.</Text>
       {ALL_ITEMS.filter((item) => isNotificationPrefVisible(item.key)).map((item) => (
         <View key={item.key} style={styles.row}>
@@ -52,7 +53,7 @@ export default function NotificationsScreen() {
           />
         </View>
       ))}
-      <Button title="Save" onPress={save} style={{ marginTop: Spacing.lg }} />
+      <Button title={BUTTON_LABELS.save} onPress={save} style={{ marginTop: Spacing.lg }} />
     </Screen>
   );
 }

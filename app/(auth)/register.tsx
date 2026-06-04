@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
 import type { UserRole } from '@/types/api';
 
 export default function RegisterScreen() {
@@ -39,11 +40,11 @@ export default function RegisterScreen() {
 
   const submit = async () => {
     if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
-      Alert.alert('Missing info', 'Please fill in all fields.');
+      Alert.alert(ALERT_LABELS.missingInfoTitle, ALERT_LABELS.fillAllFields);
       return;
     }
     if (role === 'institution' && !institutionName.trim()) {
-      Alert.alert('Missing info', 'Gym / school name is required.');
+      Alert.alert(ALERT_LABELS.missingInfoTitle, ALERT_LABELS.gymNameRequired);
       return;
     }
     setLoading(true);
@@ -70,9 +71,11 @@ export default function RegisterScreen() {
       <Pressable onPress={() => (step === 1 ? router.back() : setStep(1))}>
         <Text style={styles.back}>← Back</Text>
       </Pressable>
-      <Text style={styles.title}>{step === 1 ? 'Choose your profile' : 'Create account'}</Text>
+      <Text style={styles.title}>
+        {step === 1 ? AUTH_LABELS.chooseProfile : AUTH_LABELS.createAccount}
+      </Text>
       <Text style={styles.sub}>
-        {step === 1 ? 'How will you use Fitnexia?' : 'Complete your basic profile'}
+        {step === 1 ? AUTH_LABELS.howWillYouUse : AUTH_LABELS.completeProfile}
       </Text>
 
       {step === 1 ? (
@@ -88,7 +91,7 @@ export default function RegisterScreen() {
             selected={role === 'institution'}
             onPress={() => setRole('institution')}
           />
-          <Button title="Continue" onPress={() => setStep(2)} />
+          <Button title={BUTTON_LABELS.continue} onPress={() => setStep(2)} />
         </>
       ) : (
         <>
@@ -97,27 +100,27 @@ export default function RegisterScreen() {
             onChange={setAvatarUri}
             size={96}
             kind={role === 'institution' ? 'institution' : role === 'instructor' ? 'instructor' : 'user'}
-            label={role === 'institution' ? 'Logo / photo' : 'Profile photo'}
+            label={role === 'institution' ? AUTH_LABELS.logoPhoto : AUTH_LABELS.profilePhoto}
           />
           {role === 'institution' ? (
             <Input
-              label="Gym / school name"
+              label={AUTH_LABELS.gymSchoolName}
               value={institutionName}
               onChangeText={setInstitutionName}
-              placeholder="Your facility name"
+              placeholder={AUTH_LABELS.gymSchoolPlaceholder}
             />
           ) : null}
-          <Input label="First name" value={firstName} onChangeText={setFirstName} />
-          <Input label="Last name" value={lastName} onChangeText={setLastName} />
+          <Input label={AUTH_LABELS.firstName} value={firstName} onChangeText={setFirstName} />
+          <Input label={AUTH_LABELS.lastName} value={lastName} onChangeText={setLastName} />
           <Input
-            label="Email"
+            label={AUTH_LABELS.email}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
           />
           <Input
-            label="Password"
+            label={AUTH_LABELS.password}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -161,7 +164,7 @@ export default function RegisterScreen() {
             </>
           ) : null}
 
-          <Button title="Create account" loading={loading} onPress={submit} />
+          <Button title={BUTTON_LABELS.createAccount} loading={loading} onPress={submit} />
         </>
       )}
     </Screen>

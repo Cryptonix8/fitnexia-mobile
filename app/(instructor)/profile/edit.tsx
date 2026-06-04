@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { SCREEN_TITLES } from '@/constants/labels';
 
 export default function InstructorEditProfileScreen() {
   const { user, updateProfile } = useAuth();
@@ -49,7 +50,7 @@ export default function InstructorEditProfileScreen() {
 
   return (
     <Screen scroll>
-      <Header title="Edit profile" showBack />
+      <Header title={SCREEN_TITLES.editProfile} showBack />
       <AvatarPicker uri={avatarUri} onChange={setAvatarUri} size={96} kind="instructor" />
       <Input label="Display name" value={displayName} onChangeText={setDisplayName} />
       <Input label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />

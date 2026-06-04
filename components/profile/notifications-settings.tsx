@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { DEFAULT_NOTIFICATIONS, useAuth, type NotificationPreferences } from '@/contexts/auth-context';
 import { isNotificationPrefVisible } from '@/constants/features';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { BUTTON_LABELS } from '@/constants/labels';
 
 const ALL_ITEMS: { key: keyof NotificationPreferences; label: string; desc: string }[] = [
   { key: 'bookingConfirmed', label: 'Booking confirmations', desc: 'When someone books or cancels' },
@@ -49,7 +50,7 @@ export function NotificationsSettings() {
           />
         </View>
       ))}
-      <Button title="Save" onPress={save} style={{ marginTop: Spacing.lg }} />
+      <Button title={BUTTON_LABELS.save} onPress={save} style={{ marginTop: Spacing.lg }} />
     </>
   );
 }
