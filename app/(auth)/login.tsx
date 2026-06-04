@@ -64,13 +64,6 @@ export default function LoginScreen() {
         </Pressable>
       ) : null}
 
-      <Text style={styles.demoLabel}>Quick demo (mock)</Text>
-      <View style={styles.demoRow}>
-        <Button title="Athlete" variant="outline" size="sm" onPress={() => handleLogin('athlete')} />
-        <Button title="Coach" variant="outline" size="sm" onPress={() => handleLogin('instructor')} />
-        <Button title="Gym" variant="outline" size="sm" onPress={() => handleLogin('institution')} />
-      </View>
-
       <View style={styles.footer}>
         <Text style={styles.footerText}>New here? </Text>
         <Pressable onPress={() => router.push('/(auth)/register')}>
