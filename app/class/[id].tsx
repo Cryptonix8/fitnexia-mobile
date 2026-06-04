@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
+import { isFeatureEnabled } from '@/constants/features';
 import {
   formatClassDate,
   formatMoney,
@@ -20,6 +21,8 @@ export default function ClassDetailScreen() {
   const { getClassById } = useClasses();
   const cls = getClassById(id ?? '');
   const instructor = cls ? getInstructorById(cls.instructor.id) : undefined;
+  const waitlistEnabled = isFeatureEnabled('waitlist');
+  const streamingEnabled = isFeatureEnabled('liveStreaming');
 
   if (!cls) {
     return (
@@ -31,6 +34,19 @@ export default function ClassDetailScreen() {
   }
 
   const full = cls.spotsLeft === 0;
+
+  const whereLabel =
+    cls.modality === 'online'
+      ? streamingEnabled
+        ? 'Live stream on Fitnexia'
+        : 'Online session'
+      : (cls.location?.label ?? 'TBD');
+
+  const spotsLabel = full
+    ? waitlistEnabled
+      ? 'Full — waitlist available'
+      : 'Full'
+    : `${cls.spotsLeft} of ${cls.capacity} left`;
 
   return (
     <Screen scroll>
@@ -49,22 +65,10 @@ export default function ClassDetailScreen() {
       <View style={styles.card}>
         <Row icon="calendar-outline" label="When" value={formatClassDate(cls.startAt)} />
         <Row icon="time-outline" label="Duration" value={`${cls.durationMinutes} min`} />
-        <Row
-          icon="location-outline"
-          label="Where"
-          value={
-            cls.modality === 'online'
-              ? 'Live stream on Fitnexia'
-              : (cls.location?.label ?? 'TBD')
-          }
-        />
+        <Row icon="location-outline" label="Where" value={whereLabel} />
         <Row icon="cash-outline" label="Price" value={formatMoney(cls.price)} />
         {cls.capacity ? (
-          <Row
-            icon="people-outline"
-            label="Spots"
-            value={full ? 'Full — waitlist available' : `${cls.spotsLeft} of ${cls.capacity} left`}
-          />
+          <Row icon="people-outline" label="Spots" value={spotsLabel} />
         ) : null}
       </View>
 
@@ -82,11 +86,15 @@ export default function ClassDetailScreen() {
       </Text>
 
       {full ? (
-        <Button
-          title="Join waiting list"
-          variant="secondary"
-          onPress={() => router.push(`/book/${cls.id}?waitlist=1`)}
-        />
+        waitlistEnabled ? (
+          <Button
+            title="Join waiting list"
+            variant="secondary"
+            onPress={() => router.push(`/book/${cls.id}?waitlist=1`)}
+          />
+        ) : (
+          <Button title="Class full" disabled />
+        )
       ) : (
         <Button title="Book now" onPress={() => router.push(`/book/${cls.id}`)} />
       )}

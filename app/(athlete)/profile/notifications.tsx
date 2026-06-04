@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { DEFAULT_NOTIFICATIONS, useAuth, type NotificationPreferences } from '@/contexts/auth-context';
+import { isNotificationPrefVisible } from '@/constants/features';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 
 const ITEMS: { key: keyof NotificationPreferences; label: string; desc: string }[] = [
@@ -37,7 +38,7 @@ export default function NotificationsScreen() {
     <Screen scroll>
       <Header title="Notifications" showBack />
       <Text style={styles.hint}>Choose what you want to receive by push and email.</Text>
-      {ITEMS.map((item) => (
+      {ITEMS.filter((item) => isNotificationPrefVisible(item.key)).map((item) => (
         <View key={item.key} style={styles.row}>
           <View style={styles.rowText}>
             <Text style={styles.label}>{item.label}</Text>

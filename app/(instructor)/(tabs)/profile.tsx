@@ -11,6 +11,7 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
+import { isFeatureEnabled } from '@/constants/features';
 import { formatWeeklyScheduleSummary, defaultWeeklySchedule } from '@/utils/schedule';
 
 export default function InstructorProfileScreen() {
@@ -44,6 +45,9 @@ export default function InstructorProfileScreen() {
       </Screen>
     );
   }
+
+  const showPayments = isFeatureEnabled('integratedPayments');
+  const showSupport = isFeatureEnabled('platformSupport');
 
   const disciplinesLabel =
     profile.disciplines.length > 0 ? profile.disciplines.join(', ') : 'None selected';
@@ -127,21 +131,25 @@ export default function InstructorProfileScreen() {
         label="Notifications"
         onPress={() => router.push('/(instructor)/profile/notifications')}
       />
-      <ProfileMenuItem
-        icon="card-outline"
-        label="Payout account"
-        value={
-          user.paymentMethods.length
-            ? `${user.paymentMethods.length} saved`
-            : 'None added'
-        }
-        onPress={() => router.push('/(instructor)/profile/payment-methods')}
-      />
-      <ProfileMenuItem
-        icon="help-circle-outline"
-        label="Help & support"
-        onPress={() => router.push('/(instructor)/profile/support')}
-      />
+      {showPayments ? (
+        <ProfileMenuItem
+          icon="card-outline"
+          label="Payout account"
+          value={
+            user.paymentMethods.length
+              ? `${user.paymentMethods.length} saved`
+              : 'None added'
+          }
+          onPress={() => router.push('/(instructor)/profile/payment-methods')}
+        />
+      ) : null}
+      {showSupport ? (
+        <ProfileMenuItem
+          icon="help-circle-outline"
+          label="Help & support"
+          onPress={() => router.push('/(instructor)/profile/support')}
+        />
+      ) : null}
 
       <Button title="Sign out" variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
     </Screen>
