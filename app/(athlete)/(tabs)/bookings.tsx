@@ -1,65 +1,140 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { BookingsCalendar } from '@/components/bookings-calendar';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
-import {
-  formatClassDate,
-  formatMoney,
-  MOCK_BOOKINGS,
-} from '@/data/mock';
 import { useClasses } from '@/contexts/classes-context';
-import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
+import { Radius, Spacing } from '@/constants/fitnexia';
+import { formatClassDate, formatMoney, MOCK_BOOKINGS } from '@/data/mock';
+import type { Booking, ClassListItem } from '@/types/api';
+import { startOfMonth, toDateKey } from '@/utils/calendar';
+import { isSameCalendarDay } from '@/utils/schedule';
+
+type BookingEntry = {
+  booking: Booking;
+  cls: ClassListItem;
+  startAt: Date;
+};
+
+function buildEntries(
+  bookings: Booking[],
+  getClassById: (id: string) => ClassListItem | undefined,
+): BookingEntry[] {
+  return bookings
+    .map((booking) => {
+      const cls = getClassById(booking.classId);
+      if (!cls) return null;
+      return { booking, cls, startAt: new Date(cls.startAt) };
+    })
+    .filter((e): e is BookingEntry => e !== null)
+    .sort((a, b) => a.startAt.getTime() - b.startAt.getTime());
+}
 
 export default function BookingsScreen() {
   const { getClassById } = useClasses();
+  const { colors } = useAppTheme();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [month, setMonth] = useState(() => startOfMonth(new Date()));
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  });
 
   const upcoming = MOCK_BOOKINGS.filter((b) => b.status === 'confirmed');
   const past = MOCK_BOOKINGS.filter((b) => b.status === 'completed');
-  const list = tab === 'upcoming' ? upcoming : past;
+  const tabBookings = tab === 'upcoming' ? upcoming : past;
+
+  const entries = useMemo(
+    () => buildEntries(tabBookings, getClassById),
+    [tabBookings, getClassById],
+  );
+
+  const markedDateKeys = useMemo(() => {
+    const keys = new Set<string>();
+    for (const entry of entries) {
+      keys.add(toDateKey(entry.startAt));
+    }
+    return keys;
+  }, [entries]);
+
+  const dayEntries = useMemo(
+    () => entries.filter((e) => isSameCalendarDay(e.startAt, selectedDate)),
+    [entries, selectedDate],
+  );
+
+  const selectedLabel = selectedDate.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
 
   return (
     <Screen scroll>
-      <Text style={styles.title}>My bookings</Text>
-      <View style={styles.tabs}>
+      <Text style={[styles.title, { color: colors.text }]}>My bookings</Text>
+      <View style={[styles.tabs, { backgroundColor: colors.surfaceMuted }]}>
         <Tab label="Upcoming" active={tab === 'upcoming'} onPress={() => setTab('upcoming')} />
         <Tab label="History" active={tab === 'past'} onPress={() => setTab('past')} />
       </View>
 
-      {list.length === 0 ? (
-        <Text style={styles.empty}>No bookings yet. Explore classes to book!</Text>
+      <BookingsCalendar
+        month={month}
+        onMonthChange={setMonth}
+        selectedDate={selectedDate}
+        onSelectDate={setSelectedDate}
+        markedDateKeys={markedDateKeys}
+      />
+
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>{selectedLabel}</Text>
+
+      {entries.length === 0 ? (
+        <Text style={[styles.empty, { color: colors.textMuted }]}>
+          No {tab === 'upcoming' ? 'upcoming' : 'past'} bookings yet. Explore classes to book!
+        </Text>
+      ) : dayEntries.length === 0 ? (
+        <Text style={[styles.empty, { color: colors.textMuted }]}>
+          No bookings on this day. Select a highlighted date or switch tabs.
+        </Text>
       ) : (
-        list.map((b) => {
-          const cls = getClassById(b.classId);
-          if (!cls) return null;
-          return (
-            <View key={b.id} style={styles.card}>
-              <Text style={styles.cardTitle}>{cls.title}</Text>
-              <Text style={styles.meta}>{formatClassDate(cls.startAt)}</Text>
-              <Text style={styles.meta}>{cls.instructor.displayName}</Text>
-              <View style={styles.row}>
-                <Text style={styles.price}>{formatMoney(b.price)}</Text>
-                <View style={[styles.badge, b.status === 'completed' && styles.badgeDone]}>
-                  <Text style={styles.badgeText}>{b.status}</Text>
-                </View>
+        dayEntries.map(({ booking, cls }) => (
+          <View
+            key={booking.id}
+            style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>{cls.title}</Text>
+            <Text style={[styles.meta, { color: colors.textMuted }]}>
+              {formatClassDate(cls.startAt)}
+            </Text>
+            <Text style={[styles.meta, { color: colors.textMuted }]}>
+              {cls.instructor.displayName}
+            </Text>
+            <View style={styles.row}>
+              <Text style={[styles.price, { color: colors.primary }]}>{formatMoney(booking.price)}</Text>
+              <View
+                style={[
+                  styles.badge,
+                  { backgroundColor: colors.primaryMuted },
+                  booking.status === 'completed' && { backgroundColor: colors.surfaceMuted },
+                ]}>
+                <Text style={[styles.badgeText, { color: colors.primaryText }]}>{booking.status}</Text>
               </View>
-              {b.status === 'completed' ? (
-                <Button
-                  title="Leave a review"
-                  variant="outline"
-                  size="sm"
-                  onPress={() => router.push(`/review/${b.id}`)}
-                />
-              ) : (
-                <Pressable onPress={() => router.push(`/class/${cls.id}`)}>
-                  <Text style={styles.link}>View class</Text>
-                </Pressable>
-              )}
             </View>
-          );
-        })
+            {booking.status === 'completed' ? (
+              <Button
+                title="Leave a review"
+                variant="outline"
+                size="sm"
+                onPress={() => router.push(`/review/${booking.id}`)}
+              />
+            ) : (
+              <Pressable onPress={() => router.push(`/class/${cls.id}`)}>
+                <Text style={[styles.link, { color: colors.primary }]}>View class</Text>
+              </Pressable>
+            )}
+          </View>
+        ))
       )}
     </Screen>
   );
@@ -74,9 +149,15 @@ function Tab({
   active: boolean;
   onPress: () => void;
 }) {
+  const { colors } = useAppTheme();
+
   return (
-    <Pressable style={[styles.tab, active && styles.tabActive]} onPress={onPress}>
-      <Text style={[styles.tabText, active && styles.tabTextActive]}>{label}</Text>
+    <Pressable
+      style={[styles.tab, active && { backgroundColor: colors.surface }]}
+      onPress={onPress}>
+      <Text style={[styles.tabText, { color: colors.textMuted }, active && { color: colors.primary }]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -85,29 +166,30 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: FitnexiaColors.gray900,
     marginBottom: Spacing.md,
   },
   tabs: {
     flexDirection: 'row',
-    backgroundColor: FitnexiaColors.gray100,
     borderRadius: Radius.md,
     padding: 4,
     marginBottom: Spacing.lg,
   },
   tab: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: Radius.sm },
-  tabActive: { backgroundColor: FitnexiaColors.white },
-  tabText: { fontWeight: '600', color: FitnexiaColors.gray500 },
-  tabTextActive: { color: FitnexiaColors.primary },
-  empty: { textAlign: 'center', color: FitnexiaColors.gray500, marginTop: Spacing.xl },
+  tabText: { fontWeight: '600' },
+  sectionTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    marginBottom: Spacing.md,
+  },
+  empty: { textAlign: 'center', marginTop: Spacing.sm, marginBottom: Spacing.xl, lineHeight: 22 },
   card: {
-    backgroundColor: FitnexiaColors.white,
     borderRadius: Radius.lg,
+    borderWidth: 1,
     padding: Spacing.md,
     marginBottom: Spacing.md,
   },
-  cardTitle: { fontSize: 17, fontWeight: '700', color: FitnexiaColors.gray900 },
-  meta: { fontSize: 14, color: FitnexiaColors.gray500, marginTop: 4 },
+  cardTitle: { fontSize: 17, fontWeight: '700' },
+  meta: { fontSize: 14, marginTop: 4 },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -115,14 +197,12 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     marginBottom: Spacing.sm,
   },
-  price: { fontSize: 16, fontWeight: '700', color: FitnexiaColors.primary },
+  price: { fontSize: 16, fontWeight: '700' },
   badge: {
-    backgroundColor: FitnexiaColors.primaryLight,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: Radius.full,
   },
-  badgeDone: { backgroundColor: FitnexiaColors.gray100 },
-  badgeText: { fontSize: 12, fontWeight: '600', color: FitnexiaColors.primaryDark },
-  link: { color: FitnexiaColors.primary, fontWeight: '600' },
+  badgeText: { fontSize: 12, fontWeight: '600' },
+  link: { fontWeight: '600' },
 });
