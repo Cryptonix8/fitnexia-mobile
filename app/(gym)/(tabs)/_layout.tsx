@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
 import { HapticTab } from '@/components/haptic-tab';
+import { isFeatureEnabled } from '@/constants/features';
 import { useTabBarOptions } from '@/hooks/use-tab-bar-options';
 
 export default function GymTabs() {
@@ -38,6 +39,7 @@ export default function GymTabs() {
         name="metrics"
         options={{
           title: 'Metrics',
+          href: isFeatureEnabled('gymMetrics') ? undefined : null,
           tabBarIcon: ({ color, size }) => <Ionicons name="analytics" size={size} color={color} />,
         }}
       />

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { isFeatureEnabled } from '@/constants/features';
 import type { UserRole } from '@/types/api';
 
 export default function LoginScreen() {
@@ -52,12 +53,14 @@ export default function LoginScreen() {
 
       <Button title="Sign in" loading={loading} onPress={() => handleLogin()} />
 
-      <Pressable
-        style={styles.google}
-        onPress={() => Alert.alert('Google Sign-In', 'Connect when backend is ready.')}>
-        <Ionicons name="logo-google" size={20} color={FitnexiaColors.gray700} />
-        <Text style={styles.googleText}>Continue with Google</Text>
-      </Pressable>
+      {isFeatureEnabled('googleSignIn') ? (
+        <Pressable
+          style={styles.google}
+          onPress={() => Alert.alert('Google Sign-In', 'Connect when backend is ready.')}>
+          <Ionicons name="logo-google" size={20} color={FitnexiaColors.gray700} />
+          <Text style={styles.googleText}>Continue with Google</Text>
+        </Pressable>
+      ) : null}
 
       <Text style={styles.demoLabel}>Quick demo (mock)</Text>
       <View style={styles.demoRow}>

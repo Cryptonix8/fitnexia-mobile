@@ -647,6 +647,8 @@ Shared TypeScript types for clients: see `types/api.ts` when added to the repo.
 
 ## 19. MVP scope
 
+See also **[MVP.md](./MVP.md)** for mobile feature flags (`constants/features.ts`).
+
 | In MVP | Post-MVP |
 |--------|----------|
 | Auth, profiles, search, classes CRUD | Live streaming `/stream` |

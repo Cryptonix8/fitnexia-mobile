@@ -9,13 +9,15 @@ import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
-import { MOCK_CREDITS } from '@/data/mock';
+import { isFeatureEnabled } from '@/constants/features';
 import { Radius, Spacing } from '@/constants/fitnexia';
 
 export default function AthleteProfileScreen() {
   const { user, logout } = useAuth();
   const { colors } = useAppTheme();
-  const credits = MOCK_CREDITS;
+  const showCredits = isFeatureEnabled('loyaltyCredits');
+  const showPayments = isFeatureEnabled('integratedPayments');
+  const showSupport = isFeatureEnabled('platformSupport');
 
   const favoriteSportsLabel =
     user?.favoriteSports.length ? user.favoriteSports.join(', ') : 'None selected';
@@ -53,21 +55,17 @@ export default function AthleteProfileScreen() {
         </View>
       </View>
 
-      <View style={[styles.creditsCard, { backgroundColor: colors.surface }]}>
-        <View style={styles.creditsTop}>
-          <Ionicons name="gift" size={24} color={colors.primary} />
-          <Text style={[styles.creditsTitle, { color: colors.text }]}>Loyalty credits</Text>
+      {showCredits ? (
+        <View style={[styles.creditsCard, { backgroundColor: colors.surface }]}>
+          <View style={styles.creditsTop}>
+            <Ionicons name="gift" size={24} color={colors.primary} />
+            <Text style={[styles.creditsTitle, { color: colors.text }]}>Loyalty credits</Text>
+          </View>
+          <Text style={[styles.creditsHint, { color: colors.textMuted }]}>
+            Loyalty program coming in a future update.
+          </Text>
         </View>
-        <Text style={[styles.creditsBalance, { color: colors.primary }]}>
-          {credits.balance} <Text style={{ color: colors.textMuted }}>/ 10</Text>
-        </Text>
-        <View style={[styles.progressBg, { backgroundColor: colors.surfaceMuted }]}>
-          <View style={[styles.progressFill, { width: `${(credits.balance / 10) * 100}%`, backgroundColor: colors.primary }]} />
-        </View>
-        <Text style={[styles.creditsHint, { color: colors.textMuted }]}>
-          {credits.creditsUntilReward} more for a free class (up to $30)
-        </Text>
-      </View>
+      ) : null}
 
       <DarkModeToggle />
 
@@ -82,21 +80,25 @@ export default function AthleteProfileScreen() {
         label="Notifications"
         onPress={() => router.push('/(athlete)/profile/notifications')}
       />
-      <ProfileMenuItem
-        icon="card-outline"
-        label="Payment methods"
-        value={
-          user?.paymentMethods.length
-            ? `${user.paymentMethods.length} saved`
-            : 'None added'
-        }
-        onPress={() => router.push('/(athlete)/profile/payment-methods')}
-      />
-      <ProfileMenuItem
-        icon="help-circle-outline"
-        label="Help & support"
-        onPress={() => router.push('/(athlete)/profile/support')}
-      />
+      {showPayments ? (
+        <ProfileMenuItem
+          icon="card-outline"
+          label="Payment methods"
+          value={
+            user?.paymentMethods.length
+              ? `${user.paymentMethods.length} saved`
+              : 'None added'
+          }
+          onPress={() => router.push('/(athlete)/profile/payment-methods')}
+        />
+      ) : null}
+      {showSupport ? (
+        <ProfileMenuItem
+          icon="help-circle-outline"
+          label="Help & support"
+          onPress={() => router.push('/(athlete)/profile/support')}
+        />
+      ) : null}
 
       <Button title="Sign out" variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
     </Screen>
