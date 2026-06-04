@@ -5,14 +5,21 @@ import { Alert, StyleSheet, Switch, Text, View } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { DEFAULT_NOTIFICATIONS, useAuth, type NotificationPreferences } from '@/contexts/auth-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { isFeatureEnabled } from '@/constants/features';
 
-const ITEMS: { key: keyof NotificationPreferences; label: string; desc: string }[] = [
+const ALL_ITEMS: { key: keyof NotificationPreferences; label: string; desc: string }[] = [
   { key: 'bookingConfirmed', label: 'Booking confirmations', desc: 'When someone books or cancels' },
   { key: 'classReminders', label: 'Class reminders', desc: '24h and 1h before your classes' },
   { key: 'paymentUpdates', label: 'Payment updates', desc: 'Payouts and transaction receipts' },
   { key: 'creditsExpiring', label: 'Account alerts', desc: 'Verification and policy updates' },
   { key: 'marketing', label: 'Promotions', desc: 'Pro plan offers and platform news' },
 ];
+
+function getNotificationItems() {
+  return ALL_ITEMS.filter(
+    (item) => item.key !== 'creditsExpiring' || isFeatureEnabled('loyaltyCredits'),
+  );
+}
 
 export function NotificationsSettings() {
   const { user, updateProfile } = useAuth();
@@ -34,7 +41,7 @@ export function NotificationsSettings() {
   return (
     <>
       <Text style={styles.hint}>Choose what you want to receive by push and email.</Text>
-      {ITEMS.map((item) => (
+      {getNotificationItems().map((item) => (
         <View key={item.key} style={styles.row}>
           <View style={styles.rowText}>
             <Text style={styles.label}>{item.label}</Text>

@@ -13,10 +13,13 @@ import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { MOCK_INSTRUCTORS } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { useFeature } from '@/hooks/use-feature';
 
 export default function GymProfileScreen() {
   const { user, logout } = useAuth();
   const { colors } = useAppTheme();
+  const showSupport = useFeature('platformSupport');
+  const showPaymentMethods = useFeature('savedPaymentMethods');
   const profile = user?.institutionProfile;
 
   const signOut = () => {
@@ -154,21 +157,25 @@ export default function GymProfileScreen() {
         label="Notifications"
         onPress={() => router.push('/(gym)/profile/notifications')}
       />
-      <ProfileMenuItem
-        icon="card-outline"
-        label="Payout account"
-        value={
-          user.paymentMethods.length
-            ? `${user.paymentMethods.length} saved`
-            : 'None added'
-        }
-        onPress={() => router.push('/(gym)/profile/payment-methods')}
-      />
-      <ProfileMenuItem
-        icon="help-circle-outline"
-        label="Help & support"
-        onPress={() => router.push('/(gym)/profile/support')}
-      />
+      {showPaymentMethods ? (
+        <ProfileMenuItem
+          icon="card-outline"
+          label="Payout account"
+          value={
+            user.paymentMethods.length
+              ? `${user.paymentMethods.length} saved`
+              : 'None added'
+          }
+          onPress={() => router.push('/(gym)/profile/payment-methods')}
+        />
+      ) : null}
+      {showSupport ? (
+        <ProfileMenuItem
+          icon="help-circle-outline"
+          label="Help & support"
+          onPress={() => router.push('/(gym)/profile/support')}
+        />
+      ) : null}
 
       <Button title="Sign out" variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
     </Screen>

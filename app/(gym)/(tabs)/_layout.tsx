@@ -3,9 +3,11 @@ import { Tabs } from 'expo-router';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { useTabBarOptions } from '@/hooks/use-tab-bar-options';
+import { useFeature } from '@/hooks/use-feature';
 
 export default function GymTabs() {
   const tabBarOptions = useTabBarOptions();
+  const showMetrics = useFeature('analyticsMetrics');
 
   return (
     <Tabs
@@ -38,6 +40,7 @@ export default function GymTabs() {
         name="metrics"
         options={{
           title: 'Metrics',
+          href: showMetrics ? undefined : null,
           tabBarIcon: ({ color, size }) => <Ionicons name="analytics" size={size} color={color} />,
         }}
       />

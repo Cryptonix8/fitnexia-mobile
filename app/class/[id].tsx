@@ -13,11 +13,14 @@ import {
   getInstructorById,
 } from '@/data/mock';
 import { useClasses } from '@/contexts/classes-context';
+import { useFeature } from '@/hooks/use-feature';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 
 export default function ClassDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { getClassById } = useClasses();
+  const waitlistEnabled = useFeature('waitlist');
+  const liveStreaming = useFeature('liveStreaming');
   const cls = getClassById(id ?? '');
   const instructor = cls ? getInstructorById(cls.instructor.id) : undefined;
 
@@ -31,6 +34,9 @@ export default function ClassDetailScreen() {
   }
 
   const full = cls.spotsLeft === 0;
+  const onlineLabel = liveStreaming
+    ? 'Live stream on Fitnexia'
+    : 'Online session (link shared after booking)';
 
   return (
     <Screen scroll>
@@ -54,7 +60,7 @@ export default function ClassDetailScreen() {
           label="Where"
           value={
             cls.modality === 'online'
-              ? 'Live stream on Fitnexia'
+              ? onlineLabel
               : (cls.location?.label ?? 'TBD')
           }
         />
@@ -63,7 +69,13 @@ export default function ClassDetailScreen() {
           <Row
             icon="people-outline"
             label="Spots"
-            value={full ? 'Full — waitlist available' : `${cls.spotsLeft} of ${cls.capacity} left`}
+            value={
+              full
+                ? waitlistEnabled
+                  ? 'Full — waitlist available'
+                  : 'Full'
+                : `${cls.spotsLeft} of ${cls.capacity} left`
+            }
           />
         ) : null}
       </View>
@@ -82,11 +94,15 @@ export default function ClassDetailScreen() {
       </Text>
 
       {full ? (
-        <Button
-          title="Join waiting list"
-          variant="secondary"
-          onPress={() => router.push(`/book/${cls.id}?waitlist=1`)}
-        />
+        waitlistEnabled ? (
+          <Button
+            title="Join waiting list"
+            variant="secondary"
+            onPress={() => router.push(`/book/${cls.id}?waitlist=1`)}
+          />
+        ) : (
+          <Button title="Class full" disabled />
+        )
       ) : (
         <Button title="Book now" onPress={() => router.push(`/book/${cls.id}`)} />
       )}

@@ -1,0 +1,46 @@
+/**
+ * Product feature flags for Fitnexia mobile.
+ * MVP ships with post-MVP flags disabled; flip individually when backend is ready.
+ * Prefer server-driven flags via GET /config/features in production.
+ */
+export const FEATURES = {
+  // --- MVP (enabled) ---
+  emailAuth: true,
+  roleOnboarding: true,
+  basicSearch: true,
+  classBooking: true,
+  bookingHistory: true,
+  verifiedReviews: true,
+  instructorClassPublish: true,
+  instructorAvailability: true,
+  instructorAvailableNow: true,
+  gymStaffManagement: true,
+  gymStaffReviews: true,
+  gymBasicDashboard: true,
+  profileEditing: true,
+  passwordRecovery: true,
+
+  // --- Post-MVP (disabled for v1) ---
+  googleSignIn: false,
+  advancedSearch: false,
+  recurringClasses: false,
+  liveStreaming: false,
+  recordedClasses: false,
+  waitlist: false,
+  multipleCurrencies: false,
+  digitalWallets: false,
+  subscriptionPaymentModels: false,
+  integratedPayments: false,
+  loyaltyCredits: false,
+  reviewResponses: false,
+  inAppNotificationCenter: false,
+  analyticsMetrics: false,
+  platformSupport: false,
+  savedPaymentMethods: false,
+} as const;
+
+export type FeatureKey = keyof typeof FEATURES;
+
+export function isFeatureEnabled(key: FeatureKey): boolean {
+  return FEATURES[key];
+}

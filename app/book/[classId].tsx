@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
@@ -7,10 +7,11 @@ import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { formatMoney } from '@/data/mock';
 import { useClasses } from '@/contexts/classes-context';
+import { useFeature } from '@/hooks/use-feature';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import type { PaymentModel } from '@/types/api';
 
-const PAYMENT_OPTIONS: { id: PaymentModel; label: string; desc: string }[] = [
+const ALL_PAYMENT_OPTIONS: { id: PaymentModel; label: string; desc: string }[] = [
   { id: 'per_class', label: 'Pay per class', desc: 'One-time payment at booking' },
   { id: 'monthly_unlimited', label: 'Monthly unlimited', desc: 'Unlimited bookings per month' },
   { id: 'per_period', label: 'Weekly / quarterly', desc: 'Pay for your usage period' },
@@ -19,9 +20,29 @@ const PAYMENT_OPTIONS: { id: PaymentModel; label: string; desc: string }[] = [
 export default function BookScreen() {
   const { classId, waitlist } = useLocalSearchParams<{ classId: string; waitlist?: string }>();
   const { getClassById } = useClasses();
+  const waitlistEnabled = useFeature('waitlist');
+  const subscriptionModels = useFeature('subscriptionPaymentModels');
+  const integratedPayments = useFeature('integratedPayments');
+  const digitalWallets = useFeature('digitalWallets');
   const cls = getClassById(classId ?? '');
   const [paymentModel, setPaymentModel] = useState<PaymentModel>('per_class');
   const [loading, setLoading] = useState(false);
+
+  const isWaitlist = waitlist === '1' && waitlistEnabled;
+
+  const paymentOptions = useMemo(
+    () =>
+      subscriptionModels
+        ? ALL_PAYMENT_OPTIONS
+        : ALL_PAYMENT_OPTIONS.filter((o) => o.id === 'per_class'),
+    [subscriptionModels],
+  );
+
+  useEffect(() => {
+    if (waitlist === '1' && !waitlistEnabled) {
+      router.replace(`/book/${classId}`);
+    }
+  }, [waitlist, waitlistEnabled, classId]);
 
   if (!cls) {
     return (
@@ -32,8 +53,6 @@ export default function BookScreen() {
     );
   }
 
-  const isWaitlist = waitlist === '1';
-
   const confirm = () => {
     setLoading(true);
     setTimeout(() => {
@@ -42,7 +61,9 @@ export default function BookScreen() {
         isWaitlist ? 'On waitlist' : 'Booking confirmed',
         isWaitlist
           ? 'We will notify you when a spot opens. You will have 2 hours to confirm.'
-          : 'Payment mock successful. Check your bookings tab.',
+          : integratedPayments
+            ? 'Payment mock successful. Check your bookings tab.'
+            : 'Your spot is reserved. Payment will be added in a future update.',
         [{ text: 'OK', onPress: () => router.replace('/(athlete)/(tabs)/bookings') }],
       );
     }, 800);
@@ -61,32 +82,48 @@ export default function BookScreen() {
 
       {!isWaitlist ? (
         <>
-          <Text style={styles.section}>Payment model</Text>
-          {PAYMENT_OPTIONS.map((opt) => (
-            <Pressable
-              key={opt.id}
-              style={[styles.option, paymentModel === opt.id && styles.optionActive]}
-              onPress={() => setPaymentModel(opt.id)}>
-              <View style={styles.radio}>
-                {paymentModel === opt.id ? <View style={styles.radioInner} /> : null}
-              </View>
-              <View>
-                <Text style={styles.optionLabel}>{opt.label}</Text>
-                <Text style={styles.optionDesc}>{opt.desc}</Text>
-              </View>
-            </Pressable>
-          ))}
+          {subscriptionModels ? (
+            <>
+              <Text style={styles.section}>Payment model</Text>
+              {paymentOptions.map((opt) => (
+                <Pressable
+                  key={opt.id}
+                  style={[styles.option, paymentModel === opt.id && styles.optionActive]}
+                  onPress={() => setPaymentModel(opt.id)}>
+                  <View style={styles.radio}>
+                    {paymentModel === opt.id ? <View style={styles.radioInner} /> : null}
+                  </View>
+                  <View>
+                    <Text style={styles.optionLabel}>{opt.label}</Text>
+                    <Text style={styles.optionDesc}>{opt.desc}</Text>
+                  </View>
+                </Pressable>
+              ))}
+            </>
+          ) : null}
 
-          <Text style={styles.section}>Payment method</Text>
-          <View style={styles.method}>
-            <Text style={styles.methodText}>Mercado Pago (mock)</Text>
-            <Text style={styles.methodSub}>Card · Apple Pay · Google Pay</Text>
-          </View>
+          {integratedPayments ? (
+            <>
+              <Text style={styles.section}>Payment method</Text>
+              <View style={styles.method}>
+                <Text style={styles.methodText}>Mercado Pago (mock)</Text>
+                {digitalWallets ? (
+                  <Text style={styles.methodSub}>Card · Apple Pay · Google Pay</Text>
+                ) : (
+                  <Text style={styles.methodSub}>Credit or debit card</Text>
+                )}
+              </View>
+            </>
+          ) : (
+            <Text style={styles.mvpNote}>
+              MVP: booking is confirmed without in-app payment. Mercado Pago will be enabled later.
+            </Text>
+          )}
         </>
       ) : null}
 
       <Button
-        title={isWaitlist ? 'Join waitlist' : 'Pay & confirm'}
+        title={isWaitlist ? 'Join waitlist' : integratedPayments ? 'Pay & confirm' : 'Confirm booking'}
         loading={loading}
         onPress={confirm}
         style={{ marginTop: Spacing.lg }}
@@ -106,6 +143,12 @@ const styles = StyleSheet.create({
   instructor: { fontSize: 14, color: FitnexiaColors.gray500, marginTop: 4 },
   price: { fontSize: 24, fontWeight: '800', color: FitnexiaColors.primary, marginTop: Spacing.md },
   section: { fontSize: 16, fontWeight: '700', marginBottom: Spacing.md },
+  mvpNote: {
+    fontSize: 14,
+    color: FitnexiaColors.gray500,
+    lineHeight: 20,
+    marginBottom: Spacing.md,
+  },
   option: {
     flexDirection: 'row',
     alignItems: 'center',

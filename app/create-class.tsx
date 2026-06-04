@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
+import { useFeature } from '@/hooks/use-feature';
 import { getInstitutionById } from '@/data/mock';
 import {
   getLinkedInstructors,
@@ -25,6 +26,7 @@ import type { ClassFormat, Modality } from '@/types/api';
 
 export default function CreateClassScreen() {
   const { colors } = useAppTheme();
+  const recurringClasses = useFeature('recurringClasses');
   const { user } = useAuth();
   const { addClass } = useClasses();
   const defaults = defaultClassStart();
@@ -158,7 +160,7 @@ export default function CreateClassScreen() {
 
     const formatLabel =
       classFormat === 'individual' ? 'Individual (1-on-1)' : `Group (${instructorCap} spots)`;
-    const recurNote = recurring ? ' Repeats weekly.' : '';
+    const recurNote = recurringClasses && recurring ? ' Repeats weekly.' : '';
     Alert.alert(
       'Published',
       `"${title.trim()}" is scheduled for ${startAt.toLocaleString()} as a ${formatLabel} class.${recurNote}`,
@@ -295,7 +297,7 @@ export default function CreateClassScreen() {
         />
       )}
 
-      {!isGym ? (
+      {!isGym && recurringClasses ? (
         <View style={styles.recurRow}>
           <FilterChip
             label={recurring ? '✓ Repeats weekly' : 'Repeat weekly'}

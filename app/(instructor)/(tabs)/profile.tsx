@@ -11,11 +11,14 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
+import { useFeature } from '@/hooks/use-feature';
 import { formatWeeklyScheduleSummary, defaultWeeklySchedule } from '@/utils/schedule';
 
 export default function InstructorProfileScreen() {
   const { user, logout, updateProfile } = useAuth();
   const { colors } = useAppTheme();
+  const showSupport = useFeature('platformSupport');
+  const showPaymentMethods = useFeature('savedPaymentMethods');
   const profile = user?.instructorProfile;
 
   const toggleAvailable = () => {
@@ -127,21 +130,25 @@ export default function InstructorProfileScreen() {
         label="Notifications"
         onPress={() => router.push('/(instructor)/profile/notifications')}
       />
-      <ProfileMenuItem
-        icon="card-outline"
-        label="Payout account"
-        value={
-          user.paymentMethods.length
-            ? `${user.paymentMethods.length} saved`
-            : 'None added'
-        }
-        onPress={() => router.push('/(instructor)/profile/payment-methods')}
-      />
-      <ProfileMenuItem
-        icon="help-circle-outline"
-        label="Help & support"
-        onPress={() => router.push('/(instructor)/profile/support')}
-      />
+      {showPaymentMethods ? (
+        <ProfileMenuItem
+          icon="card-outline"
+          label="Payout account"
+          value={
+            user.paymentMethods.length
+              ? `${user.paymentMethods.length} saved`
+              : 'None added'
+          }
+          onPress={() => router.push('/(instructor)/profile/payment-methods')}
+        />
+      ) : null}
+      {showSupport ? (
+        <ProfileMenuItem
+          icon="help-circle-outline"
+          label="Help & support"
+          onPress={() => router.push('/(instructor)/profile/support')}
+        />
+      ) : null}
 
       <Button title="Sign out" variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
     </Screen>

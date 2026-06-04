@@ -7,14 +7,21 @@ import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { DEFAULT_NOTIFICATIONS, useAuth, type NotificationPreferences } from '@/contexts/auth-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { isFeatureEnabled } from '@/constants/features';
 
-const ITEMS: { key: keyof NotificationPreferences; label: string; desc: string }[] = [
+const ALL_ITEMS: { key: keyof NotificationPreferences; label: string; desc: string }[] = [
   { key: 'bookingConfirmed', label: 'Booking confirmations', desc: 'When a class is booked or cancelled' },
   { key: 'classReminders', label: 'Class reminders', desc: '24h and 1h before your class' },
   { key: 'paymentUpdates', label: 'Payment updates', desc: 'Receipts and refund notices' },
   { key: 'creditsExpiring', label: 'Credits expiring', desc: '30 days before loyalty credits expire' },
   { key: 'marketing', label: 'Promotions', desc: 'Offers and new features' },
 ];
+
+function getNotificationItems() {
+  return ALL_ITEMS.filter(
+    (item) => item.key !== 'creditsExpiring' || isFeatureEnabled('loyaltyCredits'),
+  );
+}
 
 export default function NotificationsScreen() {
   const { user, updateProfile } = useAuth();
@@ -37,7 +44,7 @@ export default function NotificationsScreen() {
     <Screen scroll>
       <Header title="Notifications" showBack />
       <Text style={styles.hint}>Choose what you want to receive by push and email.</Text>
-      {ITEMS.map((item) => (
+      {getNotificationItems().map((item) => (
         <View key={item.key} style={styles.row}>
           <View style={styles.rowText}>
             <Text style={styles.label}>{item.label}</Text>
