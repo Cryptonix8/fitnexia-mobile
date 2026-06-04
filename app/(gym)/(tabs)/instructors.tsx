@@ -6,13 +6,17 @@ import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
+import { useReviews } from '@/contexts/reviews-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { MOCK_INSTRUCTORS } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { resolveInstitutionId } from '@/utils/gym-classes';
 
 export default function GymInstructorsScreen() {
   const { user } = useAuth();
   const { colors } = useAppTheme();
+  const { getGymReviewForInstructor } = useReviews();
+  const institutionId = resolveInstitutionId(user);
   const instructorIds = user?.institutionProfile?.instructorIds ?? [];
   const pendingInvites = user?.institutionProfile?.pendingInvites ?? [];
   const linked = instructorIds
@@ -54,21 +58,38 @@ export default function GymInstructorsScreen() {
           No instructors linked yet. Invite staff or add from the roster.
         </Text>
       ) : (
-        linked.map((i) => (
-          <Pressable
-            key={i.id}
-            style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
-            onPress={() => router.push(`/instructor/${i.id}`)}>
-            <UserAvatar size={48} kind="instructor" />
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.name, { color: colors.text }]}>{i.displayName}</Text>
-              <Text style={[styles.meta, { color: colors.textMuted }]}>
-                {i.disciplines.join(', ')}
-              </Text>
+        linked.map((i) => {
+          const reviewed = Boolean(getGymReviewForInstructor(institutionId, i.id));
+          return (
+            <View
+              key={i.id}
+              style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Pressable
+                style={styles.cardMain}
+                onPress={() => router.push(`/instructor/${i.id}`)}>
+                <UserAvatar size={48} kind="instructor" />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.name, { color: colors.text }]}>{i.displayName}</Text>
+                  <Text style={[styles.meta, { color: colors.textMuted }]}>
+                    {i.disciplines.join(', ')}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+              </Pressable>
+              <Button
+                title={reviewed ? 'View review' : 'Leave review'}
+                size="sm"
+                variant={reviewed ? 'outline' : 'primary'}
+                onPress={() =>
+                  router.push({
+                    pathname: '/(gym)/review-instructor/[id]',
+                    params: { id: i.id },
+                  })
+                }
+              />
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-          </Pressable>
-        ))
+          );
+        })
       )}
 
       <Button
@@ -107,13 +128,16 @@ const styles = StyleSheet.create({
   pendingEmail: { fontSize: 14, fontWeight: '500' },
   empty: { fontSize: 15, lineHeight: 22 },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
     borderRadius: Radius.lg,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
-    gap: Spacing.md,
     borderWidth: 1,
+    gap: Spacing.sm,
+  },
+  cardMain: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
   },
   name: { fontWeight: '700', fontSize: 16 },
   meta: { fontSize: 13, marginTop: 2 },

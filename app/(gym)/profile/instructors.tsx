@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
+import { useReviews } from '@/contexts/reviews-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { MOCK_INSTRUCTORS, updateMockInstitution } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
@@ -18,6 +19,7 @@ export default function GymManageInstructorsScreen() {
   const { colors } = useAppTheme();
   const profile = user?.institutionProfile;
   const institutionId = getLinkedInstitutionId(user);
+  const { getGymReviewForInstructor } = useReviews();
 
   const [instructorIds, setInstructorIds] = useState<string[]>(profile?.instructorIds ?? []);
 
@@ -86,22 +88,38 @@ export default function GymManageInstructorsScreen() {
       {linked.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textMuted }]}>No instructors linked yet.</Text>
       ) : (
-        linked.map((i) => (
-          <View
-            key={i.id}
-            style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <UserAvatar size={48} kind="instructor" />
-            <View style={styles.cardBody}>
-              <Text style={[styles.name, { color: colors.text }]}>{i.displayName}</Text>
-              <Text style={[styles.meta, { color: colors.textMuted }]}>
-                {i.disciplines.join(', ')}
-              </Text>
+        linked.map((i) => {
+          const reviewed = Boolean(getGymReviewForInstructor(institutionId, i.id));
+          return (
+            <View
+              key={i.id}
+              style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <UserAvatar size={48} kind="instructor" />
+              <View style={styles.cardBody}>
+                <Text style={[styles.name, { color: colors.text }]}>{i.displayName}</Text>
+                <Text style={[styles.meta, { color: colors.textMuted }]}>
+                  {i.disciplines.join(', ')}
+                </Text>
+              </View>
+              <View style={styles.cardActions}>
+                <Button
+                  title={reviewed ? 'Review' : 'Rate'}
+                  size="sm"
+                  variant="outline"
+                  onPress={() =>
+                    router.push({
+                      pathname: '/(gym)/review-instructor/[id]',
+                      params: { id: i.id },
+                    })
+                  }
+                />
+                <Pressable onPress={() => removeInstructor(i.id, i.displayName)} hitSlop={8}>
+                  <Ionicons name="trash-outline" size={20} color={colors.error} />
+                </Pressable>
+              </View>
             </View>
-            <Pressable onPress={() => removeInstructor(i.id, i.displayName)} hitSlop={8}>
-              <Ionicons name="trash-outline" size={20} color={colors.error} />
-            </Pressable>
-          </View>
-        ))
+          );
+        })
       )}
 
       {available.length > 0 ? (
@@ -151,6 +169,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   cardBody: { flex: 1 },
+  cardActions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   name: { fontWeight: '700', fontSize: 16 },
   meta: { fontSize: 13, marginTop: 2 },
 });

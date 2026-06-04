@@ -190,6 +190,18 @@ export interface Review {
   createdAt: string;
 }
 
+/** Verified review from a gym that employs the instructor */
+export interface StaffReview {
+  id: string;
+  instructorId: string;
+  institutionId: string;
+  institutionName: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+  verified: true;
+}
+
 export interface CreditBalance {
   balance: number;
   creditsUntilReward: number;

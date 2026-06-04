@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -6,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ClassCard } from '@/components/class-card';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
+import { useReviews } from '@/contexts/reviews-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { getInstructorById } from '@/data/mock';
 import { useClasses } from '@/contexts/classes-context';
@@ -15,8 +17,10 @@ export default function InstructorProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useAppTheme();
   const { classes } = useClasses();
+  const { getStaffReviewsForInstructor } = useReviews();
   const instructor = getInstructorById(id ?? '');
   const instructorClasses = classes.filter((c) => c.instructor.id === id);
+  const staffReviews = getStaffReviewsForInstructor(id ?? '');
 
   if (!instructor) {
     return (
@@ -40,13 +44,52 @@ export default function InstructorProfileScreen() {
           ) : null}
         </View>
         <Text style={[styles.rating, { color: colors.textMuted }]}>
-          ★ {instructor.averageRating} ({instructor.reviewCount} reviews)
+          ★ {instructor.averageRating} ({instructor.reviewCount} athlete reviews)
         </Text>
         <Text style={[styles.bio, { color: colors.textSecondary }]}>{instructor.bio}</Text>
         <Text style={[styles.disciplines, { color: colors.primary }]}>
           {instructor.disciplines.join(' · ')}
         </Text>
       </View>
+
+      {staffReviews.length > 0 ? (
+        <>
+          <Text style={[styles.section, { color: colors.text }]}>Reviews from gyms</Text>
+          {staffReviews.map((review) => (
+            <View
+              key={review.id}
+              style={[
+                styles.reviewCard,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}>
+              <View style={styles.reviewHeader}>
+                <Text style={[styles.reviewAuthor, { color: colors.text }]}>
+                  {review.institutionName}
+                </Text>
+                <Badge label="Verified gym" variant="verified" />
+              </View>
+              <View style={styles.stars}>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <Ionicons
+                    key={n}
+                    name={n <= review.rating ? 'star' : 'star-outline'}
+                    size={16}
+                    color={colors.warning}
+                  />
+                ))}
+              </View>
+              {review.comment ? (
+                <Text style={[styles.reviewComment, { color: colors.textSecondary }]}>
+                  {review.comment}
+                </Text>
+              ) : null}
+              <Text style={[styles.reviewDate, { color: colors.textMuted }]}>
+                {new Date(review.createdAt).toLocaleDateString()}
+              </Text>
+            </View>
+          ))}
+        </>
+      ) : null}
 
       {instructor.certifications?.length ? (
         <>
@@ -89,6 +132,22 @@ const styles = StyleSheet.create({
   },
   disciplines: { fontSize: 14, fontWeight: '600', marginTop: Spacing.sm },
   section: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.md },
+  reviewCard: {
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    marginBottom: Spacing.sm,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  reviewAuthor: { fontSize: 15, fontWeight: '700', flex: 1 },
+  stars: { flexDirection: 'row', gap: 2, marginTop: Spacing.sm },
+  reviewComment: { fontSize: 14, lineHeight: 20, marginTop: Spacing.sm },
+  reviewDate: { fontSize: 12, marginTop: Spacing.sm },
   certCard: {
     padding: Spacing.md,
     borderRadius: Radius.md,

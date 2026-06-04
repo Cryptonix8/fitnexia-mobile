@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider } from '@/contexts/auth-context';
 import { ClassesProvider } from '@/contexts/classes-context';
+import { ReviewsProvider } from '@/contexts/reviews-context';
 import { ThemeProvider, useAppTheme } from '@/contexts/theme-context';
 
 function RootNavigator() {
@@ -49,7 +50,9 @@ export default function RootLayout() {
       <ThemeProvider>
         <AuthProvider>
           <ClassesProvider>
-            <RootNavigator />
+            <ReviewsProvider>
+              <RootNavigator />
+            </ReviewsProvider>
           </ClassesProvider>
         </AuthProvider>
       </ThemeProvider>
