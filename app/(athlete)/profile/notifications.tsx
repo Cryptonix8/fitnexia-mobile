@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { DEFAULT_NOTIFICATIONS, useAuth, type NotificationPreferences } from '@/contexts/auth-context';
+import { isNotificationPrefVisible } from '@/constants/features';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
-import { isFeatureEnabled } from '@/constants/features';
 
 const ALL_ITEMS: { key: keyof NotificationPreferences; label: string; desc: string }[] = [
   { key: 'bookingConfirmed', label: 'Booking confirmations', desc: 'When a class is booked or cancelled' },
@@ -16,12 +16,6 @@ const ALL_ITEMS: { key: keyof NotificationPreferences; label: string; desc: stri
   { key: 'creditsExpiring', label: 'Credits expiring', desc: '30 days before loyalty credits expire' },
   { key: 'marketing', label: 'Promotions', desc: 'Offers and new features' },
 ];
-
-function getNotificationItems() {
-  return ALL_ITEMS.filter(
-    (item) => item.key !== 'creditsExpiring' || isFeatureEnabled('loyaltyCredits'),
-  );
-}
 
 export default function NotificationsScreen() {
   const { user, updateProfile } = useAuth();
@@ -44,7 +38,7 @@ export default function NotificationsScreen() {
     <Screen scroll>
       <Header title="Notifications" showBack />
       <Text style={styles.hint}>Choose what you want to receive by push and email.</Text>
-      {getNotificationItems().map((item) => (
+      {ALL_ITEMS.filter((item) => isNotificationPrefVisible(item.key)).map((item) => (
         <View key={item.key} style={styles.row}>
           <View style={styles.rowText}>
             <Text style={styles.label}>{item.label}</Text>

@@ -19,6 +19,7 @@ export const FEATURES = {
   gymBasicDashboard: true,
   profileEditing: true,
   passwordRecovery: true,
+  notificationPreferences: true,
 
   // --- Post-MVP (disabled for v1) ---
   googleSignIn: false,
@@ -37,10 +38,18 @@ export const FEATURES = {
   analyticsMetrics: false,
   platformSupport: false,
   savedPaymentMethods: false,
+  geolocationMap: false,
 } as const;
 
 export type FeatureKey = keyof typeof FEATURES;
 
 export function isFeatureEnabled(key: FeatureKey): boolean {
   return FEATURES[key];
+}
+
+/** Notification preference keys hidden when related features are off. */
+export function isNotificationPrefVisible(key: string): boolean {
+  if (key === 'creditsExpiring' && !FEATURES.loyaltyCredits) return false;
+  if (key === 'paymentUpdates' && !FEATURES.integratedPayments) return false;
+  return true;
 }

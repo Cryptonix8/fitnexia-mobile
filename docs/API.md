@@ -647,7 +647,7 @@ Shared TypeScript types for clients: see `types/api.ts` when added to the repo.
 
 ## 19. MVP scope
 
-See also: [MVP.md](./MVP.md) (mobile feature flags and product matrix).
+See also [MVP.md](./MVP.md) for mobile feature flags (`constants/features.ts`) and the product matrix.
 
 | In MVP | Post-MVP |
 |--------|----------|

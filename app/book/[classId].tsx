@@ -75,51 +75,47 @@ export default function BookScreen() {
       <View style={styles.summary}>
         <Text style={styles.className}>{cls.title}</Text>
         <Text style={styles.instructor}>{cls.instructor.displayName}</Text>
-        {!isWaitlist ? (
-          <Text style={styles.price}>{formatMoney(cls.price)}</Text>
-        ) : null}
+        {!isWaitlist ? <Text style={styles.price}>{formatMoney(cls.price)}</Text> : null}
       </View>
 
       {!isWaitlist ? (
-        <>
-          {subscriptionModels ? (
-            <>
-              <Text style={styles.section}>Payment model</Text>
-              {paymentOptions.map((opt) => (
-                <Pressable
-                  key={opt.id}
-                  style={[styles.option, paymentModel === opt.id && styles.optionActive]}
-                  onPress={() => setPaymentModel(opt.id)}>
-                  <View style={styles.radio}>
-                    {paymentModel === opt.id ? <View style={styles.radioInner} /> : null}
-                  </View>
-                  <View>
-                    <Text style={styles.optionLabel}>{opt.label}</Text>
-                    <Text style={styles.optionDesc}>{opt.desc}</Text>
-                  </View>
-                </Pressable>
-              ))}
-            </>
-          ) : null}
+        integratedPayments ? (
+          <>
+            {subscriptionModels ? (
+              <>
+                <Text style={styles.section}>Payment model</Text>
+                {paymentOptions.map((opt) => (
+                  <Pressable
+                    key={opt.id}
+                    style={[styles.option, paymentModel === opt.id && styles.optionActive]}
+                    onPress={() => setPaymentModel(opt.id)}>
+                    <View style={styles.radio}>
+                      {paymentModel === opt.id ? <View style={styles.radioInner} /> : null}
+                    </View>
+                    <View>
+                      <Text style={styles.optionLabel}>{opt.label}</Text>
+                      <Text style={styles.optionDesc}>{opt.desc}</Text>
+                    </View>
+                  </Pressable>
+                ))}
+              </>
+            ) : null}
 
-          {integratedPayments ? (
-            <>
-              <Text style={styles.section}>Payment method</Text>
-              <View style={styles.method}>
-                <Text style={styles.methodText}>Mercado Pago (mock)</Text>
-                {digitalWallets ? (
-                  <Text style={styles.methodSub}>Card · Apple Pay · Google Pay</Text>
-                ) : (
-                  <Text style={styles.methodSub}>Credit or debit card</Text>
-                )}
-              </View>
-            </>
-          ) : (
-            <Text style={styles.mvpNote}>
-              MVP: booking is confirmed without in-app payment. Mercado Pago will be enabled later.
-            </Text>
-          )}
-        </>
+            <Text style={styles.section}>Payment method</Text>
+            <View style={styles.method}>
+              <Text style={styles.methodText}>Mercado Pago (mock)</Text>
+              {digitalWallets ? (
+                <Text style={styles.methodSub}>Card · Apple Pay · Google Pay</Text>
+              ) : (
+                <Text style={styles.methodSub}>Credit or debit card</Text>
+              )}
+            </View>
+          </>
+        ) : (
+          <Text style={styles.mvpHint}>
+            Payment integration is coming soon. This booking is confirmed locally for demo purposes.
+          </Text>
+        )
       ) : null}
 
       <Button
@@ -143,11 +139,11 @@ const styles = StyleSheet.create({
   instructor: { fontSize: 14, color: FitnexiaColors.gray500, marginTop: 4 },
   price: { fontSize: 24, fontWeight: '800', color: FitnexiaColors.primary, marginTop: Spacing.md },
   section: { fontSize: 16, fontWeight: '700', marginBottom: Spacing.md },
-  mvpNote: {
+  mvpHint: {
     fontSize: 14,
     color: FitnexiaColors.gray500,
-    lineHeight: 20,
-    marginBottom: Spacing.md,
+    lineHeight: 22,
+    marginBottom: Spacing.sm,
   },
   option: {
     flexDirection: 'row',
