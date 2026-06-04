@@ -1,13 +1,19 @@
 import { DarkTheme, DefaultTheme, ThemeProvider as NavThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { Stack, useRootNavigationState } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState } from 'react';
+import { InteractionManager, StyleSheet, View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { AppSplash } from '@/components/app-splash';
 import { AuthProvider } from '@/contexts/auth-context';
 import { ClassesProvider } from '@/contexts/classes-context';
 import { ReviewsProvider } from '@/contexts/reviews-context';
 import { ThemeProvider, useAppTheme } from '@/contexts/theme-context';
+
+SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
   const { isDark, colors } = useAppTheme();
@@ -26,7 +32,7 @@ function RootNavigator() {
 
   return (
     <NavThemeProvider value={navTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(athlete)" />
@@ -44,6 +50,50 @@ function RootNavigator() {
   );
 }
 
+/** Keeps splash visible until the router and first screen are ready to paint. */
+function AppBootstrap() {
+  const { colors } = useAppTheme();
+  const navigationState = useRootNavigationState();
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    if (!showSplash || !navigationState?.key) return;
+
+    let cancelled = false;
+    const interaction = InteractionManager.runAfterInteractions(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(async () => {
+          if (cancelled) return;
+          await SplashScreen.hideAsync();
+          setShowSplash(false);
+        });
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      interaction.cancel();
+    };
+  }, [navigationState?.key, showSplash]);
+
+  useEffect(() => {
+    return () => {
+      SplashScreen.hideAsync().catch(() => undefined);
+    };
+  }, []);
+
+  return (
+    <View
+      style={[
+        styles.root,
+        { backgroundColor: showSplash ? '#ffffff' : colors.background },
+      ]}>
+      <RootNavigator />
+      {showSplash ? <AppSplash /> : null}
+    </View>
+  );
+}
+
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
@@ -51,7 +101,7 @@ export default function RootLayout() {
         <AuthProvider>
           <ClassesProvider>
             <ReviewsProvider>
-              <RootNavigator />
+              <AppBootstrap />
             </ReviewsProvider>
           </ClassesProvider>
         </AuthProvider>
@@ -60,3 +110,8 @@ export default function RootLayout() {
   );
 }
 
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
