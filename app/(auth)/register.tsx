@@ -12,12 +12,15 @@ import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
+import { useGoogleSignIn } from '@/hooks/use-google-sign-in';
 import type { UserRole } from '@/types/api';
+import { completeGoogleSignIn } from '@/utils/google-auth';
 import { validateRegisterForm } from '@/utils/validation';
 
 export default function RegisterScreen() {
   const googleSignIn = useFeature('googleSignIn');
-  const { register } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
+  const { signIn: getGoogleIdToken, pending: googlePending, ready: googleReady } = useGoogleSignIn();
   const [step, setStep] = useState<1 | 2>(1);
   const [role, setRole] = useState<UserRole>('athlete');
   const [firstName, setFirstName] = useState('');
@@ -40,6 +43,16 @@ export default function RegisterScreen() {
     setDisciplines((prev) =>
       prev.includes(sport) ? prev.filter((s) => s !== sport) : [...prev, sport],
     );
+  };
+
+  const handleGoogleSignIn = async () => {
+    await completeGoogleSignIn({
+      loginWithGoogle,
+      getIdToken: getGoogleIdToken,
+      role,
+      institutionName:
+        role === 'institution' && institutionName.trim() ? institutionName.trim() : undefined,
+    });
   };
 
   const submit = async () => {
@@ -105,7 +118,13 @@ export default function RegisterScreen() {
             onPress={() => setRole('institution')}
           />
           <Button title={BUTTON_LABELS.continue} onPress={() => setStep(2)} />
-          {googleSignIn ? <GoogleSignInButton /> : null}
+          {googleSignIn ? (
+            <GoogleSignInButton
+              onPress={handleGoogleSignIn}
+              loading={googlePending}
+              disabled={!googleReady || loading}
+            />
+          ) : null}
         </>
       ) : (
         <>
@@ -180,7 +199,13 @@ export default function RegisterScreen() {
           ) : null}
 
           <Button title={BUTTON_LABELS.createAccount} loading={loading} onPress={submit} />
-          {googleSignIn ? <GoogleSignInButton /> : null}
+          {googleSignIn ? (
+            <GoogleSignInButton
+              onPress={handleGoogleSignIn}
+              loading={googlePending}
+              disabled={!googleReady || loading}
+            />
+          ) : null}
         </>
       )}
     </Screen>

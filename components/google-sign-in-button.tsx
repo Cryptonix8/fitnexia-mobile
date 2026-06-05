@@ -1,22 +1,26 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Alert, Pressable, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
 import { AUTH_LABELS } from '@/constants/labels';
 
 type GoogleSignInButtonProps = {
-  onPress?: () => void;
+  onPress: () => void | Promise<void>;
+  loading?: boolean;
+  disabled?: boolean;
 };
 
-export function GoogleSignInButton({ onPress }: GoogleSignInButtonProps) {
+export function GoogleSignInButton({ onPress, loading = false, disabled = false }: GoogleSignInButtonProps) {
   return (
     <Pressable
-      style={styles.google}
-      onPress={
-        onPress ??
-        (() => Alert.alert('Google Sign-In', 'Connect when backend is ready.'))
-      }>
-      <Ionicons name="logo-google" size={20} color={FitnexiaColors.gray700} />
+      style={[styles.google, (loading || disabled) && styles.googleDisabled]}
+      onPress={onPress}
+      disabled={loading || disabled}>
+      {loading ? (
+        <ActivityIndicator color={FitnexiaColors.gray700} />
+      ) : (
+        <Ionicons name="logo-google" size={20} color={FitnexiaColors.gray700} />
+      )}
       <Text style={styles.googleText}>{AUTH_LABELS.continueWithGoogle}</Text>
     </Pressable>
   );
@@ -35,5 +39,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     marginTop: Spacing.md,
   },
+  googleDisabled: { opacity: 0.6 },
   googleText: { fontSize: 16, fontWeight: '600', color: FitnexiaColors.gray700 },
 });

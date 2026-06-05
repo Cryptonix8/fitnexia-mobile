@@ -258,6 +258,25 @@ export async function registerApi(params: RegisterParams): Promise<AuthUser> {
   return persistAuthResponse(response, params);
 }
 
+export type GoogleSignInParams = {
+  idToken: string;
+  role?: UserRole;
+  institutionName?: string;
+};
+
+export async function googleSignInApi(params: GoogleSignInParams): Promise<AuthUser> {
+  const response = await apiRequest<AuthResponse>('/auth/oauth/google', {
+    method: 'POST',
+    auth: false,
+    body: {
+      idToken: params.idToken,
+      role: params.role,
+      institutionName: params.institutionName,
+    },
+  });
+  return persistAuthResponse(response);
+}
+
 export async function logoutApi(): Promise<void> {
   const refreshToken = await (await import('./token-storage')).getRefreshToken();
   try {

@@ -10,11 +10,14 @@ import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
+import { useGoogleSignIn } from '@/hooks/use-google-sign-in';
+import { completeGoogleSignIn } from '@/utils/google-auth';
 import { validateLoginForm } from '@/utils/validation';
 
 export default function LoginScreen() {
   const googleSignIn = useFeature('googleSignIn');
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
+  const { signIn: getGoogleIdToken, pending: googlePending, ready: googleReady } = useGoogleSignIn();
   const [email, setEmail] = useState('demo@fitnexia.com');
   const [password, setPassword] = useState('password');
   const [loading, setLoading] = useState(false);
@@ -35,6 +38,13 @@ export default function LoginScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSignIn = async () => {
+    await completeGoogleSignIn({
+      loginWithGoogle,
+      getIdToken: getGoogleIdToken,
+    });
   };
 
   return (
@@ -63,7 +73,13 @@ export default function LoginScreen() {
 
       <Button title={BUTTON_LABELS.signIn} loading={loading} onPress={handleLogin} />
 
-      {googleSignIn ? <GoogleSignInButton /> : null}
+      {googleSignIn ? (
+        <GoogleSignInButton
+          onPress={handleGoogleSignIn}
+          loading={googlePending}
+          disabled={!googleReady || loading}
+        />
+      ) : null}
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>New here? </Text>

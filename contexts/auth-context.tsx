@@ -9,6 +9,8 @@ import React, {
 
 import {
   forgotPasswordApi,
+  googleSignInApi,
+  type GoogleSignInParams,
   loadCurrentUser,
   loginApi,
   logoutApi,
@@ -153,6 +155,7 @@ interface AuthContextValue {
   isLoading: boolean;
   completeOnboarding: () => void;
   login: (email: string, password: string, role?: UserRole) => Promise<void>;
+  loginWithGoogle: (params: GoogleSignInParams) => Promise<void>;
   register: (params: RegisterParams) => Promise<void>;
   updateProfile: (updates: UpdateProfileParams) => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -195,6 +198,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     const loggedIn = await loginApi(email, password);
+    setUser(loggedIn);
+  }, []);
+
+  const loginWithGoogle = useCallback(async (params: GoogleSignInParams) => {
+    const loggedIn = await googleSignInApi(params);
     setUser(loggedIn);
   }, []);
 
@@ -280,6 +288,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       completeOnboarding,
       login,
+      loginWithGoogle,
       register,
       updateProfile,
       refreshUser,
@@ -291,6 +300,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       completeOnboarding,
       login,
+      loginWithGoogle,
       register,
       updateProfile,
       refreshUser,
