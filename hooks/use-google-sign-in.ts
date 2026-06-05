@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
-import { GoogleSignin, isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
 import { useCallback, useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 
 import {
   GOOGLE_WEB_CLIENT_ID,
@@ -11,10 +11,27 @@ import { getGoogleDeveloperErrorHelp } from '@/services/google-android-config';
 
 let configured = false;
 
-export function configureGoogleSignIn() {
-  if (!isGoogleSignInConfigured() || configured) return;
+type GoogleSignInModule = typeof import('@react-native-google-signin/google-signin');
 
-  GoogleSignin.configure({
+function canUseNativeGoogleSignIn(): boolean {
+  return !isRunningInExpoGo() && Platform.OS !== 'web';
+}
+
+function getGoogleSignInModule(): GoogleSignInModule | null {
+  if (!canUseNativeGoogleSignIn()) return null;
+
+  try {
+    return require('@react-native-google-signin/google-signin');
+  } catch {
+    return null;
+  }
+}
+
+export function configureGoogleSignIn() {
+  const mod = getGoogleSignInModule();
+  if (!mod || !isGoogleSignInConfigured() || configured) return;
+
+  mod.GoogleSignin.configure({
     webClientId: GOOGLE_WEB_CLIENT_ID,
     offlineAccess: false,
   });
@@ -25,24 +42,27 @@ export function useGoogleSignIn() {
   const [pending, setPending] = useState(false);
 
   useEffect(() => {
-    if (!isRunningInExpoGo()) {
-      configureGoogleSignIn();
-    }
+    configureGoogleSignIn();
   }, []);
 
   const signIn = useCallback(async (): Promise<string | null> => {
-    if (isRunningInExpoGo()) {
+    if (!canUseNativeGoogleSignIn()) {
       throw new Error('EXPO_GO_UNSUPPORTED');
     }
     if (!isGoogleSignInConfigured()) {
       throw new Error('Google Sign-In is not configured.');
     }
 
+    const mod = getGoogleSignInModule();
+    if (!mod) {
+      throw new Error('Google Sign-In native module is not available.');
+    }
+
     configureGoogleSignIn();
     setPending(true);
     try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      const response = await GoogleSignin.signIn();
+      await mod.GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const response = await mod.GoogleSignin.signIn();
       if (response.type === 'cancelled') {
         return null;
       }
@@ -50,18 +70,18 @@ export function useGoogleSignIn() {
         throw new Error('Google Sign-In was not completed.');
       }
 
-      const { idToken } = await GoogleSignin.getTokens();
+      const { idToken } = await mod.GoogleSignin.getTokens();
       if (!idToken) {
         throw new Error('Google did not return an ID token. Check your Web client ID and SHA-1 setup.');
       }
       return idToken;
     } catch (err) {
-      if (isErrorWithCode(err)) {
-        if (err.code === statusCodes.SIGN_IN_CANCELLED) return null;
-        if (err.code === statusCodes.IN_PROGRESS) {
+      if (mod.isErrorWithCode(err)) {
+        if (err.code === mod.statusCodes.SIGN_IN_CANCELLED) return null;
+        if (err.code === mod.statusCodes.IN_PROGRESS) {
           throw new Error('Google Sign-In is already in progress.');
         }
-        if (err.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        if (err.code === mod.statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
           throw new Error('Google Play Services is not available on this device.');
         }
       }
@@ -77,7 +97,7 @@ export function useGoogleSignIn() {
   return {
     signIn,
     pending,
-    ready: isGoogleSignInConfigured() && !isRunningInExpoGo(),
+    ready: isGoogleSignInConfigured() && canUseNativeGoogleSignIn(),
   };
 }
 
