@@ -11,8 +11,11 @@ import {
   formatClassDate,
   formatMoney,
 } from '@/data/mock';
+import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useFeature } from '@/hooks/use-feature';
+import { canManageGymClass, resolveInstitutionId } from '@/utils/gym-classes';
+import { getLinkedInstructorId } from '@/utils/instructor';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import {
   BADGE_LABELS,
@@ -25,10 +28,13 @@ import {
 
 export default function ClassDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { user } = useAuth();
   const { getClassById } = useClasses();
   const waitlistEnabled = useFeature('waitlist');
   const liveStreaming = useFeature('liveStreaming');
   const cls = getClassById(id ?? '');
+  const instructorId = getLinkedInstructorId(user);
+  const institutionId = resolveInstitutionId(user);
 
   if (!cls) {
     return (
@@ -40,6 +46,10 @@ export default function ClassDetailScreen() {
   }
 
   const full = cls.spotsLeft === 0;
+  const canManage =
+    (user?.role === 'instructor' && cls.instructor.id === instructorId) ||
+    (user?.role === 'institution' && canManageGymClass(cls, institutionId));
+  const canBook = user?.role === 'athlete';
   const onlineLabel = liveStreaming
     ? CLASS_DETAIL_LABELS.liveStream
     : CLASS_DETAIL_LABELS.onlineSessionLink;
@@ -93,19 +103,27 @@ export default function ClassDetailScreen() {
         Suitable for all levels. Bring water and comfortable gear.
       </Text>
 
-      {full ? (
-        waitlistEnabled ? (
-          <Button
-            title={BUTTON_LABELS.joinWaitlist}
-            variant="secondary"
-            onPress={() => router.push(`/book/${cls.id}?waitlist=1`)}
-          />
+      {canManage ? (
+        <Button
+          title={BUTTON_LABELS.editClass}
+          variant="secondary"
+          onPress={() => router.push({ pathname: '/edit-class/[id]', params: { id: cls.id } })}
+        />
+      ) : canBook ? (
+        full ? (
+          waitlistEnabled ? (
+            <Button
+              title={BUTTON_LABELS.joinWaitlist}
+              variant="secondary"
+              onPress={() => router.push(`/book/${cls.id}?waitlist=1`)}
+            />
+          ) : (
+            <Button title={BUTTON_LABELS.classFull} disabled />
+          )
         ) : (
-          <Button title={BUTTON_LABELS.classFull} disabled />
+          <Button title={BUTTON_LABELS.bookNow} onPress={() => router.push(`/book/${cls.id}`)} />
         )
-      ) : (
-        <Button title={BUTTON_LABELS.bookNow} onPress={() => router.push(`/book/${cls.id}`)} />
-      )}
+      ) : null}
     </Screen>
   );
 }

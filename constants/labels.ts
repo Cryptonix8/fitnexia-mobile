@@ -91,6 +91,7 @@ export const BUTTON_LABELS = {
   createAccount: 'Create account',
   signIn: 'Sign in',
   bookNow: 'Book now',
+  editClass: 'Edit class',
   joinWaitlist: 'Join waiting list',
   joinWaitlistShort: 'Join waitlist',
   classFull: 'Class full',

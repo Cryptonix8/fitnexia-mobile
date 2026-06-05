@@ -29,19 +29,7 @@ export default function InstructorClassesScreen() {
           No classes yet. Create your first class to open bookings.
         </Text>
       ) : (
-        mine.map((c) => (
-          <View key={c.id} style={styles.cardWrap}>
-            <ClassCard item={c} />
-            <View style={styles.actions}>
-              <Button
-                title="Edit"
-                size="sm"
-                variant="outline"
-                onPress={() => router.push({ pathname: '/edit-class/[id]', params: { id: c.id } })}
-              />
-            </View>
-          </View>
-        ))
+        mine.map((c) => <ClassCard key={c.id} item={c} />)
       )}
     </Screen>
   );
@@ -56,11 +44,4 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 26, fontWeight: '800' },
   empty: { fontSize: 15, lineHeight: 22 },
-  cardWrap: { marginBottom: Spacing.xs },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: -Spacing.sm,
-    marginBottom: Spacing.md,
-  },
 });
