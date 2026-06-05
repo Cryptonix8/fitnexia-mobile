@@ -18,8 +18,8 @@ export default function LoginScreen() {
   const googleSignIn = useFeature('googleSignIn');
   const { login, loginWithGoogle } = useAuth();
   const { signIn: getGoogleIdToken, pending: googlePending, ready: googleReady } = useGoogleSignIn();
-  const [email, setEmail] = useState('demo@fitnexia.com');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {

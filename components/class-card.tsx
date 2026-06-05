@@ -33,7 +33,7 @@ export function ClassCard({
         },
       ]}
       onPress={() => router.push(`/class/${item.id}`)}>
-      <UserAvatar size={72} kind="instructor" style={styles.thumb} />
+      <UserAvatar size={72} kind="instructor" uri={item.instructor.photoUrl} style={styles.thumb} />
       <View style={styles.body}>
         <View style={styles.row}>
           <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>

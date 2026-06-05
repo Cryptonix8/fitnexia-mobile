@@ -82,6 +82,7 @@ export default function ClassDetailScreen() {
 
       <PressableInstructor
         name={cls.instructor.displayName}
+        photoUrl={cls.instructor.photoUrl}
         rating={cls.averageRating}
         onPress={() => router.push(`/instructor/${cls.instructor.id}`)}
       />
@@ -131,18 +132,20 @@ function Row({
 
 function PressableInstructor({
   name,
+  photoUrl,
   verified,
   rating,
   onPress,
 }: {
   name: string;
+  photoUrl?: string;
   verified?: boolean;
   rating?: number;
   onPress: () => void;
 }) {
   return (
     <View style={styles.instructorCard}>
-      <UserAvatar size={56} kind="instructor" />
+      <UserAvatar size={56} kind="instructor" uri={photoUrl} />
       <View style={{ flex: 1 }}>
         <Text style={styles.instructorName}>{name}</Text>
         {verified ? <Badge label={BADGE_LABELS.verified} variant="verified" /> : null}
