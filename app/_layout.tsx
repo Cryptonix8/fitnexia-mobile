@@ -9,6 +9,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AppSplash } from '@/components/app-splash';
 import { AuthProvider } from '@/contexts/auth-context';
+import { BookingsProvider } from '@/contexts/bookings-context';
 import { ClassesProvider } from '@/contexts/classes-context';
 import { ReviewsProvider } from '@/contexts/reviews-context';
 import { ThemeProvider, useAppTheme } from '@/contexts/theme-context';
@@ -99,11 +100,13 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ThemeProvider>
         <AuthProvider>
-          <ClassesProvider>
-            <ReviewsProvider>
-              <AppBootstrap />
-            </ReviewsProvider>
-          </ClassesProvider>
+          <BookingsProvider>
+            <ClassesProvider>
+              <ReviewsProvider>
+                <AppBootstrap />
+              </ReviewsProvider>
+            </ClassesProvider>
+          </BookingsProvider>
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>

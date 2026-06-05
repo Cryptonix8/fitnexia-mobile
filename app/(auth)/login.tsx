@@ -1,16 +1,15 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { GoogleSignInButton } from '@/components/google-sign-in-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
-import { useAuth } from '@/contexts/auth-context';
+import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
 import { AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
-import type { UserRole } from '@/types/api';
 
 export default function LoginScreen() {
   const googleSignIn = useFeature('googleSignIn');
@@ -19,11 +18,13 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('password');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (role?: UserRole) => {
+  const handleLogin = async () => {
     setLoading(true);
     try {
-      await login(email, password, role);
+      await login(email, password);
       router.replace('/');
+    } catch (err) {
+      Alert.alert('Sign in failed', getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -53,7 +54,7 @@ export default function LoginScreen() {
         <Text style={styles.forgot}>Forgot password?</Text>
       </Pressable>
 
-      <Button title={BUTTON_LABELS.signIn} loading={loading} onPress={() => handleLogin()} />
+      <Button title={BUTTON_LABELS.signIn} loading={loading} onPress={handleLogin} />
 
       {googleSignIn ? <GoogleSignInButton /> : null}
 

@@ -10,7 +10,6 @@ import { Screen } from '@/components/ui/screen';
 import {
   formatClassDate,
   formatMoney,
-  getInstructorById,
 } from '@/data/mock';
 import { useClasses } from '@/contexts/classes-context';
 import { useFeature } from '@/hooks/use-feature';
@@ -30,7 +29,6 @@ export default function ClassDetailScreen() {
   const waitlistEnabled = useFeature('waitlist');
   const liveStreaming = useFeature('liveStreaming');
   const cls = getClassById(id ?? '');
-  const instructor = cls ? getInstructorById(cls.instructor.id) : undefined;
 
   if (!cls) {
     return (
@@ -84,8 +82,7 @@ export default function ClassDetailScreen() {
 
       <PressableInstructor
         name={cls.instructor.displayName}
-        verified={instructor?.verified}
-        rating={instructor?.averageRating}
+        rating={cls.averageRating}
         onPress={() => router.push(`/instructor/${cls.instructor.id}`)}
       />
 

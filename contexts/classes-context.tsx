@@ -1,17 +1,35 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
-import { MOCK_CLASSES } from '@/data/mock';
+import {
+  cancelClassApi,
+  createClassApi,
+  fetchClassesSearch,
+  fetchMyClasses,
+  updateClassApi,
+} from '@/services/api/classes.api';
+import { getErrorMessage } from '@/services/api/errors';
+import { useAuth } from '@/contexts/auth-context';
 import type { ClassListItem } from '@/types/api';
 
 export type NewClassInput = Omit<ClassListItem, 'id' | 'averageRating'>;
 
 interface ClassesContextValue {
   classes: ClassListItem[];
+  isLoading: boolean;
+  error: string | null;
+  refreshClasses: () => Promise<void>;
   getClassById: (id: string) => ClassListItem | undefined;
   getClassesByInstructor: (instructorId: string) => ClassListItem[];
-  addClass: (input: NewClassInput) => ClassListItem;
-  updateClass: (id: string, updates: Partial<ClassListItem>) => void;
-  cancelClass: (id: string) => void;
+  addClass: (input: NewClassInput) => Promise<ClassListItem>;
+  updateClass: (id: string, updates: Partial<ClassListItem>) => Promise<void>;
+  cancelClass: (id: string) => Promise<void>;
 }
 
 const ClassesContext = createContext<ClassesContextValue | null>(null);
@@ -22,8 +40,74 @@ function sortByStartAt(items: ClassListItem[]): ClassListItem[] {
   );
 }
 
+function toCreatePayload(input: NewClassInput, userRole?: string, institutionId?: string, instructorId?: string) {
+  return {
+    title: input.title,
+    discipline: input.discipline,
+    modality: input.modality,
+    classFormat: input.classFormat,
+    startAt: input.startAt,
+    durationMinutes: input.durationMinutes,
+    price: input.price,
+    capacity: input.capacity,
+    institutionId: input.institution?.id ?? (userRole === 'institution' ? institutionId : undefined),
+    instructorId: userRole === 'institution' ? input.instructor.id : instructorId,
+    location: input.location
+      ? { label: input.location.label, lat: input.location.lat, lng: input.location.lng }
+      : undefined,
+  };
+}
+
+function toUpdatePayload(updates: Partial<ClassListItem>) {
+  const body: Record<string, unknown> = {};
+  if (updates.title !== undefined) body.title = updates.title;
+  if (updates.discipline !== undefined) body.discipline = updates.discipline;
+  if (updates.modality !== undefined) body.modality = updates.modality;
+  if (updates.classFormat !== undefined) body.classFormat = updates.classFormat;
+  if (updates.startAt !== undefined) body.startAt = updates.startAt;
+  if (updates.durationMinutes !== undefined) body.durationMinutes = updates.durationMinutes;
+  if (updates.price !== undefined) body.price = updates.price;
+  if (updates.capacity !== undefined) body.capacity = updates.capacity;
+  if (updates.location !== undefined) {
+    body.location = updates.location;
+  }
+  return body;
+}
+
 export function ClassesProvider({ children }: { children: React.ReactNode }) {
-  const [classes, setClasses] = useState<ClassListItem[]>(() => sortByStartAt(MOCK_CLASSES));
+  const { user } = useAuth();
+  const [classes, setClasses] = useState<ClassListItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const refreshClasses = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (user?.role === 'instructor') {
+        const mine = await fetchMyClasses();
+        setClasses(sortByStartAt(mine));
+      } else if (user?.role === 'institution') {
+        const { fetchGymClasses } = await import('@/services/api/classes.api');
+        const gymClasses = await fetchGymClasses();
+        const search = await fetchClassesSearch({ limit: 50 });
+        const merged = new Map<string, ClassListItem>();
+        for (const c of [...search.data, ...gymClasses]) merged.set(c.id, c);
+        setClasses(sortByStartAt([...merged.values()]));
+      } else {
+        const result = await fetchClassesSearch({ limit: 50 });
+        setClasses(sortByStartAt(result.data));
+      }
+    } catch (err) {
+      setError(getErrorMessage(err, 'Failed to load classes'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.role]);
+
+  useEffect(() => {
+    refreshClasses();
+  }, [refreshClasses]);
 
   const getClassById = useCallback(
     (id: string) => classes.find((c) => c.id === id),
@@ -36,37 +120,55 @@ export function ClassesProvider({ children }: { children: React.ReactNode }) {
     [classes],
   );
 
-  const addClass = useCallback((input: NewClassInput) => {
-    const created: ClassListItem = {
-      ...input,
-      id: `class-${Date.now()}`,
-    };
-    setClasses((prev) => sortByStartAt([...prev, created]));
-    return created;
+  const addClass = useCallback(
+    async (input: NewClassInput) => {
+      const created = await createClassApi(
+        toCreatePayload(
+          input,
+          user?.role,
+          user?.institutionId,
+          user?.instructorId,
+        ),
+      );
+      setClasses((prev) => sortByStartAt([...prev, created]));
+      return created;
+    },
+    [user?.role, user?.institutionId, user?.instructorId],
+  );
+
+  const updateClass = useCallback(async (id: string, updates: Partial<ClassListItem>) => {
+    const updated = await updateClassApi(id, toUpdatePayload(updates));
+    setClasses((prev) => sortByStartAt(prev.map((c) => (c.id === id ? updated : c))));
   }, []);
 
-  const updateClass = useCallback((id: string, updates: Partial<ClassListItem>) => {
-    setClasses((prev) =>
-      sortByStartAt(
-        prev.map((c) => (c.id === id ? { ...c, ...updates } : c)),
-      ),
-    );
-  }, []);
-
-  const cancelClass = useCallback((id: string) => {
+  const cancelClass = useCallback(async (id: string) => {
+    await cancelClassApi(id);
     setClasses((prev) => prev.filter((c) => c.id !== id));
   }, []);
 
   const value = useMemo(
     () => ({
       classes,
+      isLoading,
+      error,
+      refreshClasses,
       getClassById,
       getClassesByInstructor,
       addClass,
       updateClass,
       cancelClass,
     }),
-    [classes, getClassById, getClassesByInstructor, addClass, updateClass, cancelClass],
+    [
+      classes,
+      isLoading,
+      error,
+      refreshClasses,
+      getClassById,
+      getClassesByInstructor,
+      addClass,
+      updateClass,
+      cancelClass,
+    ],
   );
 
   return <ClassesContext.Provider value={value}>{children}</ClassesContext.Provider>;

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { InstructorPicker } from '@/components/instructor-picker';
@@ -15,12 +15,9 @@ import { useAppTheme } from '@/contexts/theme-context';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
 import { MODALITY_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
-import { getInstitutionById } from '@/data/mock';
-import {
-  getLinkedInstructors,
-  gymLocationLabel,
-  resolveInstitutionId,
-} from '@/utils/gym-classes';
+import { fetchLinkedInstructors } from '@/services/api/institutions.api';
+import { getErrorMessage } from '@/services/api/errors';
+import { gymLocationLabel, resolveInstitutionId } from '@/utils/gym-classes';
 import { getLinkedInstructorId } from '@/utils/instructor';
 import { combineDateAndTime, defaultClassStart } from '@/utils/schedule';
 import type { ClassFormat, Modality } from '@/types/api';
@@ -29,15 +26,22 @@ export default function CreateClassScreen() {
   const { colors } = useAppTheme();
   const recurringClasses = useFeature('recurringClasses');
   const { user } = useAuth();
-  const { addClass } = useClasses();
+  const { addClass, refreshClasses } = useClasses();
   const defaults = defaultClassStart();
   const isGym = user?.role === 'institution';
   const institutionId = resolveInstitutionId(user);
   const institutionProfile = user?.institutionProfile;
-  const linkedInstructors = useMemo(
-    () => getLinkedInstructors(institutionProfile?.instructorIds ?? []),
-    [institutionProfile?.instructorIds],
-  );
+  const [linkedInstructors, setLinkedInstructors] = useState<
+    { id: string; displayName: string }[]
+  >([]);
+  const [publishing, setPublishing] = useState(false);
+
+  useEffect(() => {
+    if (!isGym) return;
+    fetchLinkedInstructors()
+      .then((data) => setLinkedInstructors(data.map((i) => ({ id: i.id, displayName: i.displayName }))))
+      .catch(() => setLinkedInstructors([]));
+  }, [isGym]);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -66,7 +70,7 @@ export default function CreateClassScreen() {
     }
   }, [classFormat, isGym]);
 
-  const publish = () => {
+  const publish = async () => {
     if (!title.trim()) {
       Alert.alert('Missing info', 'Class name is required.');
       return;
@@ -84,89 +88,82 @@ export default function CreateClassScreen() {
     }
 
     const startAt = combineDateAndTime(startDate, startTime);
+    setPublishing(true);
 
-    if (isGym) {
-      const cap = parseInt(capacity, 10);
-      if (Number.isNaN(cap) || cap < 2) {
-        Alert.alert('Invalid capacity', 'Group classes need at least 2 spots.');
-        return;
+    try {
+      if (isGym) {
+        const cap = parseInt(capacity, 10);
+        if (Number.isNaN(cap) || cap < 2) {
+          Alert.alert('Invalid capacity', 'Group classes need at least 2 spots.');
+          return;
+        }
+        if (!selectedInstructorId) {
+          Alert.alert('Select instructor', 'Choose a linked instructor to teach this class.');
+          return;
+        }
+        const instructor = linkedInstructors.find((i) => i.id === selectedInstructorId);
+        if (!instructor) return;
+
+        await addClass({
+          title: title.trim(),
+          discipline,
+          modality,
+          classFormat: 'group',
+          startAt: startAt.toISOString(),
+          durationMinutes,
+          price: { amount: priceAmount, currency: 'USD' },
+          capacity: cap,
+          spotsLeft: cap,
+          instructor: { id: instructor.id, displayName: instructor.displayName },
+          institution: {
+            id: institutionId,
+            name: institutionProfile?.name ?? 'Gym',
+          },
+          location:
+            modality === 'in_person'
+              ? {
+                  lat: -34.6037,
+                  lng: -58.3816,
+                  label: gymLocationLabel(institutionProfile, institutionId),
+                }
+              : undefined,
+        });
+      } else {
+        if (classFormat === 'group') {
+          const cap = parseInt(capacity, 10);
+          if (Number.isNaN(cap) || cap < 2) {
+            Alert.alert('Invalid capacity', 'Group classes need at least 2 spots.');
+            return;
+          }
+        }
+
+        const instructorCap = classFormat === 'individual' ? 1 : parseInt(capacity, 10);
+        await addClass({
+          title: title.trim(),
+          discipline,
+          modality,
+          classFormat,
+          startAt: startAt.toISOString(),
+          durationMinutes,
+          price: { amount: priceAmount, currency: 'USD' },
+          capacity: instructorCap,
+          spotsLeft: instructorCap,
+          instructor: {
+            id: getLinkedInstructorId(user),
+            displayName: user?.instructorProfile?.displayName ?? 'Instructor',
+          },
+        });
       }
-      if (!selectedInstructorId) {
-        Alert.alert('Select instructor', 'Choose a linked instructor to teach this class.');
-        return;
-      }
-      const instructor = linkedInstructors.find((i) => i.id === selectedInstructorId);
-      if (!instructor) return;
 
-      const gymName = institutionProfile?.name ?? getInstitutionById(institutionId)?.name ?? 'Gym';
-      const locationLabel = gymLocationLabel(institutionProfile, institutionId);
-      const mockGym = getInstitutionById(institutionId);
-
-      addClass({
-        title: title.trim(),
-        discipline,
-        modality,
-        classFormat: 'group',
-        startAt: startAt.toISOString(),
-        durationMinutes,
-        price: { amount: priceAmount, currency: 'USD' },
-        capacity: cap,
-        spotsLeft: cap,
-        instructor: { id: instructor.id, displayName: instructor.displayName },
-        institution: { id: institutionId, name: gymName },
-        location:
-          modality === 'in_person'
-            ? {
-                lat: mockGym?.location?.lat ?? -34.6037,
-                lng: mockGym?.location?.lng ?? -58.3816,
-                label: locationLabel,
-              }
-            : undefined,
-      });
-
-      Alert.alert(
-        'Published',
-        `"${title.trim()}" is live with ${instructor.displayName} · ${cap} spots.`,
-        [{ text: 'OK', onPress: () => router.back() }],
-      );
-      return;
+      await refreshClasses();
+      Alert.alert('Published', `"${title.trim()}" is now live.`, [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
+    } catch (err) {
+      Alert.alert('Publish failed', getErrorMessage(err));
+    } finally {
+      setPublishing(false);
     }
-
-    if (classFormat === 'group') {
-      const cap = parseInt(capacity, 10);
-      if (Number.isNaN(cap) || cap < 2) {
-        Alert.alert('Invalid capacity', 'Group classes need at least 2 spots.');
-        return;
-      }
-    }
-
-    const instructorCap = classFormat === 'individual' ? 1 : parseInt(capacity, 10);
-    const instructorId = getLinkedInstructorId(user);
-
-    addClass({
-      title: title.trim(),
-      discipline,
-      modality,
-      classFormat,
-      startAt: startAt.toISOString(),
-      durationMinutes,
-      price: { amount: priceAmount, currency: 'USD' },
-      capacity: instructorCap,
-      spotsLeft: instructorCap,
-      instructor: {
-        id: instructorId,
-        displayName: user?.instructorProfile?.displayName ?? 'Instructor',
-      },
-    });
-
-    const formatLabel =
-      classFormat === 'individual' ? 'Individual (1-on-1)' : `Group (${instructorCap} spots)`;
-    const recurNote = recurringClasses && recurring ? ' Repeats weekly.' : '';
-    Alert.alert(
-      'Published',
-      `"${title.trim()}" is scheduled for ${startAt.toLocaleString()} as a ${formatLabel} class.${recurNote}`,
-      [{ text: 'OK', onPress: () => router.back() }],
-    );
   };
 
   const minDate = new Date();
@@ -319,6 +316,7 @@ export default function CreateClassScreen() {
 
       <Button
         title="Publish class"
+        loading={publishing}
         onPress={publish}
         disabled={isGym && linkedInstructors.length === 0}
         style={{ marginTop: Spacing.md }}

@@ -1,22 +1,29 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
-import { getBookingById } from '@/data/mock';
+import { useBookings } from '@/contexts/bookings-context';
 import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { submitReviewApi } from '@/services/api/bookings.api';
+import { getErrorMessage } from '@/services/api/errors';
 
 export default function ReviewScreen() {
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
   const { getClassById } = useClasses();
-  const booking = getBookingById(bookingId ?? '');
+  const { bookings } = useBookings();
+  const booking = useMemo(
+    () => bookings.find((b) => b.id === bookingId),
+    [bookings, bookingId],
+  );
   const cls = booking ? getClassById(booking.classId) : undefined;
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
+  const [loading, setLoading] = useState(false);
 
   if (!booking || !cls) {
     return (
@@ -58,10 +65,19 @@ export default function ReviewScreen() {
 
       <Button
         title="Submit review"
-        onPress={() => {
-          Alert.alert('Thank you!', 'Your review has been published.', [
-            { text: 'OK', onPress: () => router.back() },
-          ]);
+        loading={loading}
+        onPress={async () => {
+          setLoading(true);
+          try {
+            await submitReviewApi(booking.id, rating, comment.trim() || undefined);
+            Alert.alert('Thank you!', 'Your review has been published.', [
+              { text: 'OK', onPress: () => router.back() },
+            ]);
+          } catch (err) {
+            Alert.alert('Review failed', getErrorMessage(err));
+          } finally {
+            setLoading(false);
+          }
         }}
       />
     </Screen>

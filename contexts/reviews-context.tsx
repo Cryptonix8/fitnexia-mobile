@@ -1,22 +1,18 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 
+import { fetchStaffReviewsForInstructor, submitStaffReviewApi } from '@/services/api/instructors.api';
 import type { StaffReview } from '@/types/api';
-
-const INITIAL_STAFF_REVIEWS: StaffReview[] = [
-  {
-    id: 'sr-1',
-    instructorId: 'inst-2',
-    institutionId: 'gym-1',
-    institutionName: 'FitHub Downtown',
-    rating: 5,
-    comment: 'Excellent group sessions. Always prepared and professional.',
-    createdAt: '2026-05-15T10:00:00Z',
-    verified: true,
-  },
-];
 
 interface ReviewsContextValue {
   staffReviews: StaffReview[];
+  isLoading: boolean;
+  loadStaffReviewsForInstructor: (instructorId: string) => Promise<StaffReview[]>;
   getStaffReviewsForInstructor: (instructorId: string) => StaffReview[];
   getGymReviewForInstructor: (institutionId: string, instructorId: string) => StaffReview | undefined;
   canGymReviewInstructor: (
@@ -24,20 +20,37 @@ interface ReviewsContextValue {
     instructorId: string,
     linkedInstructorIds: string[],
   ) => boolean;
-  addStaffReview: (review: Omit<StaffReview, 'id' | 'verified' | 'createdAt'>) => StaffReview;
+  addStaffReview: (review: Omit<StaffReview, 'id' | 'verified' | 'createdAt'>) => Promise<StaffReview>;
 }
 
 const ReviewsContext = createContext<ReviewsContextValue | null>(null);
 
 export function ReviewsProvider({ children }: { children: React.ReactNode }) {
-  const [staffReviews, setStaffReviews] = useState<StaffReview[]>(INITIAL_STAFF_REVIEWS);
+  const [staffReviews, setStaffReviews] = useState<StaffReview[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [cache, setCache] = useState<Record<string, StaffReview[]>>({});
+
+  const loadStaffReviewsForInstructor = useCallback(async (instructorId: string) => {
+    setIsLoading(true);
+    try {
+      const data = await fetchStaffReviewsForInstructor(instructorId);
+      setCache((prev) => ({ ...prev, [instructorId]: data }));
+      setStaffReviews((prev) => {
+        const others = prev.filter((r) => r.instructorId !== instructorId);
+        return [...others, ...data];
+      });
+      return data;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const getStaffReviewsForInstructor = useCallback(
     (instructorId: string) =>
-      staffReviews.filter((r) => r.instructorId === instructorId).sort(
+      (cache[instructorId] ?? staffReviews.filter((r) => r.instructorId === instructorId)).sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       ),
-    [staffReviews],
+    [cache, staffReviews],
   );
 
   const getGymReviewForInstructor = useCallback(
@@ -59,14 +72,17 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
   );
 
   const addStaffReview = useCallback(
-    (input: Omit<StaffReview, 'id' | 'verified' | 'createdAt'>) => {
-      const created: StaffReview = {
-        ...input,
-        id: `sr-${Date.now()}`,
-        verified: true,
-        createdAt: new Date().toISOString(),
-      };
+    async (input: Omit<StaffReview, 'id' | 'verified' | 'createdAt'>) => {
+      const created = await submitStaffReviewApi(
+        input.instructorId,
+        input.rating,
+        input.comment,
+      );
       setStaffReviews((prev) => [...prev, created]);
+      setCache((prev) => ({
+        ...prev,
+        [input.instructorId]: [...(prev[input.instructorId] ?? []), created],
+      }));
       return created;
     },
     [],
@@ -75,6 +91,8 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       staffReviews,
+      isLoading,
+      loadStaffReviewsForInstructor,
       getStaffReviewsForInstructor,
       getGymReviewForInstructor,
       canGymReviewInstructor,
@@ -82,6 +100,8 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
     }),
     [
       staffReviews,
+      isLoading,
+      loadStaffReviewsForInstructor,
       getStaffReviewsForInstructor,
       getGymReviewForInstructor,
       canGymReviewInstructor,

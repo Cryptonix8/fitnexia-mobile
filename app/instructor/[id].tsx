@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { UserAvatar } from '@/components/user-avatar';
 import { Badge } from '@/components/ui/badge';
@@ -9,19 +10,40 @@ import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useReviews } from '@/contexts/reviews-context';
 import { useAppTheme } from '@/contexts/theme-context';
-import { getInstructorById } from '@/data/mock';
 import { useClasses } from '@/contexts/classes-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { BADGE_LABELS } from '@/constants/labels';
+import { fetchInstructorById } from '@/services/api/instructors.api';
+import type { Instructor } from '@/types/api';
 
 export default function InstructorProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useAppTheme();
   const { classes } = useClasses();
-  const { getStaffReviewsForInstructor } = useReviews();
-  const instructor = getInstructorById(id ?? '');
+  const { getStaffReviewsForInstructor, loadStaffReviewsForInstructor } = useReviews();
+  const [instructor, setInstructor] = useState<Instructor | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    Promise.all([fetchInstructorById(id), loadStaffReviewsForInstructor(id)])
+      .then(([data]) => setInstructor(data))
+      .catch(() => setInstructor(null))
+      .finally(() => setLoading(false));
+  }, [id, loadStaffReviewsForInstructor]);
+
   const instructorClasses = classes.filter((c) => c.instructor.id === id);
   const staffReviews = getStaffReviewsForInstructor(id ?? '');
+
+  if (loading) {
+    return (
+      <Screen>
+        <Header title="Instructor" showBack />
+        <ActivityIndicator style={{ marginTop: Spacing.xl }} />
+      </Screen>
+    );
+  }
 
   if (!instructor) {
     return (
@@ -48,71 +70,43 @@ export default function InstructorProfileScreen() {
           ★ {instructor.averageRating} ({instructor.reviewCount} athlete reviews)
         </Text>
         <Text style={[styles.bio, { color: colors.textSecondary }]}>{instructor.bio}</Text>
-        <Text style={[styles.disciplines, { color: colors.primary }]}>
-          {instructor.disciplines.join(' · ')}
-        </Text>
       </View>
 
-      {staffReviews.length > 0 ? (
+      {instructor.disciplines.length > 0 ? (
         <>
-          <Text style={[styles.section, { color: colors.text }]}>Reviews from gyms</Text>
-          {staffReviews.map((review) => (
-            <View
-              key={review.id}
-              style={[
-                styles.reviewCard,
-                { backgroundColor: colors.surface, borderColor: colors.border },
-              ]}>
-              <View style={styles.reviewHeader}>
-                <Text style={[styles.reviewAuthor, { color: colors.text }]}>
-                  {review.institutionName}
-                </Text>
-                <Badge label="Verified gym" variant="verified" />
+          <Text style={[styles.section, { color: colors.text }]}>Disciplines</Text>
+          <View style={styles.chips}>
+            {instructor.disciplines.map((d) => (
+              <View key={d} style={[styles.chip, { backgroundColor: colors.surfaceMuted }]}>
+                <Text style={{ color: colors.textSecondary }}>{d}</Text>
               </View>
-              <View style={styles.stars}>
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <Ionicons
-                    key={n}
-                    name={n <= review.rating ? 'star' : 'star-outline'}
-                    size={16}
-                    color={colors.warning}
-                  />
-                ))}
-              </View>
-              {review.comment ? (
-                <Text style={[styles.reviewComment, { color: colors.textSecondary }]}>
-                  {review.comment}
-                </Text>
-              ) : null}
-              <Text style={[styles.reviewDate, { color: colors.textMuted }]}>
-                {new Date(review.createdAt).toLocaleDateString()}
-              </Text>
-            </View>
-          ))}
+            ))}
+          </View>
         </>
       ) : null}
 
-      {instructor.certifications?.length ? (
+      {staffReviews.length > 0 ? (
         <>
-          <Text style={[styles.section, { color: colors.text }]}>Certifications</Text>
-          {instructor.certifications.map((cert) => (
+          <Text style={[styles.section, { color: colors.text }]}>Gym staff reviews</Text>
+          {staffReviews.map((review) => (
             <View
-              key={`${cert.name}-${cert.year}`}
-              style={[styles.certCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Text style={[styles.certName, { color: colors.text }]}>{cert.name}</Text>
-              <Text style={[styles.certMeta, { color: colors.textMuted }]}>
-                {cert.issuer} · {cert.year}
-              </Text>
+              key={review.id}
+              style={[styles.reviewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Text style={[styles.reviewGym, { color: colors.textMuted }]}>{review.institutionName}</Text>
+              <Text style={{ color: colors.warning }}>{'★'.repeat(review.rating)}</Text>
+              {review.comment ? (
+                <Text style={[styles.reviewComment, { color: colors.textSecondary }]}>{review.comment}</Text>
+              ) : null}
             </View>
           ))}
         </>
       ) : null}
 
       <Text style={[styles.section, { color: colors.text }]}>Upcoming classes</Text>
-      {instructorClasses.length ? (
-        instructorClasses.map((c) => <ClassCard key={c.id} item={c} />)
+      {instructorClasses.length === 0 ? (
+        <Text style={[styles.empty, { color: colors.textMuted }]}>No upcoming classes listed.</Text>
       ) : (
-        <Text style={{ color: colors.textMuted }}>No upcoming classes</Text>
+        instructorClasses.map((c) => <ClassCard key={c.id} item={c} />)
       )}
     </Screen>
   );
@@ -123,38 +117,18 @@ const styles = StyleSheet.create({
   photo: { marginBottom: Spacing.md },
   name: { fontSize: 24, fontWeight: '800' },
   meta: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm },
-  rating: { fontSize: 15, marginTop: Spacing.sm },
-  bio: {
-    fontSize: 15,
-    textAlign: 'center',
-    marginTop: Spacing.md,
-    lineHeight: 22,
-    paddingHorizontal: Spacing.md,
-  },
-  disciplines: { fontSize: 14, fontWeight: '600', marginTop: Spacing.sm },
-  section: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.md },
+  rating: { marginTop: Spacing.sm, fontSize: 14 },
+  bio: { marginTop: Spacing.md, textAlign: 'center', lineHeight: 22, paddingHorizontal: Spacing.md },
+  section: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.md, marginTop: Spacing.sm },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.md },
+  chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.full },
   reviewCard: {
-    padding: Spacing.md,
-    borderRadius: Radius.md,
     borderWidth: 1,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
     marginBottom: Spacing.sm,
   },
-  reviewHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: Spacing.sm,
-  },
-  reviewAuthor: { fontSize: 15, fontWeight: '700', flex: 1 },
-  stars: { flexDirection: 'row', gap: 2, marginTop: Spacing.sm },
-  reviewComment: { fontSize: 14, lineHeight: 20, marginTop: Spacing.sm },
-  reviewDate: { fontSize: 12, marginTop: Spacing.sm },
-  certCard: {
-    padding: Spacing.md,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    marginBottom: Spacing.sm,
-  },
-  certName: { fontSize: 15, fontWeight: '600' },
-  certMeta: { fontSize: 13, marginTop: 2 },
+  reviewGym: { fontSize: 12, fontWeight: '600', marginBottom: 4 },
+  reviewComment: { marginTop: Spacing.sm, lineHeight: 20 },
+  empty: { marginBottom: Spacing.lg },
 });

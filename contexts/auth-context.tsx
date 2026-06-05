@@ -1,5 +1,27 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
+import {
+  forgotPasswordApi,
+  loadCurrentUser,
+  loginApi,
+  logoutApi,
+  registerApi,
+  setAvailableNowApi,
+  updateAthleteProfileApi,
+  updateInstructorProfileApi,
+  updateInstitutionProfileApi,
+  updateNotificationPrefsApi,
+} from '@/services/api/auth.api';
+import { getAccessToken } from '@/services/api/token-storage';
+import { getErrorMessage } from '@/services/api/errors';
+import { resolveMediaUrl, resolveMediaUrls } from '@/services/api/media.api';
 import type { Certification, UserRole, WeeklySchedule } from '@/types/api';
 import { defaultWeeklySchedule } from '@/utils/schedule';
 
@@ -73,7 +95,11 @@ const DEFAULT_NOTIFICATIONS: NotificationPreferences = {
   marketing: false,
 };
 
-export function defaultInstructorProfile(firstName: string, lastName: string, disciplines: string[] = []): InstructorProfileData {
+export function defaultInstructorProfile(
+  firstName: string,
+  lastName: string,
+  disciplines: string[] = [],
+): InstructorProfileData {
   return {
     displayName: `${firstName} ${lastName}`.trim(),
     bio: '',
@@ -128,167 +154,122 @@ interface AuthContextValue {
   completeOnboarding: () => void;
   login: (email: string, password: string, role?: UserRole) => Promise<void>;
   register: (params: RegisterParams) => Promise<void>;
-  updateProfile: (updates: UpdateProfileParams) => void;
-  logout: () => void;
+  updateProfile: (updates: UpdateProfileParams) => Promise<void>;
+  refreshUser: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-type UserSeed = Omit<AuthUser, 'favoriteSports' | 'notificationPreferences' | 'paymentMethods'> & {
-  favoriteSports?: string[];
-  notificationPreferences?: NotificationPreferences;
-  paymentMethods?: PaymentMethod[];
-};
-
-function createUser(partial: UserSeed): AuthUser {
-  return {
-    favoriteSports: partial.favoriteSports ?? [],
-    notificationPreferences: partial.notificationPreferences ?? { ...DEFAULT_NOTIFICATIONS },
-    paymentMethods: partial.paymentMethods ?? [],
-    ...partial,
-  };
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const refreshUser = useCallback(async () => {
+    const refreshed = await loadCurrentUser();
+    if (refreshed) setUser(refreshed);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const token = await getAccessToken();
+        if (token) {
+          const current = await loadCurrentUser();
+          if (active && current) setUser(current);
+        }
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const completeOnboarding = useCallback(() => {
     setHasSeenOnboarding(true);
   }, []);
 
-  const login = useCallback(async (email: string, _password: string, role: UserRole = 'athlete') => {
-    const base = {
-      id: 'mock-user',
-      email,
-      role,
-      firstName: 'Demo',
-      lastName: 'User',
-      favoriteSports: role === 'athlete' ? ['Yoga', 'Tennis'] : [],
-    };
-
-    if (role === 'instructor') {
-      setUser(
-        createUser({
-          ...base,
-          instructorId: 'inst-1',
-          instructorProfile: {
-            ...defaultInstructorProfile('Demo', 'User', ['Tennis', 'Padel']),
-            bio: 'PTR certified tennis coach with 10+ years experience.',
-            availableNow: true,
-            weeklySchedule: defaultWeeklySchedule(),
-            hourlyRate: '50',
-            verified: true,
-            certifications: [
-              { name: 'PTR Certified', issuer: 'PTR', year: 2018 },
-              { name: 'Sports Psychology', issuer: 'ITF', year: 2020 },
-            ],
-          },
-        }),
-      );
-      return;
-    }
-
-    if (role === 'institution') {
-      setUser(
-        createUser({
-          ...base,
-          institutionId: 'gym-1',
-          institutionProfile: {
-            ...defaultInstitutionProfile('FitHub Downtown'),
-            description: 'Premium fitness studio in the city center.',
-            address: '123 Main St',
-            city: 'Buenos Aires',
-            country: 'AR',
-            verified: true,
-            instructorIds: ['inst-1', 'inst-2', 'inst-3'],
-          },
-        }),
-      );
-      return;
-    }
-
-    setUser(createUser(base));
+  const login = useCallback(async (email: string, password: string) => {
+    const loggedIn = await loginApi(email, password);
+    setUser(loggedIn);
   }, []);
 
   const register = useCallback(async (params: RegisterParams) => {
-    const base: UserSeed = {
-      id: 'mock-user-new',
-      email: params.email,
-      role: params.role,
-      firstName: params.firstName,
-      lastName: params.lastName,
-      avatarUri: params.avatarUri ?? null,
-      favoriteSports: params.favoriteSports ?? [],
-    };
-
-    if (params.role === 'instructor') {
-      setUser(
-        createUser({
-          ...base,
-          instructorId: `inst-${Date.now()}`,
-          instructorProfile: defaultInstructorProfile(
-            params.firstName,
-            params.lastName,
-            params.disciplines ?? [],
-          ),
-        }),
-      );
-      return;
-    }
-
-    if (params.role === 'institution') {
-      const gymName =
-        params.institutionName?.trim() || `${params.firstName} ${params.lastName}`.trim();
-      setUser(
-        createUser({
-          ...base,
-          institutionId: `gym-${Date.now()}`,
-          institutionProfile: defaultInstitutionProfile(gymName),
-        }),
-      );
-      return;
-    }
-
-    setUser(createUser(base));
+    const registered = await registerApi(params);
+    setUser(registered);
   }, []);
 
-  const updateProfile = useCallback((updates: UpdateProfileParams) => {
-    setUser((prev) => {
-      if (!prev) return prev;
-      return createUser({
-        ...prev,
-        ...updates,
-        notificationPreferences: updates.notificationPreferences
-          ? { ...prev.notificationPreferences, ...updates.notificationPreferences }
-          : prev.notificationPreferences,
-        paymentMethods: updates.paymentMethods ?? prev.paymentMethods,
-        instructorProfile: updates.instructorProfile
-          ? prev.instructorProfile
-            ? { ...prev.instructorProfile, ...updates.instructorProfile }
-            : prev.role === 'instructor'
-              ? {
-                  ...defaultInstructorProfile(prev.firstName, prev.lastName),
-                  ...updates.instructorProfile,
-                }
-              : undefined
-          : prev.instructorProfile,
-        institutionProfile: updates.institutionProfile
-          ? prev.institutionProfile
-            ? { ...prev.institutionProfile, ...updates.institutionProfile }
-            : prev.role === 'institution'
-              ? {
-                  ...defaultInstitutionProfile(`${prev.firstName} ${prev.lastName}`.trim() || 'Gym'),
-                  ...updates.institutionProfile,
-                }
-              : undefined
-          : prev.institutionProfile,
-      });
-    });
-  }, []);
+  const updateProfile = useCallback(
+    async (updates: UpdateProfileParams) => {
+      if (!user) return;
 
-  const logout = useCallback(() => {
+      const photoUrl =
+        updates.avatarUri !== undefined ? await resolveMediaUrl(updates.avatarUri) : undefined;
+
+      if (user.role === 'athlete') {
+        const body: Record<string, unknown> = {};
+        if (updates.firstName !== undefined) body.firstName = updates.firstName;
+        if (updates.lastName !== undefined) body.lastName = updates.lastName;
+        if (updates.avatarUri !== undefined) body.photoUrl = photoUrl;
+        if (updates.favoriteSports !== undefined) body.favoriteSports = updates.favoriteSports;
+        if (Object.keys(body).length) await updateAthleteProfileApi(body);
+      }
+
+      if (user.role === 'instructor') {
+        const p = updates.instructorProfile;
+        const body: Record<string, unknown> = {};
+        if (p?.displayName !== undefined) body.displayName = p.displayName;
+        if (p?.bio !== undefined) body.bio = p.bio;
+        if (p?.disciplines !== undefined) body.disciplines = p.disciplines;
+        if (p?.certifications !== undefined) body.certifications = p.certifications;
+        if (p?.weeklySchedule !== undefined) body.weeklySchedule = p.weeklySchedule;
+        if (p?.hourlyRate !== undefined && p.hourlyRate !== '') {
+          body.hourlyRate = {
+            amount: Math.round(parseFloat(p.hourlyRate) * 100),
+            currency: 'USD',
+          };
+        }
+        if (updates.avatarUri !== undefined) body.photoUrl = photoUrl;
+        if (Object.keys(body).length) await updateInstructorProfileApi(body);
+        if (p?.availableNow !== undefined) {
+          await setAvailableNowApi(p.availableNow);
+        }
+      }
+
+      if (user.role === 'institution') {
+        const p = updates.institutionProfile;
+        const body: Record<string, unknown> = {};
+        if (p?.name !== undefined) body.name = p.name;
+        if (p?.description !== undefined) body.description = p.description;
+        if (p?.gallery !== undefined) {
+          body.gallery = await resolveMediaUrls(p.gallery);
+        }
+        if (updates.avatarUri !== undefined) body.logoUrl = photoUrl;
+        if (p?.address !== undefined || p?.city !== undefined || p?.country !== undefined) {
+          body.location = {
+            address: p.address ?? user.institutionProfile?.address ?? '',
+            city: p.city ?? user.institutionProfile?.city ?? '',
+            country: p.country ?? user.institutionProfile?.country ?? '',
+          };
+        }
+        if (Object.keys(body).length) await updateInstitutionProfileApi(body);
+      }
+
+      if (updates.notificationPreferences) {
+        await updateNotificationPrefsApi(updates.notificationPreferences);
+      }
+
+      await refreshUser();
+    },
+    [user, refreshUser],
+  );
+
+  const logout = useCallback(async () => {
+    await logoutApi();
     setUser(null);
   }, []);
 
@@ -301,9 +282,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       register,
       updateProfile,
+      refreshUser,
       logout,
     }),
-    [user, hasSeenOnboarding, isLoading, completeOnboarding, login, register, updateProfile, logout],
+    [
+      user,
+      hasSeenOnboarding,
+      isLoading,
+      completeOnboarding,
+      login,
+      register,
+      updateProfile,
+      refreshUser,
+      logout,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -315,4 +307,4 @@ export function useAuth() {
   return ctx;
 }
 
-export { DEFAULT_NOTIFICATIONS };
+export { DEFAULT_NOTIFICATIONS, forgotPasswordApi, getErrorMessage };

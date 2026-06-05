@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { formatMoney } from '@/data/mock';
+import { useBookings } from '@/contexts/bookings-context';
 import { useClasses } from '@/contexts/classes-context';
+import { getErrorMessage } from '@/services/api/errors';
 import { useFeature } from '@/hooks/use-feature';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import { BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
@@ -20,7 +22,8 @@ const ALL_PAYMENT_OPTIONS: { id: PaymentModel; label: string; desc: string }[] =
 
 export default function BookScreen() {
   const { classId, waitlist } = useLocalSearchParams<{ classId: string; waitlist?: string }>();
-  const { getClassById } = useClasses();
+  const { getClassById, refreshClasses } = useClasses();
+  const { createBooking } = useBookings();
   const waitlistEnabled = useFeature('waitlist');
   const subscriptionModels = useFeature('subscriptionPaymentModels');
   const integratedPayments = useFeature('integratedPayments');
@@ -54,20 +57,27 @@ export default function BookScreen() {
     );
   }
 
-  const confirm = () => {
+  const confirm = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      if (!isWaitlist) {
+        await createBooking(classId ?? '');
+        await refreshClasses();
+      }
       Alert.alert(
         isWaitlist ? 'On waitlist' : 'Booking confirmed',
         isWaitlist
           ? 'We will notify you when a spot opens. You will have 2 hours to confirm.'
           : integratedPayments
             ? 'Payment mock successful. Check your bookings tab.'
-            : 'Your spot is reserved. Payment will be added in a future update.',
+            : 'Your spot is reserved.',
         [{ text: 'OK', onPress: () => router.replace('/(athlete)/(tabs)/bookings') }],
       );
-    }, 800);
+    } catch (err) {
+      Alert.alert('Booking failed', getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -150,6 +150,7 @@ export const ALERT_LABELS = {
   cancel: 'Cancel',
   missingInfoTitle: 'Missing info',
   fillAllFields: 'Please fill in all fields.',
+  passwordMinLength: 'Password must be at least 8 characters.',
   gymNameRequired: 'Gym / school name is required.',
   savedTitle: 'Saved',
 } as const;

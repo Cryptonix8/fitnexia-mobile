@@ -8,7 +8,7 @@ import { RoleCard } from '@/components/role-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
-import { useAuth } from '@/contexts/auth-context';
+import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
@@ -46,6 +46,10 @@ export default function RegisterScreen() {
       Alert.alert(ALERT_LABELS.missingInfoTitle, ALERT_LABELS.fillAllFields);
       return;
     }
+    if (password.length < 8) {
+      Alert.alert(ALERT_LABELS.missingInfoTitle, ALERT_LABELS.passwordMinLength);
+      return;
+    }
     if (role === 'institution' && !institutionName.trim()) {
       Alert.alert(ALERT_LABELS.missingInfoTitle, ALERT_LABELS.gymNameRequired);
       return;
@@ -64,6 +68,8 @@ export default function RegisterScreen() {
         institutionName: role === 'institution' ? institutionName.trim() : undefined,
       });
       router.replace('/');
+    } catch (err) {
+      Alert.alert('Registration failed', getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -128,6 +134,7 @@ export default function RegisterScreen() {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
+            placeholder="At least 8 characters"
           />
 
           {role === 'instructor' ? (

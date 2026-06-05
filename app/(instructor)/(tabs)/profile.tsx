@@ -39,8 +39,8 @@ export default function InstructorProfileScreen() {
       {
         text: BUTTON_LABELS.signOut,
         style: 'destructive',
-        onPress: () => {
-          logout();
+        onPress: async () => {
+          await logout();
           router.replace('/(auth)/login');
         },
       },

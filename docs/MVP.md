@@ -19,7 +19,6 @@ Feature flags: [`constants/features.ts`](../constants/features.ts).
 
 | Feature | Flag | Target |
 |---------|------|--------|
-| Google sign-in | `googleSignIn` | v2 |
 | Advanced search (level, language, gender) | `advancedSearch` | v2 |
 | Map / geolocation | `geolocationMap` | v2 (enabled in dev) |
 | Recurring classes | `recurringClasses` | v2 |

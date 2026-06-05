@@ -5,10 +5,11 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BookingsCalendar } from '@/components/bookings-calendar';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
+import { useBookings } from '@/contexts/bookings-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { formatClassDate, formatMoney, MOCK_BOOKINGS } from '@/data/mock';
+import { formatClassDate, formatMoney } from '@/data/mock';
 import type { Booking, ClassListItem } from '@/types/api';
 import { startOfMonth, toDateKey } from '@/utils/calendar';
 import { isSameCalendarDay } from '@/utils/schedule';
@@ -35,6 +36,7 @@ function buildEntries(
 
 export default function BookingsScreen() {
   const { getClassById } = useClasses();
+  const { bookings } = useBookings();
   const { colors } = useAppTheme();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
@@ -44,8 +46,8 @@ export default function BookingsScreen() {
     return today;
   });
 
-  const upcoming = MOCK_BOOKINGS.filter((b) => b.status === 'confirmed');
-  const past = MOCK_BOOKINGS.filter((b) => b.status === 'completed');
+  const upcoming = bookings.filter((b) => b.status === 'confirmed' || b.status === 'pending_payment');
+  const past = bookings.filter((b) => b.status === 'completed');
   const tabBookings = tab === 'upcoming' ? upcoming : past;
 
   const entries = useMemo(

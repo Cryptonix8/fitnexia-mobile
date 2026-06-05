@@ -12,13 +12,17 @@ The backend API is shared by **web**, **mobile**, and the **admin panel**:
 
 Staging base URL: `https://api.staging.fitnexia.com/v1` (set `EXPO_PUBLIC_API_URL` in `.env` when integrating).
 
-## Mobile UI (mock data)
+## Mobile UI (API-backed)
 
-The app includes a full MVP UI with mock data (no backend required yet):
+The app connects to the Fitnexia API. Copy `.env.example` to `.env` and set:
 
-1. Run `npm install` then `npx expo start`
-2. Complete onboarding → **Login** → use **Quick demo** buttons (Athlete / Coach / Gym) or register with a profile type
-3. Flows: search & book classes, instructor dashboard, gym control panel
+```
+EXPO_PUBLIC_API_URL=http://localhost:3001/v1
+```
+
+Start the backend first (`cd backend && npm run dev`), then `npx expo start`.
+
+**Demo login:** `demo@fitnexia.com` / `password`
 
 **Athlete:** Home, Search, Bookings, Profile (+ class detail, payment, reviews)  
 **Instructor:** Dashboard, Classes, Calendar, Earnings, Profile (+ create class)  
