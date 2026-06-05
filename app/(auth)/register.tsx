@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AvatarPicker } from '@/components/avatar-picker';
+import { GoogleSignInButton } from '@/components/google-sign-in-button';
 import { RoleCard } from '@/components/role-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,9 +11,11 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
+import { useFeature } from '@/hooks/use-feature';
 import type { UserRole } from '@/types/api';
 
 export default function RegisterScreen() {
+  const googleSignIn = useFeature('googleSignIn');
   const { register } = useAuth();
   const [step, setStep] = useState<1 | 2>(1);
   const [role, setRole] = useState<UserRole>('athlete');
@@ -92,6 +95,7 @@ export default function RegisterScreen() {
             onPress={() => setRole('institution')}
           />
           <Button title={BUTTON_LABELS.continue} onPress={() => setStep(2)} />
+          {googleSignIn ? <GoogleSignInButton /> : null}
         </>
       ) : (
         <>
@@ -165,6 +169,7 @@ export default function RegisterScreen() {
           ) : null}
 
           <Button title={BUTTON_LABELS.createAccount} loading={loading} onPress={submit} />
+          {googleSignIn ? <GoogleSignInButton /> : null}
         </>
       )}
     </Screen>

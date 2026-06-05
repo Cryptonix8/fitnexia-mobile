@@ -129,6 +129,7 @@ export function classSpotsLabel(
 export const AUTH_LABELS = {
   welcomeBack: 'Welcome back',
   signInSubtitle: 'Sign in to continue',
+  continueWithGoogle: 'Continue with Google',
   chooseProfile: 'Choose your profile',
   createAccount: 'Create account',
   howWillYouUse: 'How will you use Fitnexia?',

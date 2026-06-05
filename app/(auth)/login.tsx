@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { GoogleSignInButton } from '@/components/google-sign-in-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
@@ -55,14 +55,7 @@ export default function LoginScreen() {
 
       <Button title={BUTTON_LABELS.signIn} loading={loading} onPress={() => handleLogin()} />
 
-      {googleSignIn ? (
-        <Pressable
-          style={styles.google}
-          onPress={() => Alert.alert('Google Sign-In', 'Connect when backend is ready.')}>
-          <Ionicons name="logo-google" size={20} color={FitnexiaColors.gray700} />
-          <Text style={styles.googleText}>Continue with Google</Text>
-        </Pressable>
-      ) : null}
+      {googleSignIn ? <GoogleSignInButton /> : null}
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>New here? </Text>
@@ -91,19 +84,6 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
     marginTop: -Spacing.sm,
   },
-  google: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.sm,
-    backgroundColor: FitnexiaColors.white,
-    borderWidth: 1,
-    borderColor: FitnexiaColors.gray200,
-    borderRadius: 12,
-    paddingVertical: 14,
-    marginTop: Spacing.md,
-  },
-  googleText: { fontSize: 16, fontWeight: '600', color: FitnexiaColors.gray700 },
   demoLabel: {
     fontSize: 12,
     color: FitnexiaColors.gray500,

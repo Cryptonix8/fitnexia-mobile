@@ -22,7 +22,7 @@ export const FEATURES = {
   notificationPreferences: true,
 
   // --- Post-MVP (disabled for v1) ---
-  googleSignIn: false,
+  googleSignIn: true,
   advancedSearch: false,
   recurringClasses: false,
   liveStreaming: false,
