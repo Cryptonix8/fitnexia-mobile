@@ -13,6 +13,7 @@ import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnex
 import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import type { UserRole } from '@/types/api';
+import { validateRegisterForm } from '@/utils/validation';
 
 export default function RegisterScreen() {
   const googleSignIn = useFeature('googleSignIn');
@@ -42,18 +43,21 @@ export default function RegisterScreen() {
   };
 
   const submit = async () => {
-    if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
-      Alert.alert(ALERT_LABELS.missingInfoTitle, ALERT_LABELS.fillAllFields);
+    const validation = validateRegisterForm({
+      role,
+      email,
+      password,
+      firstName,
+      lastName,
+      institutionName,
+      favoriteSports,
+      disciplines,
+    });
+    if (!validation.ok) {
+      Alert.alert(ALERT_LABELS.validationFailedTitle, validation.message);
       return;
     }
-    if (password.length < 8) {
-      Alert.alert(ALERT_LABELS.missingInfoTitle, ALERT_LABELS.passwordMinLength);
-      return;
-    }
-    if (role === 'institution' && !institutionName.trim()) {
-      Alert.alert(ALERT_LABELS.missingInfoTitle, ALERT_LABELS.gymNameRequired);
-      return;
-    }
+
     setLoading(true);
     try {
       await register({

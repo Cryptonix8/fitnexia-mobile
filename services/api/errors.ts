@@ -13,7 +13,13 @@ export class ApiError extends Error {
 }
 
 export function getErrorMessage(error: unknown, fallback = 'Something went wrong'): string {
-  if (error instanceof ApiError) return error.message;
+  if (error instanceof ApiError) {
+    const errors = error.details?.errors as Array<{ message: string }> | undefined;
+    if (Array.isArray(errors) && errors.length) {
+      return errors.map((entry) => entry.message).join('\n');
+    }
+    return error.message;
+  }
   if (error instanceof Error) return error.message;
   return fallback;
 }

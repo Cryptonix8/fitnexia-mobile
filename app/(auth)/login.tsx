@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
-import { AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
+import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
+import { validateLoginForm } from '@/utils/validation';
 
 export default function LoginScreen() {
   const googleSignIn = useFeature('googleSignIn');
@@ -19,6 +20,12 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    const validation = validateLoginForm(email, password);
+    if (!validation.ok) {
+      Alert.alert(ALERT_LABELS.validationFailedTitle, validation.message);
+      return;
+    }
+
     setLoading(true);
     try {
       await login(email, password);

@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth, getErrorMessage } from '@/contexts/auth-context';
 import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
-import { SCREEN_TITLES } from '@/constants/labels';
+import { SCREEN_TITLES, ALERT_LABELS } from '@/constants/labels';
+import { validateInstructorProfileForm } from '@/utils/validation';
 
 export default function InstructorEditProfileScreen() {
   const { user, updateProfile } = useAuth();
@@ -28,24 +29,35 @@ export default function InstructorEditProfileScreen() {
     );
   };
 
-  const save = () => {
-    if (!displayName.trim()) {
-      Alert.alert('Missing info', 'Display name is required.');
+  const save = async () => {
+    const validation = validateInstructorProfileForm({
+      displayName,
+      email,
+      bio,
+      hourlyRate,
+    });
+    if (!validation.ok) {
+      Alert.alert(ALERT_LABELS.validationFailedTitle, validation.message);
       return;
     }
-    updateProfile({
-      email: email.trim(),
-      avatarUri,
-      instructorProfile: {
-        displayName: displayName.trim(),
-        bio: bio.trim(),
-        hourlyRate: hourlyRate.trim(),
-        disciplines,
-      },
-    });
-    Alert.alert('Saved', 'Your professional profile has been updated.', [
-      { text: 'OK', onPress: () => router.back() },
-    ]);
+
+    try {
+      await updateProfile({
+        email: email.trim(),
+        avatarUri,
+        instructorProfile: {
+          displayName: displayName.trim(),
+          bio: bio.trim(),
+          hourlyRate: hourlyRate.trim(),
+          disciplines,
+        },
+      });
+      Alert.alert(ALERT_LABELS.savedTitle, 'Your professional profile has been updated.', [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
+    } catch (err) {
+      Alert.alert(ALERT_LABELS.validationFailedTitle, getErrorMessage(err));
+    }
   };
 
   return (

@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth, getErrorMessage } from '@/contexts/auth-context';
 import { Spacing } from '@/constants/fitnexia';
-import { AUTH_LABELS, BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
+import { AUTH_LABELS, BUTTON_LABELS, SCREEN_TITLES, ALERT_LABELS } from '@/constants/labels';
+import { validateInstitutionProfileForm } from '@/utils/validation';
 
 export default function GymEditProfileScreen() {
   const { user, updateProfile } = useAuth();
@@ -23,25 +24,38 @@ export default function GymEditProfileScreen() {
   const [email, setEmail] = useState(user?.email ?? '');
   const [avatarUri, setAvatarUri] = useState<string | null>(user?.avatarUri ?? null);
 
-  const save = () => {
-    if (!name.trim()) {
-      Alert.alert('Missing info', 'Gym name is required.');
+  const save = async () => {
+    const validation = validateInstitutionProfileForm({
+      name,
+      email,
+      description,
+      address,
+      city,
+      country,
+    });
+    if (!validation.ok) {
+      Alert.alert(ALERT_LABELS.validationFailedTitle, validation.message);
       return;
     }
-    updateProfile({
-      email: email.trim(),
-      avatarUri,
-      institutionProfile: {
-        name: name.trim(),
-        description: description.trim(),
-        address: address.trim(),
-        city: city.trim(),
-        country: country.trim(),
-      },
-    });
-    Alert.alert('Saved', 'Institution profile has been updated.', [
-      { text: 'OK', onPress: () => router.back() },
-    ]);
+
+    try {
+      await updateProfile({
+        email: email.trim(),
+        avatarUri,
+        institutionProfile: {
+          name: name.trim(),
+          description: description.trim(),
+          address: address.trim(),
+          city: city.trim(),
+          country: country.trim().toUpperCase(),
+        },
+      });
+      Alert.alert(ALERT_LABELS.savedTitle, 'Institution profile has been updated.', [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
+    } catch (err) {
+      Alert.alert(ALERT_LABELS.validationFailedTitle, getErrorMessage(err));
+    }
   };
 
   return (

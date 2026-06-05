@@ -150,9 +150,11 @@ export const ALERT_LABELS = {
   cancel: 'Cancel',
   missingInfoTitle: 'Missing info',
   fillAllFields: 'Please fill in all fields.',
+  invalidEmail: 'Enter a valid email address.',
   passwordMinLength: 'Password must be at least 8 characters.',
   gymNameRequired: 'Gym / school name is required.',
   savedTitle: 'Saved',
+  validationFailedTitle: 'Check your input',
 } as const;
 
 export const ROLE_DESCRIPTIONS = {
