@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BookingsCalendar } from '@/components/bookings-calendar';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,8 @@ import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { formatClassDate, formatMoney } from '@/data/mock';
+import { getErrorMessage } from '@/services/api/errors';
+import { openPaymentCheckout } from '@/utils/booking-payment';
 import type { Booking, ClassListItem } from '@/types/api';
 import { startOfMonth, toDateKey } from '@/utils/calendar';
 import { isSameCalendarDay } from '@/utils/schedule';
@@ -36,7 +38,7 @@ function buildEntries(
 
 export default function BookingsScreen() {
   const { getClassById } = useClasses();
-  const { bookings } = useBookings();
+  const { bookings, refreshBookings } = useBookings();
   const { colors } = useAppTheme();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
@@ -73,6 +75,20 @@ export default function BookingsScreen() {
     month: 'long',
     day: 'numeric',
   });
+
+  const completePayment = async (booking: Booking) => {
+    if (!booking.checkoutUrl) {
+      Alert.alert('Payment unavailable', 'Start a new booking to pay for this class.');
+      return;
+    }
+    try {
+      await openPaymentCheckout(booking.checkoutUrl, booking.id);
+      await refreshBookings();
+      Alert.alert('Payment confirmed', 'Your booking is now confirmed.');
+    } catch (err) {
+      Alert.alert('Payment failed', getErrorMessage(err));
+    }
+  };
 
   return (
     <Screen scroll>
@@ -120,10 +136,18 @@ export default function BookingsScreen() {
                   { backgroundColor: colors.primaryMuted },
                   booking.status === 'completed' && { backgroundColor: colors.surfaceMuted },
                 ]}>
-                <Text style={[styles.badgeText, { color: colors.primaryText }]}>{booking.status}</Text>
+                <Text style={[styles.badgeText, { color: colors.primaryText }]}>
+                  {booking.status === 'pending_payment' ? 'Awaiting payment' : booking.status}
+                </Text>
               </View>
             </View>
-            {booking.status === 'completed' ? (
+            {booking.status === 'pending_payment' ? (
+              <Button
+                title="Complete payment"
+                size="sm"
+                onPress={() => completePayment(booking)}
+              />
+            ) : booking.status === 'completed' ? (
               <Button
                 title="Leave a review"
                 variant="outline"

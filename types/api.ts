@@ -170,6 +170,8 @@ export interface Booking {
   userId: string;
   price: Money;
   createdAt: string;
+  checkoutUrl?: string;
+  paymentId?: string;
 }
 
 export interface CreateBookingResponse {
@@ -178,6 +180,7 @@ export interface CreateBookingResponse {
     provider: 'mercado_pago';
     preferenceId: string;
     checkoutUrl: string;
+    paymentId?: string;
   };
 }
 

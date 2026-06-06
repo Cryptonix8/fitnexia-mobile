@@ -20,6 +20,7 @@ import {
   updateInstructorProfileApi,
   updateInstitutionProfileApi,
   updateNotificationPrefsApi,
+  updateUserAccountApi,
 } from '@/services/api/auth.api';
 import { getAccessToken } from '@/services/api/token-storage';
 import { getErrorMessage } from '@/services/api/errors';
@@ -217,6 +218,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const photoUrl =
         updates.avatarUri !== undefined ? await resolveMediaUrl(updates.avatarUri) : undefined;
+
+      if (updates.email !== undefined) {
+        const nextEmail = updates.email.trim();
+        if (nextEmail.toLowerCase() !== user.email.toLowerCase()) {
+          await updateUserAccountApi({ email: nextEmail });
+        }
+      }
 
       if (user.role === 'athlete') {
         const body: Record<string, unknown> = {};

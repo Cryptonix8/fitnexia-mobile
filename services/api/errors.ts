@@ -16,7 +16,10 @@ export function getErrorMessage(error: unknown, fallback = 'Something went wrong
   if (error instanceof ApiError) {
     const errors = error.details?.errors as Array<{ message: string }> | undefined;
     if (Array.isArray(errors) && errors.length) {
-      return errors.map((entry) => entry.message).join('\n');
+      const messages = errors
+        .map((entry) => entry?.message)
+        .filter((message): message is string => Boolean(message));
+      if (messages.length) return messages.join('\n');
     }
     return error.message;
   }

@@ -10,6 +10,7 @@ import { useBookings } from '@/contexts/bookings-context';
 import { useClasses } from '@/contexts/classes-context';
 import { getErrorMessage } from '@/services/api/errors';
 import { useFeature } from '@/hooks/use-feature';
+import { openPaymentCheckout } from '@/utils/booking-payment';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import { BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
 import type { PaymentModel } from '@/types/api';
@@ -23,7 +24,7 @@ const ALL_PAYMENT_OPTIONS: { id: PaymentModel; label: string; desc: string }[] =
 export default function BookScreen() {
   const { classId, waitlist } = useLocalSearchParams<{ classId: string; waitlist?: string }>();
   const { getClassById, refreshClasses } = useClasses();
-  const { createBooking } = useBookings();
+  const { createBooking, refreshBookings } = useBookings();
   const waitlistEnabled = useFeature('waitlist');
   const subscriptionModels = useFeature('subscriptionPaymentModels');
   const integratedPayments = useFeature('integratedPayments');
@@ -60,17 +61,32 @@ export default function BookScreen() {
   const confirm = async () => {
     setLoading(true);
     try {
-      if (!isWaitlist) {
-        await createBooking(classId ?? '');
-        await refreshClasses();
+      if (isWaitlist) {
+        Alert.alert(
+          'On waitlist',
+          'We will notify you when a spot opens. You will have 2 hours to confirm.',
+          [{ text: 'OK', onPress: () => router.replace('/(athlete)/(tabs)/bookings') }],
+        );
+        return;
       }
+
+      const result = await createBooking(classId ?? '');
+
+      if (integratedPayments && result.payment?.checkoutUrl) {
+        await openPaymentCheckout(result.payment.checkoutUrl, result.booking.id);
+        await Promise.all([refreshBookings(), refreshClasses()]);
+        Alert.alert('Booking confirmed', 'Payment successful. Your spot is reserved.', [
+          { text: 'OK', onPress: () => router.replace('/(athlete)/(tabs)/bookings') },
+        ]);
+        return;
+      }
+
+      await refreshClasses();
       Alert.alert(
-        isWaitlist ? 'On waitlist' : 'Booking confirmed',
-        isWaitlist
-          ? 'We will notify you when a spot opens. You will have 2 hours to confirm.'
-          : integratedPayments
-            ? 'Payment mock successful. Check your bookings tab.'
-            : 'Your spot is reserved.',
+        'Booking confirmed',
+        result.booking.status === 'pending_payment'
+          ? 'Complete payment from My bookings when checkout is available.'
+          : 'Your spot is reserved.',
         [{ text: 'OK', onPress: () => router.replace('/(athlete)/(tabs)/bookings') }],
       );
     } catch (err) {
@@ -117,7 +133,7 @@ export default function BookScreen() {
 
             <Text style={styles.section}>Payment method</Text>
             <View style={styles.method}>
-              <Text style={styles.methodText}>Mercado Pago (mock)</Text>
+              <Text style={styles.methodText}>Mercado Pago</Text>
               {digitalWallets ? (
                 <Text style={styles.methodSub}>Card · Apple Pay · Google Pay</Text>
               ) : (
@@ -127,7 +143,7 @@ export default function BookScreen() {
           </>
         ) : (
           <Text style={styles.mvpHint}>
-            Payment integration is coming soon. This booking is confirmed locally for demo purposes.
+            Payment is disabled. The booking will be confirmed without charging.
           </Text>
         )
       ) : null}

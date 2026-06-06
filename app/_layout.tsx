@@ -42,6 +42,7 @@ function RootNavigator() {
         <Stack.Screen name="class/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="instructor/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="book/[classId]" options={{ headerShown: false }} />
+        <Stack.Screen name="booking/complete" options={{ headerShown: false }} />
         <Stack.Screen name="review/[bookingId]" options={{ headerShown: false }} />
         <Stack.Screen name="create-class" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="edit-class/[id]" options={{ presentation: 'modal', headerShown: false }} />

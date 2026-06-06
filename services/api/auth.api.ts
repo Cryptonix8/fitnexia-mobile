@@ -296,6 +296,13 @@ export async function forgotPasswordApi(email: string): Promise<void> {
   });
 }
 
+export async function updateUserAccountApi(body: { email: string }) {
+  return apiRequest<{ id: string; email: string; role: UserRole }>('/users/me', {
+    method: 'PATCH',
+    body,
+  });
+}
+
 export async function updateAthleteProfileApi(body: Record<string, unknown>) {
   return apiRequest('/users/me/profile', { method: 'PATCH', body });
 }

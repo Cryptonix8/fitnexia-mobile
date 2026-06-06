@@ -10,13 +10,13 @@ import React, {
 import { createBookingApi, fetchMyBookings } from '@/services/api/bookings.api';
 import { getErrorMessage } from '@/services/api/errors';
 import { useAuth } from '@/contexts/auth-context';
-import type { Booking } from '@/types/api';
+import type { Booking, CreateBookingResponse } from '@/types/api';
 
 interface BookingsContextValue {
   bookings: Booking[];
   isLoading: boolean;
   refreshBookings: () => Promise<void>;
-  createBooking: (classId: string) => Promise<Booking>;
+  createBooking: (classId: string) => Promise<CreateBookingResponse>;
 }
 
 const BookingsContext = createContext<BookingsContextValue | null>(null);
@@ -49,8 +49,8 @@ export function BookingsProvider({ children }: { children: React.ReactNode }) {
 
   const createBooking = useCallback(async (classId: string) => {
     const result = await createBookingApi(classId);
-    setBookings((prev) => [result.booking, ...prev]);
-    return result.booking;
+    setBookings((prev) => [result.booking, ...prev.filter((b) => b.id !== result.booking.id)]);
+    return result;
   }, []);
 
   const value = useMemo(
