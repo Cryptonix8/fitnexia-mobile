@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { UserAvatar } from '@/components/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { BADGE_LABELS, CLASS_CARD_LABELS, modalityLocationLabel } from '@/constants/labels';
+import { BADGE_LABELS, CLASS_CARD_LABELS, classFormatBadgeLabel, modalityLocationLabel } from '@/constants/labels';
 import { useAppTheme } from '@/contexts/theme-context';
 import { formatClassDate, formatMoney } from '@/data/mock';
 import type { ClassListItem } from '@/types/api';
@@ -21,6 +21,10 @@ export function ClassCard({
 }) {
   const { colors } = useAppTheme();
   const full = item.spotsLeft === 0;
+  const formatLabel = classFormatBadgeLabel(item.classFormat, {
+    capacity: item.capacity,
+    hasInstitution: Boolean(item.institution),
+  });
 
   return (
     <Pressable
@@ -42,7 +46,7 @@ export function ClassCard({
           {full ? <Badge label={BADGE_LABELS.full} variant="warning" /> : null}
         </View>
         <Text style={[styles.meta, { color: colors.textMuted }]}>
-          {item.discipline} · {formatClassDate(item.startAt)}
+          {item.discipline} · {formatLabel} · {formatClassDate(item.startAt)}
         </Text>
         <View style={styles.footer}>
           <Text style={[styles.instructor, { color: colors.textSecondary }]}>

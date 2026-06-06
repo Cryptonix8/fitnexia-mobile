@@ -2,13 +2,46 @@
  * User-facing copy — single source of truth for product labels.
  * Change a value here instead of hunting strings across screens.
  */
-import type { Modality } from '@/types/api';
+import type { ClassFormat, Modality } from '@/types/api';
 
 export const BADGE_LABELS = {
   verified: 'Verified',
   availableNow: 'Available now',
   full: 'Full',
 } as const;
+
+export const CLASS_FORMAT_LABELS = {
+  individual: '1-on-1',
+  group: 'Group',
+} as const;
+
+export function resolveClassFormat(
+  classFormat: ClassFormat | undefined,
+  options?: { capacity?: number; hasInstitution?: boolean },
+): ClassFormat {
+  if (classFormat) return classFormat;
+  if (options?.hasInstitution) return 'group';
+  if (options?.capacity === 1) return 'individual';
+  return 'group';
+}
+
+export function classFormatBadgeLabel(
+  classFormat: ClassFormat | undefined,
+  options?: { capacity?: number; hasInstitution?: boolean },
+): string {
+  const format = resolveClassFormat(classFormat, options);
+  return CLASS_FORMAT_LABELS[format];
+}
+
+export function classFormatDescription(
+  classFormat: ClassFormat | undefined,
+  options?: { capacity?: number; hasInstitution?: boolean },
+): string {
+  const format = resolveClassFormat(classFormat, options);
+  return format === 'individual'
+    ? 'Private session with one athlete.'
+    : 'Open session for multiple athletes.';
+}
 
 export const CLASS_CARD_LABELS = {
   spotsLeft: (count: number) => `${count} spots left`,
@@ -106,6 +139,7 @@ export const CLASS_DETAIL_LABELS = {
   where: 'Where',
   price: 'Price',
   spots: 'Spots',
+  format: 'Class type',
   about: 'About',
   locationTbd: 'TBD',
   full: 'Full',

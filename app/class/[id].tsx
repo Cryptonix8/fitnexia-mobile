@@ -22,8 +22,11 @@ import {
   BUTTON_LABELS,
   CLASS_DETAIL_LABELS,
   SCREEN_TITLES,
+  classFormatBadgeLabel,
+  classFormatDescription,
   classSpotsLabel,
   modalityBadgeLabel,
+  resolveClassFormat,
 } from '@/constants/labels';
 
 export default function ClassDetailScreen() {
@@ -50,6 +53,10 @@ export default function ClassDetailScreen() {
     (user?.role === 'instructor' && cls.instructor.id === instructorId) ||
     (user?.role === 'institution' && canManageGymClass(cls, institutionId));
   const canBook = user?.role === 'athlete';
+  const classFormat = resolveClassFormat(cls.classFormat, {
+    capacity: cls.capacity,
+    hasInstitution: Boolean(cls.institution),
+  });
   const onlineLabel = liveStreaming
     ? CLASS_DETAIL_LABELS.liveStream
     : CLASS_DETAIL_LABELS.onlineSessionLink;
@@ -61,6 +68,10 @@ export default function ClassDetailScreen() {
         <Text style={styles.title}>{cls.title}</Text>
         <View style={styles.tags}>
           <Badge label={cls.discipline} />
+          <Badge label={classFormatBadgeLabel(cls.classFormat, {
+            capacity: cls.capacity,
+            hasInstitution: Boolean(cls.institution),
+          })} />
           <Badge
             label={modalityBadgeLabel(cls.modality)}
             variant="success"
@@ -81,6 +92,14 @@ export default function ClassDetailScreen() {
           }
         />
         <Row icon="cash-outline" label={CLASS_DETAIL_LABELS.price} value={formatMoney(cls.price)} />
+        <Row
+          icon="people-circle-outline"
+          label={CLASS_DETAIL_LABELS.format}
+          value={classFormatDescription(cls.classFormat, {
+            capacity: cls.capacity,
+            hasInstitution: Boolean(cls.institution),
+          })}
+        />
         {cls.capacity ? (
           <Row
             icon="people-outline"
@@ -99,7 +118,9 @@ export default function ClassDetailScreen() {
 
       <Text style={styles.section}>{CLASS_DETAIL_LABELS.about}</Text>
       <Text style={styles.desc}>
-        Join {cls.instructor.displayName} for an engaging {cls.discipline.toLowerCase()} session.
+        {classFormat === 'individual'
+          ? `Book a private 1-on-1 ${cls.discipline.toLowerCase()} session with ${cls.instructor.displayName}.`
+          : `Join ${cls.instructor.displayName} for an engaging ${cls.discipline.toLowerCase()} group session.`}{' '}
         Suitable for all levels. Bring water and comfortable gear.
       </Text>
 

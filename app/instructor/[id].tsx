@@ -12,7 +12,7 @@ import { useReviews } from '@/contexts/reviews-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { useClasses } from '@/contexts/classes-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { BADGE_LABELS } from '@/constants/labels';
+import { BADGE_LABELS, PROFILE_MENU_LABELS } from '@/constants/labels';
 import { fetchInstructorById } from '@/services/api/instructors.api';
 import type { Instructor } from '@/types/api';
 
@@ -85,6 +85,27 @@ export default function InstructorProfileScreen() {
         </>
       ) : null}
 
+      {(instructor.certifications?.length ?? 0) > 0 ? (
+        <>
+          <Text style={[styles.section, { color: colors.text }]}>
+            {PROFILE_MENU_LABELS.certifications}
+          </Text>
+          {instructor.certifications!.map((cert, index) => (
+            <View
+              key={`${cert.name}-${cert.year}-${index}`}
+              style={[
+                styles.certCard,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}>
+              <Text style={[styles.certName, { color: colors.text }]}>{cert.name}</Text>
+              <Text style={[styles.certMeta, { color: colors.textMuted }]}>
+                {cert.issuer} · {cert.year}
+              </Text>
+            </View>
+          ))}
+        </>
+      ) : null}
+
       {staffReviews.length > 0 ? (
         <>
           <Text style={[styles.section, { color: colors.text }]}>Gym staff reviews</Text>
@@ -122,6 +143,14 @@ const styles = StyleSheet.create({
   section: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.md, marginTop: Spacing.sm },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.md },
   chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.full },
+  certCard: {
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  certName: { fontSize: 16, fontWeight: '700' },
+  certMeta: { fontSize: 13, marginTop: 4 },
   reviewCard: {
     borderWidth: 1,
     borderRadius: Radius.md,
