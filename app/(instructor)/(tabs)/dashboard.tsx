@@ -10,6 +10,8 @@ import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { getLinkedInstructorId } from '@/utils/instructor';
+import { computeInstructorTodayStats } from '@/utils/instructor-metrics';
+import { formatRevenueCompact } from '@/utils/gym-metrics';
 import { isSameCalendarDay } from '@/utils/schedule';
 
 export default function InstructorDashboard() {
@@ -21,6 +23,7 @@ export default function InstructorDashboard() {
   const allClasses = getClassesByInstructor(instructorId);
   const today = new Date();
   const todayClasses = allClasses.filter((c) => isSameCalendarDay(new Date(c.startAt), today));
+  const todayStats = computeInstructorTodayStats(todayClasses);
 
   const toggleAvailable = () => {
     if (!profile) return;
@@ -33,9 +36,24 @@ export default function InstructorDashboard() {
       <Text style={[styles.title, { color: colors.text }]}>{"Today's overview"}</Text>
 
       <View style={styles.stats}>
-        <StatCard label="Bookings" value="3" icon="calendar" colors={colors} />
-        <StatCard label="Revenue" value="$127" icon="cash" colors={colors} />
-        <StatCard label="Classes" value={String(todayClasses.length)} icon="fitness" colors={colors} />
+        <StatCard
+          label="Bookings"
+          value={String(todayStats.bookings)}
+          icon="calendar"
+          colors={colors}
+        />
+        <StatCard
+          label="Revenue"
+          value={formatRevenueCompact(todayStats.revenueCents)}
+          icon="cash"
+          colors={colors}
+        />
+        <StatCard
+          label="Classes"
+          value={String(todayStats.classes)}
+          icon="fitness"
+          colors={colors}
+        />
       </View>
 
       <Pressable
