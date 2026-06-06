@@ -30,3 +30,24 @@ export async function submitStaffReviewApi(instructorId: string, rating: number,
     body: { instructorId, rating, comment: comment || undefined },
   });
 }
+
+export type GymStaffInvite = {
+  id: string;
+  institutionId: string;
+  institutionName: string;
+  message?: string | null;
+  sentAt: string;
+  status: 'pending';
+};
+
+export async function fetchMyGymInvitesApi() {
+  const result = await apiRequest<{ data: GymStaffInvite[] }>('/instructors/me/invites');
+  return result.data;
+}
+
+export async function acceptGymInviteApi(inviteId: string) {
+  return apiRequest<{ institutionId: string; institutionName: string }>(
+    `/instructors/me/invites/${inviteId}/accept`,
+    { method: 'POST' },
+  );
+}

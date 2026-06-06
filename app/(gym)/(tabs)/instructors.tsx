@@ -1,5 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { UserAvatar } from '@/components/user-avatar';
@@ -7,20 +9,35 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useReviews } from '@/contexts/reviews-context';
 import { useAppTheme } from '@/contexts/theme-context';
-import { MOCK_INSTRUCTORS } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { fetchLinkedInstructors } from '@/services/api/institutions.api';
+import type { Instructor } from '@/types/api';
 import { resolveInstitutionId } from '@/utils/gym-classes';
 
 export default function GymInstructorsScreen() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { colors } = useAppTheme();
   const { getGymReviewForInstructor } = useReviews();
   const institutionId = resolveInstitutionId(user);
-  const instructorIds = user?.institutionProfile?.instructorIds ?? [];
   const pendingInvites = user?.institutionProfile?.pendingInvites ?? [];
-  const linked = instructorIds
-    .map((id) => MOCK_INSTRUCTORS.find((i) => i.id === id))
-    .filter((i): i is (typeof MOCK_INSTRUCTORS)[number] => Boolean(i));
+  const [linked, setLinked] = useState<
+    Pick<Instructor, 'id' | 'displayName' | 'disciplines' | 'verified' | 'averageRating' | 'reviewCount'>[]
+  >([]);
+
+  const loadStaff = useCallback(async () => {
+    try {
+      const [instructors] = await Promise.all([fetchLinkedInstructors(), refreshUser()]);
+      setLinked(instructors);
+    } catch {
+      setLinked([]);
+    }
+  }, [refreshUser]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadStaff();
+    }, [loadStaff]),
+  );
 
   return (
     <Screen scroll>

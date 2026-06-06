@@ -8,53 +8,57 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
-import { useAuth, type InstructorInvite } from '@/contexts/auth-context';
+import { useAuth, getErrorMessage, type InstructorInvite } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-}
+import { cancelInviteApi, inviteInstructorApi } from '@/services/api/institutions.api';
+import { validateEmail } from '@/utils/validation';
 
 export default function GymInviteInstructorScreen() {
-  const { user, updateProfile } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { colors } = useAppTheme();
   const profile = user?.institutionProfile;
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const pending = profile?.pendingInvites ?? [];
 
-  const sendInvite = () => {
-    const trimmed = email.trim().toLowerCase();
-    if (!isValidEmail(trimmed)) {
-      Alert.alert('Invalid email', 'Enter a valid email address.');
+  const sendInvite = async () => {
+    const emailError = validateEmail(email);
+    if (emailError) {
+      Alert.alert('Invalid email', emailError.message);
       return;
     }
+
+    const trimmed = email.trim().toLowerCase();
     if (pending.some((i) => i.email === trimmed && i.status === 'pending')) {
       Alert.alert('Already invited', 'An invite is already pending for this email.');
       return;
     }
 
-    const invite: InstructorInvite = {
-      id: `inv-${Date.now()}`,
-      email: trimmed,
-      sentAt: new Date().toISOString(),
-      status: 'pending',
-    };
-
-    updateProfile({
-      institutionProfile: {
-        pendingInvites: [...pending, invite],
-      },
-    });
-
-    setEmail('');
-    setMessage('');
-    Alert.alert(
-      'Invite sent',
-      `Mock invite sent to ${trimmed}. They will appear in your staff list once they accept.`,
-    );
+    setSaving(true);
+    try {
+      const result = await inviteInstructorApi(trimmed, message.trim() || undefined);
+      await refreshUser();
+      setEmail('');
+      setMessage('');
+      if (result.emailSent) {
+        Alert.alert(
+          'Invite sent',
+          `We emailed ${trimmed} and saved the invite. They can also accept it in the Fitnexia app.`,
+        );
+      } else {
+        Alert.alert(
+          'Invite saved',
+          `The invite was saved for ${trimmed}, but no email was sent. Ask your admin to configure SMTP in backend/.env, or the instructor can accept from their app dashboard.`,
+        );
+      }
+    } catch (err) {
+      Alert.alert('Could not send invite', getErrorMessage(err));
+    } finally {
+      setSaving(false);
+    }
   };
 
   const cancelInvite = (invite: InstructorInvite) => {
@@ -63,19 +67,16 @@ export default function GymInviteInstructorScreen() {
       {
         text: 'Withdraw',
         style: 'destructive',
-        onPress: () => {
-          updateProfile({
-            institutionProfile: {
-              pendingInvites: pending.filter((i) => i.id !== invite.id),
-            },
-          });
+        onPress: async () => {
+          try {
+            await cancelInviteApi(invite.id);
+            await refreshUser();
+          } catch (err) {
+            Alert.alert('Could not cancel invite', getErrorMessage(err));
+          }
         },
       },
     ]);
-  };
-
-  const resendInvite = (invite: InstructorInvite) => {
-    Alert.alert('Invite resent', `Mock reminder sent to ${invite.email}.`);
   };
 
   if (!profile) {
@@ -91,8 +92,8 @@ export default function GymInviteInstructorScreen() {
     <Screen scroll>
       <Header title="Invite instructor" showBack />
       <Text style={[styles.hint, { color: colors.textMuted }]}>
-        Send an email invite for an instructor to join your gym staff. This is a mock flow until
-        the backend is connected.
+        Invite an instructor by email. They receive an email and can also accept the invite in the
+        Fitnexia app when they log in with that address.
       </Text>
 
       <Input
@@ -111,7 +112,7 @@ export default function GymInviteInstructorScreen() {
         multiline
       />
 
-      <Button title="Send invite" onPress={sendInvite} />
+      <Button title="Send invite" onPress={sendInvite} loading={saving} />
 
       {pending.length > 0 ? (
         <>
@@ -133,9 +134,6 @@ export default function GymInviteInstructorScreen() {
                 </Text>
               </View>
               <View style={styles.inviteActions}>
-                <Pressable onPress={() => resendInvite(invite)} hitSlop={8}>
-                  <Ionicons name="refresh-outline" size={20} color={colors.primary} />
-                </Pressable>
                 <Pressable onPress={() => cancelInvite(invite)} hitSlop={8}>
                   <Ionicons name="close-circle-outline" size={20} color={colors.error} />
                 </Pressable>

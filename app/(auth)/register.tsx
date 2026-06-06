@@ -160,7 +160,7 @@ export default function RegisterScreen() {
             placeholder="At least 8 characters"
           />
 
-          {role === 'instructor' ? (
+          {/* {role === 'instructor' ? (
             <>
               <Text style={styles.sportsLabel}>Disciplines (optional)</Text>
               <View style={styles.sportsGrid}>
@@ -196,7 +196,7 @@ export default function RegisterScreen() {
                 })}
               </View>
             </>
-          ) : null}
+          ) : null} */}
 
           <Button title={BUTTON_LABELS.createAccount} loading={loading} onPress={submit} />
           {googleSignIn ? (

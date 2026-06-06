@@ -25,8 +25,13 @@ export async function unlinkInstructorApi(instructorId: string) {
   return apiRequest(`/institutions/me/instructors/${instructorId}`, { method: 'DELETE' });
 }
 
+export type InviteInstructorResult = InstructorInvite & {
+  emailSent?: boolean;
+  emailError?: string;
+};
+
 export async function inviteInstructorApi(email: string, message?: string) {
-  return apiRequest<InstructorInvite>('/institutions/me/instructors/invite', {
+  return apiRequest<InviteInstructorResult>('/institutions/me/instructors/invite', {
     method: 'POST',
     body: { email, message },
   });
@@ -35,4 +40,8 @@ export async function inviteInstructorApi(email: string, message?: string) {
 export async function fetchPendingInvites() {
   const result = await apiRequest<InvitesResponse>('/institutions/me/instructors/invites');
   return result.data;
+}
+
+export async function cancelInviteApi(inviteId: string) {
+  return apiRequest(`/institutions/me/instructors/invites/${inviteId}`, { method: 'DELETE' });
 }

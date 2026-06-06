@@ -1,14 +1,21 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth, getErrorMessage } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import {
+  acceptGymInviteApi,
+  fetchMyGymInvitesApi,
+  type GymStaffInvite,
+} from '@/services/api/instructors.api';
 import { getLinkedInstructorId } from '@/utils/instructor';
 import { computeInstructorTodayStats } from '@/utils/instructor-metrics';
 import { formatRevenueCompact } from '@/utils/gym-metrics';
@@ -24,16 +31,74 @@ export default function InstructorDashboard() {
   const today = new Date();
   const todayClasses = allClasses.filter((c) => isSameCalendarDay(new Date(c.startAt), today));
   const todayStats = computeInstructorTodayStats(todayClasses);
+  const [gymInvites, setGymInvites] = useState<GymStaffInvite[]>([]);
+  const [acceptingInviteId, setAcceptingInviteId] = useState<string | null>(null);
+
+  const loadGymInvites = useCallback(async () => {
+    try {
+      const invites = await fetchMyGymInvitesApi();
+      setGymInvites(invites);
+    } catch {
+      setGymInvites([]);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadGymInvites();
+    }, [loadGymInvites]),
+  );
 
   const toggleAvailable = () => {
     if (!profile) return;
     updateProfile({ instructorProfile: { availableNow: !profile.availableNow } });
   };
 
+  const acceptInvite = async (invite: GymStaffInvite) => {
+    setAcceptingInviteId(invite.id);
+    try {
+      const result = await acceptGymInviteApi(invite.id);
+      setGymInvites((prev) => prev.filter((item) => item.id !== invite.id));
+      Alert.alert('Invite accepted', `You joined ${result.institutionName} as staff.`);
+    } catch (err) {
+      Alert.alert('Could not accept invite', getErrorMessage(err));
+    } finally {
+      setAcceptingInviteId(null);
+    }
+  };
+
   return (
     <Screen scroll>
       <Text style={[styles.greet, { color: colors.textMuted }]}>Hi, {user?.firstName} 👋</Text>
       <Text style={[styles.title, { color: colors.text }]}>{"Today's overview"}</Text>
+
+      {gymInvites.length > 0 ? (
+        <View style={styles.invitesSection}>
+          <Text style={[styles.invitesTitle, { color: colors.text }]}>Gym invites</Text>
+          {gymInvites.map((invite) => (
+            <View
+              key={invite.id}
+              style={[
+                styles.inviteCard,
+                { backgroundColor: colors.primaryMuted, borderColor: colors.primary },
+              ]}>
+              <View style={styles.inviteBody}>
+                <Text style={[styles.inviteName, { color: colors.text }]}>{invite.institutionName}</Text>
+                <Text style={[styles.inviteMeta, { color: colors.textMuted }]}>
+                  Invited you to join their staff
+                  {invite.message ? ` · "${invite.message}"` : ''}
+                </Text>
+              </View>
+              <Button
+                title="Accept"
+                size="sm"
+                loading={acceptingInviteId === invite.id}
+                onPress={() => acceptInvite(invite)}
+              />
+            </View>
+          ))}
+        </View>
+      ) : null}
 
       <View style={styles.stats}>
         <StatCard
@@ -109,6 +174,20 @@ function StatCard({
 const styles = StyleSheet.create({
   greet: { fontSize: 14 },
   title: { fontSize: 26, fontWeight: '800', marginBottom: Spacing.md },
+  invitesSection: { marginBottom: Spacing.lg },
+  invitesTitle: { fontSize: 16, fontWeight: '700', marginBottom: Spacing.sm },
+  inviteCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    marginBottom: Spacing.sm,
+  },
+  inviteBody: { flex: 1 },
+  inviteName: { fontSize: 15, fontWeight: '700' },
+  inviteMeta: { fontSize: 13, marginTop: 2, lineHeight: 18 },
   stats: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
   stat: {
     flex: 1,
