@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
 import { ClassesMap } from '@/components/search/classes-map';
 import { FilterChip } from '@/components/ui/filter-chip';
+import { FilterSelect } from '@/components/ui/filter-select';
 import { Screen } from '@/components/ui/screen';
 import {
   DISCIPLINES,
@@ -26,6 +27,8 @@ import type { Modality } from '@/types/api';
 
 type ViewMode = 'list' | 'map';
 
+const NEAR_ME_VALUE = '__near_me__';
+
 export default function SearchScreen() {
   const { colors } = useAppTheme();
   const { classes } = useClasses();
@@ -35,23 +38,82 @@ export default function SearchScreen() {
   const [query, setQuery] = useState('');
   const [discipline, setDiscipline] = useState<string | null>(null);
   const [modality, setModality] = useState<Modality | null>(null);
-  const [location, setLocation] = useState('');
+  const [locationKey, setLocationKey] = useState<string | null>(null);
+  const [locationText, setLocationText] = useState('');
   const [schedule, setSchedule] = useState<ScheduleFilter>('any');
   const [priceRangeId, setPriceRangeId] = useState<string>('any');
-  const [showFilters, setShowFilters] = useState(true);
   const [nearMe, setNearMe] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
 
+  const location = nearMe
+    ? ''
+    : locationKey && locationKey !== NEAR_ME_VALUE
+      ? locationKey
+      : locationText;
+
   const priceRange = PRICE_RANGES.find((p) => p.id === priceRangeId) ?? PRICE_RANGES[0];
 
-  const toggleNearMe = async () => {
-    if (!nearMe) {
+  const locationOptions = useMemo(() => {
+    const base = [{ value: '', label: 'Cualquier ubicación' }];
+    if (geoEnabled) {
+      base.push({
+        value: NEAR_ME_VALUE,
+        label: locationLoading ? '…' : GEO_LABELS.nearMe,
+      });
+    }
+    return [
+      ...base,
+      ...MOCK_LOCATION_AREAS.map((area) => ({ value: area, label: area })),
+    ];
+  }, [geoEnabled, locationLoading]);
+
+  const scheduleOptions = SCHEDULE_FILTERS.map((s) => ({
+    value: s.id,
+    label: s.label,
+  }));
+
+  const priceOptions = PRICE_RANGES.map((p) => ({
+    value: p.id,
+    label: p.label,
+  }));
+
+  const disciplineOptions = [
+    { value: '', label: 'Todos los deportes' },
+    ...DISCIPLINES.map((d) => ({ value: d, label: d })),
+  ];
+
+  const modalityOptions = [
+    { value: '', label: 'Cualquier modalidad' },
+    { value: 'in_person', label: MODALITY_LABELS.inPerson },
+    { value: 'online', label: MODALITY_LABELS.online },
+  ];
+
+  const handleLocationChange = async (value: string | null) => {
+    if (value === NEAR_ME_VALUE) {
       const next = await requestLocation();
-      if (next) setNearMe(true);
+      if (next) {
+        setNearMe(true);
+        setLocationKey(NEAR_ME_VALUE);
+        setLocationText('');
+      }
       return;
     }
     setNearMe(false);
+    if (!value || value === '') {
+      setLocationKey(null);
+      setLocationText('');
+      return;
+    }
+    if (MOCK_LOCATION_AREAS.includes(value as (typeof MOCK_LOCATION_AREAS)[number])) {
+      setLocationKey(value);
+      setLocationText('');
+      return;
+    }
+    setLocationKey(null);
+    setLocationText(value);
   };
+
+  const locationSelectValue = nearMe ? NEAR_ME_VALUE : (locationKey ?? '');
 
   const results = useMemo(() => {
     const filtered = filterClasses(classes, {
@@ -87,16 +149,16 @@ export default function SearchScreen() {
   const activeFilterCount = [
     discipline,
     modality,
-    location.trim(),
+    nearMe || location.trim(),
     schedule !== 'any' ? schedule : null,
     priceRangeId !== 'any' ? priceRangeId : null,
-    nearMe ? 'nearMe' : null,
   ].filter(Boolean).length;
 
   const clearFilters = () => {
     setDiscipline(null);
     setModality(null);
-    setLocation('');
+    setLocationKey(null);
+    setLocationText('');
     setSchedule('any');
     setPriceRangeId('any');
     setNearMe(false);
@@ -138,115 +200,86 @@ export default function SearchScreen() {
         </View>
       ) : null}
 
-      <PressableRow
-        label={`Filtros${activeFilterCount ? ` (${activeFilterCount})` : ''}`}
-        expanded={showFilters}
-        onPress={() => setShowFilters(!showFilters)}
-        colors={colors}
-      />
-
-      {showFilters ? (
-        <>
-          <FilterSection label="Ubicación" colors={colors}>
-            <TextInput
-              style={[
-                styles.locationInput,
-                { backgroundColor: colors.input, borderColor: colors.border, color: colors.text },
-              ]}
-              placeholder={GEO_LABELS.locationHint}
-              placeholderTextColor={colors.textMuted}
-              value={location}
-              onChangeText={setLocation}
-            />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {geoEnabled ? (
-                <FilterChip
-                  label={locationLoading ? '…' : GEO_LABELS.nearMe}
-                  active={nearMe}
-                  onPress={toggleNearMe}
-                />
-              ) : null}
-              {MOCK_LOCATION_AREAS.map((area) => (
-                <FilterChip
-                  key={area}
-                  label={area}
-                  active={location.toLowerCase() === area.toLowerCase()}
-                  onPress={() =>
-                    setLocation(location.toLowerCase() === area.toLowerCase() ? '' : area)
-                  }
-                />
-              ))}
-            </ScrollView>
-            {geoEnabled && permissionDenied ? (
-              <Text style={[styles.geoHint, { color: colors.textMuted }]}>{GEO_LABELS.locationDenied}</Text>
-            ) : null}
-            {geoEnabled && nearMe && coords ? (
-              <Text style={[styles.geoHint, { color: colors.primary }]}>
-                {GEO_LABELS.withinRadius(DEFAULT_RADIUS_KM)}
-              </Text>
-            ) : null}
-          </FilterSection>
-
-          <FilterSection label="Horario" colors={colors}>
-            <View style={styles.chipWrap}>
-              {SCHEDULE_FILTERS.map((s) => (
-                <FilterChip
-                  key={s.id}
-                  label={s.label}
-                  active={schedule === s.id}
-                  onPress={() => setSchedule(schedule === s.id ? 'any' : s.id)}
-                />
-              ))}
-            </View>
-          </FilterSection>
-
-          <FilterSection label="Precio" colors={colors}>
-            <View style={styles.chipWrap}>
-              {PRICE_RANGES.map((p) => (
-                <FilterChip
-                  key={p.id}
-                  label={p.label}
-                  active={priceRangeId === p.id}
-                  onPress={() => setPriceRangeId(priceRangeId === p.id ? 'any' : p.id)}
-                />
-              ))}
-            </View>
-          </FilterSection>
-
-          <FilterSection label="Deporte" colors={colors}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <FilterChip label="Todos" active={!discipline} onPress={() => setDiscipline(null)} />
-              {DISCIPLINES.map((d) => (
-                <FilterChip
-                  key={d}
-                  label={d}
-                  active={discipline === d}
-                  onPress={() => setDiscipline(discipline === d ? null : d)}
-                />
-              ))}
-            </ScrollView>
-          </FilterSection>
-
-          <FilterSection label="Modalidad" colors={colors}>
-            <View style={styles.chipWrap}>
-              <FilterChip
-                label={MODALITY_LABELS.inPerson}
-                active={modality === 'in_person'}
-                onPress={() => setModality(modality === 'in_person' ? null : 'in_person')}
-              />
-              <FilterChip
-                label={MODALITY_LABELS.online}
-                active={modality === 'online'}
-                onPress={() => setModality(modality === 'online' ? null : 'online')}
-              />
-            </View>
-          </FilterSection>
-
+      <View style={[styles.filtersPanel, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View style={styles.filtersHeader}>
+          <Text style={[styles.filtersTitle, { color: colors.text }]}>Filtros</Text>
           {activeFilterCount > 0 ? (
-            <PressableRow label="Limpiar filtros" onPress={clearFilters} colors={colors} link />
+            <Pressable onPress={clearFilters} hitSlop={8}>
+              <Text style={[styles.clearLink, { color: colors.primary }]}>Limpiar</Text>
+            </Pressable>
           ) : null}
-        </>
-      ) : null}
+        </View>
+
+        <View style={styles.filterRow}>
+          <FilterSelect
+            label="Horario"
+            value={schedule === 'any' ? null : schedule}
+            options={scheduleOptions}
+            onChange={(v) => setSchedule((v as ScheduleFilter) ?? 'any')}
+            placeholder="Cualquier horario"
+            clearable={false}
+          />
+          <FilterSelect
+            label="Precio"
+            value={priceRangeId === 'any' ? null : priceRangeId}
+            options={priceOptions}
+            onChange={(v) => setPriceRangeId(v ?? 'any')}
+            placeholder="Cualquier precio"
+            clearable={false}
+          />
+        </View>
+
+        <View style={styles.filterRow}>
+          <FilterSelect
+            label="Deporte"
+            value={discipline}
+            options={disciplineOptions}
+            onChange={setDiscipline}
+            placeholder="Todos"
+          />
+          <FilterSelect
+            label="Modalidad"
+            value={modality}
+            options={modalityOptions}
+            onChange={(v) => setModality((v as Modality) || null)}
+            placeholder="Cualquiera"
+          />
+        </View>
+
+        <FilterSelect
+          label="Ubicación"
+          value={locationSelectValue || null}
+          options={locationOptions}
+          onChange={handleLocationChange}
+          placeholder="Cualquier ubicación"
+          clearable={false}
+          style={styles.fullWidth}
+        />
+
+        <TextInput
+          style={[
+            styles.locationInput,
+            { backgroundColor: colors.input, borderColor: colors.border, color: colors.text },
+          ]}
+          placeholder={GEO_LABELS.locationHint}
+          placeholderTextColor={colors.textMuted}
+          value={locationText}
+          onChangeText={(text) => {
+            setLocationText(text);
+            setLocationKey(null);
+            setNearMe(false);
+          }}
+        />
+
+        {geoEnabled && permissionDenied ? (
+          <Text style={[styles.geoHint, { color: colors.textMuted }]}>{GEO_LABELS.locationDenied}</Text>
+        ) : null}
+        {geoEnabled && nearMe && coords ? (
+          <Text style={[styles.geoHint, { color: colors.primary }]}>
+            {GEO_LABELS.withinRadius(DEFAULT_RADIUS_KM)}
+          </Text>
+        ) : null}
+      </View>
 
       <Text style={[styles.count, { color: colors.textMuted }]}>
         {results.length} {results.length === 1 ? 'clase encontrada' : 'clases encontradas'}
@@ -276,50 +309,6 @@ export default function SearchScreen() {
   );
 }
 
-function FilterSection({
-  label,
-  children,
-  colors,
-}: {
-  label: string;
-  children: React.ReactNode;
-  colors: { textSecondary: string };
-}) {
-  return (
-    <View style={styles.section}>
-      <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>{label}</Text>
-      {children}
-    </View>
-  );
-}
-
-function PressableRow({
-  label,
-  onPress,
-  expanded,
-  colors,
-  link,
-}: {
-  label: string;
-  onPress: () => void;
-  expanded?: boolean;
-  colors: { primary: string; textMuted: string };
-  link?: boolean;
-}) {
-  return (
-    <Pressable onPress={onPress}>
-      <Text
-        style={[
-          styles.toggleFilters,
-          { color: link ? colors.primary : colors.textMuted },
-        ]}>
-        {label}
-        {expanded != null ? ` ${expanded ? '▲' : '▼'}` : ''}
-      </Text>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   title: {
     fontSize: 26,
@@ -342,27 +331,34 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     marginBottom: Spacing.md,
   },
-  toggleFilters: {
-    fontSize: 14,
-    fontWeight: '600',
+  filtersPanel: {
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    padding: Spacing.md,
     marginBottom: Spacing.md,
   },
-  section: { marginBottom: Spacing.md },
-  filterLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+  filtersHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  filtersTitle: { fontSize: 16, fontWeight: '700' },
+  clearLink: { fontSize: 14, fontWeight: '600' },
+  filterRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
     marginBottom: Spacing.sm,
   },
+  fullWidth: { flex: undefined, width: '100%', marginBottom: Spacing.sm },
   locationInput: {
     borderRadius: Radius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
-    fontSize: 16,
-    marginBottom: Spacing.sm,
+    fontSize: 15,
     borderWidth: 1,
   },
   geoHint: { fontSize: 12, marginTop: Spacing.sm },
-  chipWrap: { flexDirection: 'row', flexWrap: 'wrap' },
   count: { fontSize: 13, marginBottom: Spacing.md },
   empty: {
     alignItems: 'center',
