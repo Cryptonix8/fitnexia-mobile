@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
+import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
@@ -69,24 +70,34 @@ export default function GymDashboardScreen() {
                   styles.scheduleCard,
                   { backgroundColor: colors.surface, borderColor: colors.border },
                 ]}>
-                <View style={styles.scheduleHeader}>
-                  <Text style={[styles.scheduleTime, { color: colors.primary }]}>
-                    {formatClassDate(c.startAt)}
-                  </Text>
-                  <Text style={[styles.occupancyBadge, { color: colors.textMuted }]}>
-                    {booked}/{cap} reservados
-                  </Text>
+                <View style={styles.scheduleRow}>
+                  <UserAvatar
+                    size={52}
+                    kind="institution"
+                    uri={c.institution?.logoUrl ?? user?.avatarUri}
+                    style={styles.scheduleAvatar}
+                  />
+                  <View style={styles.scheduleBody}>
+                    <View style={styles.scheduleHeader}>
+                      <Text style={[styles.scheduleTime, { color: colors.primary }]}>
+                        {formatClassDate(c.startAt)}
+                      </Text>
+                      <Text style={[styles.occupancyBadge, { color: colors.textMuted }]}>
+                        {booked}/{cap} reservados
+                      </Text>
+                    </View>
+                    <Text style={[styles.scheduleTitle, { color: colors.text }]}>{c.title}</Text>
+                    <Text style={[styles.scheduleMeta, { color: colors.textMuted }]}>
+                      {c.instructor.displayName} · {cap - booked} lugares disponibles
+                    </Text>
+                    <Pressable
+                      onPress={() =>
+                        router.push({ pathname: '/edit-class/[id]', params: { id: c.id } })
+                      }>
+                      <Text style={[styles.editLink, { color: colors.primary }]}>Gestionar</Text>
+                    </Pressable>
+                  </View>
                 </View>
-                <Text style={[styles.scheduleTitle, { color: colors.text }]}>{c.title}</Text>
-                <Text style={[styles.scheduleMeta, { color: colors.textMuted }]}>
-                  {c.instructor.displayName} · {cap - booked} lugares disponibles
-                </Text>
-                <Pressable
-                  onPress={() =>
-                    router.push({ pathname: '/edit-class/[id]', params: { id: c.id } })
-                  }>
-                  <Text style={[styles.editLink, { color: colors.primary }]}>Gestionar</Text>
-                </Pressable>
               </View>
             </View>
           );
@@ -97,7 +108,9 @@ export default function GymDashboardScreen() {
         Todas las clases grupales
       </Text>
       {stats.gymClasses.length ? (
-        stats.gymClasses.map((c) => <ClassCard key={c.id} item={c} />)
+        stats.gymClasses.map((c) => (
+          <ClassCard key={c.id} item={c} institutionLogoUri={user?.avatarUri} />
+        ))
       ) : (
         <Text style={[styles.empty, { color: colors.textMuted }]}>Todavía no hay clases grupales</Text>
       )}
@@ -142,6 +155,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: Spacing.md,
   },
+  scheduleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+  },
+  scheduleAvatar: { marginTop: 2 },
+  scheduleBody: { flex: 1, minWidth: 0 },
   scheduleHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

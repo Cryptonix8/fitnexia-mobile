@@ -142,7 +142,7 @@ export interface ClassListItem {
   capacity?: number;
   spotsLeft?: number;
   instructor: Pick<Instructor, 'id' | 'displayName' | 'photoUrl'>;
-  institution?: Pick<Institution, 'id' | 'name'> | null;
+  institution?: Pick<Institution, 'id' | 'name' | 'logoUrl'> | null;
   location?: { lat: number; lng: number; label: string };
   averageRating?: number;
   classFormat?: ClassFormat;

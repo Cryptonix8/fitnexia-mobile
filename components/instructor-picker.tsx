@@ -5,8 +5,10 @@ import type { Instructor } from '@/types/api';
 import { StyleSheet, Text, View } from 'react-native';
 import { Spacing } from '@/constants/fitnexia';
 
+type InstructorOption = Pick<Instructor, 'id' | 'displayName' | 'disciplines' | 'photoUrl'>;
+
 type InstructorPickerProps = {
-  instructors: Instructor[];
+  instructors: InstructorOption[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   label?: string;
@@ -45,9 +47,14 @@ export function InstructorPicker({
       </View>
       {selectedId ? (
         <View style={[styles.preview, { backgroundColor: colors.surfaceMuted }]}>
-          <UserAvatar size={36} kind="instructor" />
+          <UserAvatar
+            size={36}
+            kind="instructor"
+            uri={instructors.find((i) => i.id === selectedId)?.photoUrl}
+          />
           <Text style={[styles.previewText, { color: colors.textSecondary }]}>
-            {instructors.find((i) => i.id === selectedId)?.disciplines.join(' · ')}
+            {instructors.find((i) => i.id === selectedId)?.disciplines?.join(' · ') ||
+              'Sin disciplinas'}
           </Text>
         </View>
       ) : null}

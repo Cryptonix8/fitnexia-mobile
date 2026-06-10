@@ -35,7 +35,7 @@ export default function GymClassesScreen() {
           const cap = c.capacity ?? 0;
           return (
             <View key={c.id} style={styles.cardWrap}>
-              <ClassCard item={c} />
+              <ClassCard item={c} institutionLogoUri={user?.avatarUri} />
               <View style={styles.metaRow}>
                 <Text style={[styles.meta, { color: colors.textMuted }]}>
                   {c.instructor.displayName} · {booked}/{cap} reservados

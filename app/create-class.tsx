@@ -16,7 +16,7 @@ import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
 import { MODALITY_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
-import { fetchLinkedInstructors } from '@/services/api/institutions.api';
+import { fetchLinkedInstructors, type StaffRosterEntry } from '@/services/api/institutions.api';
 import { getErrorMessage } from '@/services/api/errors';
 import { gymLocationLabel, resolveInstitutionId } from '@/utils/gym-classes';
 import { getLinkedInstructorId } from '@/utils/instructor';
@@ -33,14 +33,23 @@ export default function CreateClassScreen() {
   const institutionId = resolveInstitutionId(user);
   const institutionProfile = user?.institutionProfile;
   const [linkedInstructors, setLinkedInstructors] = useState<
-    { id: string; displayName: string }[]
+    Pick<StaffRosterEntry, 'id' | 'displayName' | 'disciplines' | 'photoUrl'>[]
   >([]);
   const [publishing, setPublishing] = useState(false);
 
   useEffect(() => {
     if (!isGym) return;
     fetchLinkedInstructors()
-      .then((data) => setLinkedInstructors(data.map((i) => ({ id: i.id, displayName: i.displayName }))))
+      .then((data) =>
+        setLinkedInstructors(
+          data.map((i) => ({
+            id: i.id,
+            displayName: i.displayName,
+            disciplines: i.disciplines ?? [],
+            photoUrl: i.photoUrl,
+          })),
+        ),
+      )
       .catch(() => setLinkedInstructors([]));
   }, [isGym]);
 
@@ -119,6 +128,7 @@ export default function CreateClassScreen() {
           institution: {
             id: institutionId,
             name: institutionProfile?.name ?? 'Gimnasio',
+            logoUrl: user?.avatarUri ?? undefined,
           },
           location:
             modality === 'in_person'

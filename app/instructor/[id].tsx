@@ -3,6 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
+import { StarRating } from '@/components/star-rating';
 import { UserAvatar } from '@/components/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { ClassCard } from '@/components/class-card';
@@ -66,8 +67,17 @@ export default function InstructorProfileScreen() {
             <Badge label={BADGE_LABELS.availableNow} variant="success" />
           ) : null}
         </View>
-        <Text style={[styles.rating, { color: colors.textMuted }]}>
-          ★ {instructor.averageRating} ({instructor.reviewCount} reseñas de atletas)
+        <StarRating
+          rating={instructor.averageRating}
+          reviewCount={instructor.reviewCount}
+          size={18}
+          showCount={false}
+          style={styles.rating}
+        />
+        <Text style={[styles.reviewLabel, { color: colors.textMuted }]}>
+          {instructor.reviewCount > 0
+            ? `${instructor.averageRating.toFixed(1)} · ${instructor.reviewCount} reseñas de atletas`
+            : 'Sin reseñas de atletas'}
         </Text>
         <Text style={[styles.bio, { color: colors.textSecondary }]}>{instructor.bio}</Text>
       </View>
@@ -114,7 +124,7 @@ export default function InstructorProfileScreen() {
               key={review.id}
               style={[styles.reviewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <Text style={[styles.reviewGym, { color: colors.textMuted }]}>{review.institutionName}</Text>
-              <Text style={{ color: colors.warning }}>{'★'.repeat(review.rating)}</Text>
+              <StarRating rating={review.rating} reviewCount={1} size={16} showCount={false} />
               {review.comment ? (
                 <Text style={[styles.reviewComment, { color: colors.textSecondary }]}>{review.comment}</Text>
               ) : null}
@@ -138,7 +148,8 @@ const styles = StyleSheet.create({
   photo: { marginBottom: Spacing.md },
   name: { fontSize: 24, fontWeight: '800' },
   meta: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm },
-  rating: { marginTop: Spacing.sm, fontSize: 14 },
+  rating: { marginTop: Spacing.sm },
+  reviewLabel: { marginTop: 4, fontSize: 13 },
   bio: { marginTop: Spacing.md, textAlign: 'center', lineHeight: 22, paddingHorizontal: Spacing.md },
   section: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.md, marginTop: Spacing.sm },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.md },

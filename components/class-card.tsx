@@ -14,16 +14,20 @@ export function ClassCard({
   item,
   compact,
   distanceLabel,
+  institutionLogoUri,
 }: {
   item: ClassListItem;
   compact?: boolean;
   distanceLabel?: string;
+  /** Fallback gym logo when `item.institution.logoUrl` is missing (e.g. cached classes). */
+  institutionLogoUri?: string | null;
 }) {
   const { colors } = useAppTheme();
   const full = item.spotsLeft === 0;
+  const isGymClass = Boolean(item.institution);
   const formatLabel = classFormatBadgeLabel(item.classFormat, {
     capacity: item.capacity,
-    hasInstitution: Boolean(item.institution),
+    hasInstitution: isGymClass,
   });
 
   return (
@@ -37,7 +41,16 @@ export function ClassCard({
         },
       ]}
       onPress={() => router.push(`/class/${item.id}`)}>
-      <UserAvatar size={72} kind="instructor" uri={item.instructor.photoUrl} style={styles.thumb} />
+      <UserAvatar
+        size={72}
+        kind={isGymClass ? 'institution' : 'instructor'}
+        uri={
+          isGymClass
+            ? item.institution?.logoUrl ?? institutionLogoUri
+            : item.instructor.photoUrl
+        }
+        style={styles.thumb}
+      />
       <View style={styles.body}>
         <View style={styles.row}>
           <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
