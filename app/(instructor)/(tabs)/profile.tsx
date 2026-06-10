@@ -7,22 +7,19 @@ import { ProfileMenuItem } from '@/components/profile/menu-item';
 import { UserAvatar } from '@/components/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Screen } from '@/components/ui/screen';
-import { useAuth } from '@/contexts/auth-context';
+import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
-import {
-  ALERT_LABELS,
-  BADGE_LABELS,
-  BUTTON_LABELS,
-  PROFILE_MENU_LABELS,
-  SCREEN_TITLES,
-} from '@/constants/labels';
+import { BADGE_LABELS, BUTTON_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
+import { useSignOut } from '@/hooks/use-sign-out';
 import { formatWeeklyScheduleSummary, defaultWeeklySchedule } from '@/utils/schedule';
 
 export default function InstructorProfileScreen() {
-  const { user, logout, updateProfile } = useAuth();
+  const { user, updateProfile } = useAuth();
+  const { signOut, signingOut } = useSignOut();
   const { colors } = useAppTheme();
   const showSupport = useFeature('platformSupport');
   const showPaymentMethods = useFeature('savedPaymentMethods');
@@ -30,21 +27,11 @@ export default function InstructorProfileScreen() {
 
   const toggleAvailable = () => {
     if (!profile) return;
-    updateProfile({ instructorProfile: { availableNow: !profile.availableNow } });
-  };
-
-  const signOut = () => {
-    Alert.alert(ALERT_LABELS.signOutTitle, ALERT_LABELS.signOutMessage, [
-      { text: ALERT_LABELS.cancel, style: 'cancel' },
-      {
-        text: BUTTON_LABELS.signOut,
-        style: 'destructive',
-        onPress: async () => {
-          await logout();
-          router.replace('/(auth)/login');
-        },
-      },
-    ]);
+    void updateProfile({
+      instructorProfile: { availableNow: !profile.availableNow },
+    }).catch((err) => {
+      Alert.alert('No se pudo actualizar disponibilidad', getErrorMessage(err));
+    });
   };
 
   if (!profile) {
@@ -158,6 +145,8 @@ export default function InstructorProfileScreen() {
       ) : null}
 
       <Button title={BUTTON_LABELS.signOut} variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
+
+      <LoadingOverlay visible={signingOut} message="Cerrando sesión…" />
     </Screen>
   );
 }

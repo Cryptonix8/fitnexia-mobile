@@ -1,47 +1,30 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { DarkModeToggle } from '@/components/profile/dark-mode-toggle';
 import { ProfileMenuItem } from '@/components/profile/menu-item';
 import { UserAvatar } from '@/components/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { MOCK_INSTRUCTORS } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import {
-  ALERT_LABELS,
-  BADGE_LABELS,
-  BUTTON_LABELS,
-  PROFILE_MENU_LABELS,
-  SCREEN_TITLES,
-} from '@/constants/labels';
+import { BADGE_LABELS, BUTTON_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
+import { useSignOut } from '@/hooks/use-sign-out';
 
 export default function GymProfileScreen() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { signOut, signingOut } = useSignOut();
   const { colors } = useAppTheme();
   const showSupport = useFeature('platformSupport');
   const showPaymentMethods = useFeature('savedPaymentMethods');
   const profile = user?.institutionProfile;
-
-  const signOut = () => {
-    Alert.alert(ALERT_LABELS.signOutTitle, ALERT_LABELS.signOutMessage, [
-      { text: ALERT_LABELS.cancel, style: 'cancel' },
-      {
-        text: BUTTON_LABELS.signOut,
-        style: 'destructive',
-        onPress: async () => {
-          await logout();
-          router.replace('/(auth)/login');
-        },
-      },
-    ]);
-  };
 
   if (!profile) {
     return (
@@ -185,6 +168,8 @@ export default function GymProfileScreen() {
       ) : null}
 
       <Button title={BUTTON_LABELS.signOut} variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
+
+      <LoadingOverlay visible={signingOut} message="Cerrando sesión…" />
     </Screen>
   );
 }

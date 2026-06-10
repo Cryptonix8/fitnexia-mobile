@@ -1,26 +1,24 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ProfileMenuItem } from '@/components/profile/menu-item';
 import { DarkModeToggle } from '@/components/profile/dark-mode-toggle';
 import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import {
-  ALERT_LABELS,
-  BUTTON_LABELS,
-  PROFILE_MENU_LABELS,
-  SCREEN_TITLES,
-} from '@/constants/labels';
+import { BUTTON_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
+import { useSignOut } from '@/hooks/use-sign-out';
 import { MOCK_CREDITS } from '@/data/mock';
 
 export default function AthleteProfileScreen() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { signOut, signingOut } = useSignOut();
   const { colors } = useAppTheme();
   const showCredits = useFeature('loyaltyCredits');
   const showPaymentMethods = useFeature('savedPaymentMethods');
@@ -29,20 +27,6 @@ export default function AthleteProfileScreen() {
 
   const favoriteSportsLabel =
     user?.favoriteSports.length ? user.favoriteSports.join(', ') : 'Ninguno seleccionado';
-
-  const signOut = () => {
-    Alert.alert(ALERT_LABELS.signOutTitle, ALERT_LABELS.signOutMessage, [
-      { text: ALERT_LABELS.cancel, style: 'cancel' },
-      {
-        text: BUTTON_LABELS.signOut,
-        style: 'destructive',
-        onPress: async () => {
-          await logout();
-          router.replace('/(auth)/login');
-        },
-      },
-    ]);
-  };
 
   return (
     <Screen scroll>
@@ -120,6 +104,8 @@ export default function AthleteProfileScreen() {
       ) : null}
 
       <Button title={BUTTON_LABELS.signOut} variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
+
+      <LoadingOverlay visible={signingOut} message="Cerrando sesión…" />
     </Screen>
   );
 }

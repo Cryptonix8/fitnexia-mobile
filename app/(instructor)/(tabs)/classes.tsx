@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
@@ -25,9 +26,11 @@ export default function InstructorClassesScreen() {
       </View>
 
       {mine.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>
-          Todavía no tenés clases. Creá la primera para abrir reservas.
-        </Text>
+        <EmptyState
+          icon="fitness-outline"
+          title="Todavía no tenés clases"
+          description="Creá tu primera clase para abrir reservas y aparecer en búsquedas."
+        />
       ) : (
         mine.map((c) => <ClassCard key={c.id} item={c} />)
       )}
@@ -43,5 +46,4 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   title: { fontSize: 26, fontWeight: '800' },
-  empty: { fontSize: 15, lineHeight: 22 },
 });

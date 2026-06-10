@@ -6,6 +6,7 @@ import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View 
 import { UserAvatar } from '@/components/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useAuth, getErrorMessage } from '@/contexts/auth-context';
@@ -211,7 +212,9 @@ export default function GymReviewInstructorScreen() {
         onChangeText={setComment}
       />
 
-      <Button title="Enviar reseña verificada" onPress={submit} loading={submitting} />
+      <Button title="Enviar reseña verificada" onPress={submit} disabled={submitting} />
+
+      <LoadingOverlay visible={submitting} message="Enviando reseña…" />
     </Screen>
   );
 }

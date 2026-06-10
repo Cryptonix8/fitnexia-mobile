@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useMemo } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
@@ -18,7 +19,7 @@ import {
 } from '@/utils/geo';
 
 export default function AthleteHomeScreen() {
-  const { classes } = useClasses();
+  const { classes, isLoading, error, refreshClasses } = useClasses();
   const geoEnabled = useFeature('geolocationMap');
   const { coords, requestLocation } = useUserLocation();
 
@@ -39,6 +40,7 @@ export default function AthleteHomeScreen() {
   }, [classes, coords, geoEnabled]);
 
   const recommended = [...classes].reverse().slice(0, 3);
+  const nearbyTitle = geoEnabled && coords ? 'Cerca' : 'Próximas';
 
   return (
     <Screen scroll>
@@ -62,26 +64,66 @@ export default function AthleteHomeScreen() {
         />
       </View>
 
-      <Text style={styles.section}>{geoEnabled && coords ? 'Cerca' : 'Próximas'}</Text>
-      {nearby.map((c) => (
-        <ClassCard
-          key={c.id}
-          item={c}
-          distanceLabel={
-            geoEnabled && coords
-              ? (() => {
-                  const km = classDistanceKm(c, coords);
-                  return km != null ? formatDistanceKm(km) : undefined;
-                })()
-              : undefined
-          }
-        />
-      ))}
+      {isLoading && classes.length === 0 ? (
+        <ActivityIndicator style={styles.loader} color={FitnexiaColors.primary} />
+      ) : null}
 
-      <Text style={styles.section}>Recomendadas para vos</Text>
-      {recommended.map((c) => (
-        <ClassCard key={`r-${c.id}`} item={c} />
-      ))}
+      {error && classes.length === 0 ? (
+        <EmptyState
+          icon="cloud-offline-outline"
+          title="No se pudieron cargar las clases"
+          description={error}
+          actionLabel="Reintentar"
+          onAction={() => void refreshClasses()}
+        />
+      ) : (
+        <>
+          <Text style={styles.section}>{nearbyTitle}</Text>
+          {nearby.length === 0 ? (
+            <EmptyState
+              compact
+              icon={geoEnabled && coords ? 'location-outline' : 'calendar-outline'}
+              title={
+                geoEnabled && coords
+                  ? 'No hay clases cerca'
+                  : 'No hay clases próximas'
+              }
+              description={
+                geoEnabled && coords
+                  ? 'Ampliá el radio de búsqueda o explorá todas las clases.'
+                  : 'Todavía no hay clases publicadas. Volvé pronto o buscá en Explorar.'
+              }
+            />
+          ) : (
+            nearby.map((c) => (
+              <ClassCard
+                key={c.id}
+                item={c}
+                distanceLabel={
+                  geoEnabled && coords
+                    ? (() => {
+                        const km = classDistanceKm(c, coords);
+                        return km != null ? formatDistanceKm(km) : undefined;
+                      })()
+                    : undefined
+                }
+              />
+            ))
+          )}
+
+          <Text style={styles.section}>Recomendadas para vos</Text>
+          {recommended.length === 0 ? (
+            <EmptyState
+              compact
+              icon="sparkles-outline"
+              title="Sin recomendaciones por ahora"
+              description="Cuando haya más clases en la plataforma, te sugeriremos opciones acá."
+            />
+          ) : (
+            recommended.map((c) => <ClassCard key={`r-${c.id}`} item={c} />)
+          )}
+        </>
+      )}
     </Screen>
   );
 }
@@ -114,6 +156,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   searchInput: { flex: 1, fontSize: 16, color: FitnexiaColors.gray900 },
+  loader: { marginVertical: Spacing.xl },
   section: {
     fontSize: 18,
     fontWeight: '700',

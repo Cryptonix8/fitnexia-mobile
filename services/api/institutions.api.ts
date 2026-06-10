@@ -1,4 +1,4 @@
-import type { InstructorInvite } from '@/contexts/auth-context';
+import type { InstructorInvite } from '@/types/auth-user';
 import type { Instructor } from '@/types/api';
 
 import { apiRequest } from './client';
@@ -64,11 +64,7 @@ export type InviteInstructorResult = InstructorInvite & {
   emailError?: string;
 };
 
-export async function inviteInstructorApi(params: {
-  email?: string;
-  instructorId?: string;
-  message?: string;
-}) {
+export async function inviteInstructorApi(params: { instructorId: string }) {
   return apiRequest<InviteInstructorResult>('/institutions/me/instructors/invite', {
     method: 'POST',
     body: params,

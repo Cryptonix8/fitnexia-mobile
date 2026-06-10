@@ -6,6 +6,8 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Screen } from '@/components/ui/screen';
 import { useAuth, getErrorMessage } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
@@ -51,7 +53,11 @@ export default function InstructorDashboard() {
 
   const toggleAvailable = () => {
     if (!profile) return;
-    updateProfile({ instructorProfile: { availableNow: !profile.availableNow } });
+    void updateProfile({
+      instructorProfile: { availableNow: !profile.availableNow },
+    }).catch((err) => {
+      Alert.alert('No se pudo actualizar disponibilidad', getErrorMessage(err));
+    });
   };
 
   const acceptInvite = async (invite: GymStaffInvite) => {
@@ -92,7 +98,7 @@ export default function InstructorDashboard() {
               <Button
                 title="Aceptar"
                 size="sm"
-                loading={acceptingInviteId === invite.id}
+                disabled={acceptingInviteId === invite.id}
                 onPress={() => acceptInvite(invite)}
               />
             </View>
@@ -145,8 +151,15 @@ export default function InstructorDashboard() {
       {todayClasses.length ? (
         todayClasses.map((c) => <ClassCard key={c.id} item={c} />)
       ) : (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>No hay clases programadas hoy</Text>
+        <EmptyState
+          compact
+          icon="calendar-outline"
+          title="No hay clases hoy"
+          description="Programá una clase para empezar a recibir reservas."
+        />
       )}
+
+      <LoadingOverlay visible={acceptingInviteId !== null} message="Aceptando invitación…" />
     </Screen>
   );
 }
@@ -208,5 +221,4 @@ const styles = StyleSheet.create({
   availableText: { fontWeight: '600' },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md },
   section: { fontSize: 18, fontWeight: '700' },
-  empty: {},
 });

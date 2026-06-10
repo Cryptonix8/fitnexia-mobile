@@ -6,6 +6,7 @@ import { InstructorPicker } from '@/components/instructor-picker';
 import { DateTimeField } from '@/components/date-time-field';
 import { FilterChip } from '@/components/ui/filter-chip';
 import { Button } from '@/components/ui/button';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Header } from '@/components/ui/header';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
@@ -327,11 +328,12 @@ export default function CreateClassScreen() {
 
       <Button
         title="Publicar clase"
-        loading={publishing}
         onPress={publish}
-        disabled={isGym && linkedInstructors.length === 0}
+        disabled={publishing || (isGym && linkedInstructors.length === 0)}
         style={{ marginTop: Spacing.md }}
       />
+
+      <LoadingOverlay visible={publishing} message="Publicando clase…" />
     </Screen>
   );
 }

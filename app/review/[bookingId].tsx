@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useBookings } from '@/contexts/bookings-context';
@@ -65,7 +66,7 @@ export default function ReviewScreen() {
 
       <Button
         title="Enviar reseña"
-        loading={loading}
+        disabled={loading}
         onPress={async () => {
           setLoading(true);
           try {
@@ -80,6 +81,8 @@ export default function ReviewScreen() {
           }
         }}
       />
+
+      <LoadingOverlay visible={loading} message="Enviando reseña…" />
     </Screen>
   );
 }

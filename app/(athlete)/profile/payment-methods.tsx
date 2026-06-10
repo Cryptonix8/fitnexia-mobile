@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useAuth, type PaymentMethod } from '@/contexts/auth-context';
@@ -56,10 +57,13 @@ export default function PaymentMethodsScreen() {
       </Text>
 
       {methods.length === 0 ? (
-        <View style={styles.empty}>
-          <Ionicons name="card-outline" size={48} color={FitnexiaColors.gray400} />
-          <Text style={styles.emptyText}>No hay métodos de pago</Text>
-        </View>
+        <EmptyState
+          icon="card-outline"
+          title="Sin métodos de pago"
+          description="Agregá una tarjeta para reservar clases más rápido."
+          actionLabel="Agregar tarjeta"
+          onAction={addMockCard}
+        />
       ) : (
         methods.map((m) => (
           <View key={m.id} style={styles.card}>
@@ -93,8 +97,6 @@ export default function PaymentMethodsScreen() {
 
 const styles = StyleSheet.create({
   hint: { fontSize: 15, color: FitnexiaColors.gray500, marginBottom: Spacing.lg },
-  empty: { alignItems: 'center', paddingVertical: Spacing.xxl },
-  emptyText: { marginTop: Spacing.md, color: FitnexiaColors.gray500 },
   card: {
     flexDirection: 'row',
     alignItems: 'flex-start',

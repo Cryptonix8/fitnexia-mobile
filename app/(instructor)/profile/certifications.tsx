@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Header } from '@/components/ui/header';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
@@ -152,12 +153,12 @@ export default function InstructorCertificationsScreen() {
         </Text>
 
         {certifications.length === 0 ? (
-          <View style={[styles.empty, { backgroundColor: colors.surface }]}>
-            <Ionicons name="ribbon-outline" size={40} color={colors.textMuted} />
-            <Text style={[styles.emptyText, { color: colors.textMuted }]}>
-              Todavía no hay certificaciones
-            </Text>
-          </View>
+          <EmptyState
+            compact
+            icon="ribbon-outline"
+            title="Sin certificaciones"
+            description="Agregá credenciales profesionales que se muestran en tu perfil público."
+          />
         ) : (
           certifications.map((cert, index) => (
             <View
@@ -210,13 +211,6 @@ export default function InstructorCertificationsScreen() {
 
 const styles = StyleSheet.create({
   hint: { fontSize: 15, marginBottom: Spacing.lg, lineHeight: 22 },
-  empty: {
-    alignItems: 'center',
-    padding: Spacing.xl,
-    borderRadius: Radius.lg,
-    marginBottom: Spacing.lg,
-  },
-  emptyText: { marginTop: Spacing.sm, fontSize: 14 },
   certCard: {
     flexDirection: 'row',
     alignItems: 'center',

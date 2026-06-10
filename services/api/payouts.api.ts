@@ -1,6 +1,9 @@
 import type { Money } from '@/types/api';
 
-import { apiRequest } from './client';
+import { apiRequest, getAccessToken } from './client';
+import { API_BASE_URL } from './config';
+import { ApiError } from './errors';
+import { safeFetch } from './fetch';
 
 export type PayoutSummary = {
   gross: number;
@@ -34,11 +37,8 @@ export async function fetchRecentPayouts(limit = 20) {
 }
 
 export async function fetchPayoutsCsv(): Promise<string> {
-  const { API_BASE_URL } = await import('./config');
-  const { getAccessToken } = await import('./token-storage');
-
   const token = await getAccessToken();
-  const res = await fetch(`${API_BASE_URL}/payouts/me/export.csv`, {
+  const res = await safeFetch(`${API_BASE_URL}/payouts/me/export.csv`, {
     headers: {
       Accept: 'text/csv',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -46,7 +46,7 @@ export async function fetchPayoutsCsv(): Promise<string> {
   });
 
   if (!res.ok) {
-    throw new Error('Failed to export payouts');
+    throw new ApiError(res.status, 'EXPORT_ERROR', 'Failed to export payouts');
   }
 
   return res.text();

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { formatMoney } from '@/data/mock';
@@ -156,10 +157,12 @@ export default function BookScreen() {
               ? BUTTON_LABELS.payAndConfirm
               : BUTTON_LABELS.confirmBooking
         }
-        loading={loading}
+        disabled={loading}
         onPress={confirm}
         style={{ marginTop: Spacing.lg }}
       />
+
+      <LoadingOverlay visible={loading} message="Confirmando reserva…" />
     </Screen>
   );
 }

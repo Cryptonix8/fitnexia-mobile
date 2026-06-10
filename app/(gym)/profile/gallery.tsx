@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
@@ -93,14 +94,11 @@ export default function GymGalleryScreen() {
         </Text>
 
         {gallery.length === 0 ? (
-          <Pressable
-            style={[styles.empty, { backgroundColor: colors.surface, borderColor: colors.border }]}
-            onPress={addPhoto}>
-            <Ionicons name="images-outline" size={40} color={colors.textMuted} />
-            <Text style={[styles.emptyText, { color: colors.textMuted }]}>
-              Todavía no hay fotos — tocá para agregar
-            </Text>
-          </Pressable>
+          <EmptyState
+            icon="images-outline"
+            title="Sin fotos en la galería"
+            description="Mostrá tu instalación en el perfil público de tu gimnasio."
+          />
         ) : (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.row}>
             {gallery.map((uri, index) => (
@@ -132,16 +130,6 @@ const THUMB = 140;
 
 const styles = StyleSheet.create({
   hint: { fontSize: 15, marginBottom: Spacing.lg, lineHeight: 22 },
-  empty: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.xl,
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    minHeight: 160,
-  },
-  emptyText: { marginTop: Spacing.sm, fontSize: 14, textAlign: 'center' },
   row: { marginBottom: Spacing.md },
   thumbWrap: { marginRight: Spacing.sm, position: 'relative' },
   thumb: {

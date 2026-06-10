@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
@@ -26,9 +27,11 @@ export default function GymClassesScreen() {
       </View>
 
       {gymClasses.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>
-          Creá una clase grupal con cupos limitados y asigná un instructor.
-        </Text>
+        <EmptyState
+          icon="people-outline"
+          title="Sin clases grupales"
+          description="Creá una clase grupal con cupos limitados y asigná un instructor."
+        />
       ) : (
         gymClasses.map((c) => {
           const booked = computeClassBooked(c);
@@ -65,7 +68,6 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   title: { fontSize: 26, fontWeight: '800' },
-  empty: { fontSize: 15, lineHeight: 22, textAlign: 'center', marginTop: Spacing.xl },
   cardWrap: { marginBottom: Spacing.xs },
   metaRow: {
     flexDirection: 'row',

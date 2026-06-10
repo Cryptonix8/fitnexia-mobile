@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { useAuth, type PaymentMethod } from '@/contexts/auth-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS } from '@/constants/labels';
@@ -52,10 +53,13 @@ export function PaymentMethodsSettings() {
         Las tarjetas se almacenan de forma segura en Mercado Pago. Esta es una interfaz simulada hasta conectar la API.
       </Text>
       {methods.length === 0 ? (
-        <View style={styles.empty}>
-          <Ionicons name="card-outline" size={48} color={FitnexiaColors.gray400} />
-          <Text style={styles.emptyText}>No hay métodos de pago</Text>
-        </View>
+        <EmptyState
+          icon="card-outline"
+          title="Sin métodos de pago"
+          description="Agregá una tarjeta para reservar clases más rápido."
+          actionLabel="Agregar tarjeta"
+          onAction={addMockCard}
+        />
       ) : (
         methods.map((m) => (
           <View key={m.id} style={styles.card}>
@@ -88,8 +92,6 @@ export function PaymentMethodsSettings() {
 
 const styles = StyleSheet.create({
   hint: { fontSize: 15, color: FitnexiaColors.gray500, marginBottom: Spacing.lg },
-  empty: { alignItems: 'center', paddingVertical: Spacing.xxl },
-  emptyText: { marginTop: Spacing.md, color: FitnexiaColors.gray500 },
   card: {
     flexDirection: 'row',
     alignItems: 'flex-start',

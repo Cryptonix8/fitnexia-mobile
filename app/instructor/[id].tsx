@@ -7,6 +7,7 @@ import { StarRating } from '@/components/star-rating';
 import { UserAvatar } from '@/components/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { ClassCard } from '@/components/class-card';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useReviews } from '@/contexts/reviews-context';
@@ -50,7 +51,11 @@ export default function InstructorProfileScreen() {
     return (
       <Screen>
         <Header title="Instructor" showBack />
-        <Text style={{ color: colors.text }}>Instructor no encontrado</Text>
+        <EmptyState
+          icon="person-outline"
+          title="Instructor no encontrado"
+          description="El perfil que buscás no existe o ya no está disponible."
+        />
       </Screen>
     );
   }
@@ -135,7 +140,12 @@ export default function InstructorProfileScreen() {
 
       <Text style={[styles.section, { color: colors.text }]}>Próximas clases</Text>
       {instructorClasses.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>No hay clases próximas publicadas.</Text>
+        <EmptyState
+          compact
+          icon="fitness-outline"
+          title="Sin clases publicadas"
+          description="Este instructor todavía no tiene clases próximas disponibles."
+        />
       ) : (
         instructorClasses.map((c) => <ClassCard key={c.id} item={c} />)
       )}
@@ -170,5 +180,4 @@ const styles = StyleSheet.create({
   },
   reviewGym: { fontSize: 12, fontWeight: '600', marginBottom: 4 },
   reviewComment: { marginTop: Spacing.sm, lineHeight: 20 },
-  empty: { marginBottom: Spacing.lg },
 });

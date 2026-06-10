@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Screen } from '@/components/ui/screen';
 import { useAppTheme } from '@/contexts/theme-context';
 import { formatMoney } from '@/data/mock';
@@ -101,15 +103,18 @@ export default function EarningsScreen() {
         title="Exportar CSV"
         variant="outline"
         size="sm"
-        loading={exporting}
+        disabled={exporting}
         onPress={exportCsv}
       />
 
       <Text style={[styles.section, { color: colors.text }]}>Cobros recientes</Text>
       {payouts.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>
-          Todavía no hay reservas confirmadas. Los cobros aparecen cuando los atletas reservan tus clases.
-        </Text>
+        <EmptyState
+          compact
+          icon="wallet-outline"
+          title="Sin cobros todavía"
+          description="Los cobros aparecen cuando los atletas reservan y confirman tus clases."
+        />
       ) : (
         payouts.map((payout) => (
           <View
@@ -129,6 +134,8 @@ export default function EarningsScreen() {
           </View>
         ))
       )}
+
+      <LoadingOverlay visible={exporting} message="Exportando…" />
     </Screen>
   );
 }
@@ -144,7 +151,6 @@ const styles = StyleSheet.create({
   summaryValue: { color: '#fff', fontSize: 36, fontWeight: '800', marginTop: Spacing.sm },
   plan: { color: 'rgba(255,255,255,0.85)', fontSize: 13, marginTop: Spacing.sm },
   section: { fontSize: 18, fontWeight: '700', marginVertical: Spacing.md },
-  empty: { fontSize: 15, lineHeight: 22 },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',

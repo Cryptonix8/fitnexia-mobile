@@ -1,7 +1,8 @@
 import { Platform } from 'react-native';
 
 import { API_BASE_URL } from './config';
-import { ApiError } from './errors';
+import { safeFetch } from './fetch';
+import { parseJsonError, parseJsonResponse } from './parse-response';
 import { getAccessToken } from './token-storage';
 
 const LOCAL_URI_PREFIXES = ['file://', 'content://', 'ph://', 'assets-library://'];
@@ -27,21 +28,6 @@ function guessFileName(uri: string, mime: string): string {
   return `photo.${ext}`;
 }
 
-async function parseUploadError(res: Response): Promise<ApiError> {
-  try {
-    const data = await res.json();
-    const err = data?.error;
-    return new ApiError(
-      res.status,
-      err?.code ?? 'UPLOAD_ERROR',
-      err?.message ?? res.statusText,
-      err?.details ?? {},
-    );
-  } catch {
-    return new ApiError(res.status, 'UPLOAD_ERROR', res.statusText || 'Upload failed');
-  }
-}
-
 export async function uploadLocalImage(localUri: string): Promise<string> {
   const mime = guessMimeType(localUri);
   const formData = new FormData();
@@ -59,26 +45,21 @@ export async function uploadLocalImage(localUri: string): Promise<string> {
   const token = await getAccessToken();
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  let res: Response;
-  try {
-    res = await fetch(`${API_BASE_URL}/media/upload`, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
-  } catch {
-    throw new ApiError(
-      0,
-      'NETWORK_ERROR',
-      `Cannot reach the API at ${API_BASE_URL}. Make sure the backend is running.`,
-    );
-  }
+  const res = await safeFetch(`${API_BASE_URL}/media/upload`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
 
   if (!res.ok) {
-    throw await parseUploadError(res);
+    const err = await parseJsonError(res);
+    throw err;
   }
 
-  const data = (await res.json()) as { publicUrl: string };
+  const data = await parseJsonResponse<{ publicUrl?: string }>(res);
+  if (!data?.publicUrl) {
+    throw new Error('Upload succeeded but no image URL was returned');
+  }
   return data.publicUrl;
 }
 

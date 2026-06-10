@@ -6,6 +6,7 @@ import { AvatarPicker } from '@/components/avatar-picker';
 import { GoogleSignInButton } from '@/components/google-sign-in-button';
 import { RoleCard } from '@/components/role-card';
 import { Button } from '@/components/ui/button';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { getErrorMessage, useAuth } from '@/contexts/auth-context';
@@ -121,8 +122,7 @@ export default function RegisterScreen() {
           {googleSignIn ? (
             <GoogleSignInButton
               onPress={handleGoogleSignIn}
-              loading={googlePending}
-              disabled={!googleReady || loading}
+              disabled={!googleReady || loading || googlePending}
             />
           ) : null}
         </>
@@ -198,16 +198,26 @@ export default function RegisterScreen() {
             </>
           ) : null} */}
 
-          <Button title={BUTTON_LABELS.createAccount} loading={loading} onPress={submit} />
+          <Button title={BUTTON_LABELS.createAccount} disabled={loading} onPress={submit} />
           {googleSignIn ? (
             <GoogleSignInButton
               onPress={handleGoogleSignIn}
-              loading={googlePending}
-              disabled={!googleReady || loading}
+              disabled={!googleReady || loading || googlePending}
             />
           ) : null}
         </>
       )}
+
+      <LoadingOverlay
+        visible={loading || googlePending}
+        message={
+          googlePending
+            ? 'Iniciando sesión con Google…'
+            : loading
+              ? 'Creando cuenta…'
+              : undefined
+        }
+      />
     </Screen>
   );
 }

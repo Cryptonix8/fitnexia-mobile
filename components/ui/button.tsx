@@ -1,10 +1,4 @@
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  type PressableProps,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, type PressableProps } from 'react-native';
 
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { useAppTheme } from '@/contexts/theme-context';
@@ -14,21 +8,18 @@ type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type ButtonProps = PressableProps & {
   title: string;
   variant?: ButtonVariant;
-  loading?: boolean;
   size?: 'sm' | 'md' | 'lg';
 };
 
 export function Button({
   title,
   variant = 'primary',
-  loading,
   size = 'md',
   disabled,
   style,
   ...rest
 }: ButtonProps) {
   const { colors } = useAppTheme();
-  const isDisabled = disabled || loading;
 
   const variantStyles = {
     primary: { bg: colors.primary, text: colors.surface, border: colors.primary },
@@ -48,24 +39,20 @@ export function Button({
           borderColor: variantStyles.border,
           borderWidth: variant === 'outline' ? 1.5 : 0,
         },
-        pressed && !isDisabled && styles.pressed,
-        isDisabled && styles.disabled,
+        pressed && !disabled && styles.pressed,
+        disabled && styles.disabled,
         style,
       ]}
-      disabled={isDisabled}
+      disabled={disabled}
       {...rest}>
-      {loading ? (
-        <ActivityIndicator color={variantStyles.text} />
-      ) : (
-        <Text
-          style={[
-            styles.text,
-            styles[`text_${size}`],
-            { color: variantStyles.text },
-          ]}>
-          {title}
-        </Text>
-      )}
+      <Text
+        style={[
+          styles.text,
+          styles[`text_${size}`],
+          { color: variantStyles.text },
+        ]}>
+        {title}
+      </Text>
     </Pressable>
   );
 }

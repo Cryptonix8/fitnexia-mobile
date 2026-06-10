@@ -1,26 +1,21 @@
 import { Ionicons } from '@expo/vector-icons';
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
 import { AUTH_LABELS } from '@/constants/labels';
 
 type GoogleSignInButtonProps = {
   onPress: () => void | Promise<void>;
-  loading?: boolean;
   disabled?: boolean;
 };
 
-export function GoogleSignInButton({ onPress, loading = false, disabled = false }: GoogleSignInButtonProps) {
+export function GoogleSignInButton({ onPress, disabled = false }: GoogleSignInButtonProps) {
   return (
     <Pressable
-      style={[styles.google, (loading || disabled) && styles.googleDisabled]}
+      style={[styles.google, disabled && styles.googleDisabled]}
       onPress={onPress}
-      disabled={loading || disabled}>
-      {loading ? (
-        <ActivityIndicator color={FitnexiaColors.gray700} />
-      ) : (
-        <Ionicons name="logo-google" size={20} color={FitnexiaColors.gray700} />
-      )}
+      disabled={disabled}>
+      <Ionicons name="logo-google" size={20} color={FitnexiaColors.gray700} />
       <Text style={styles.googleText}>{AUTH_LABELS.continueWithGoogle}</Text>
     </Pressable>
   );

@@ -1,7 +1,8 @@
 import { Platform } from 'react-native';
 
 import { API_BASE_URL } from './config';
-import { ApiError } from './errors';
+import { safeFetch } from './fetch';
+import { parseJsonError, parseJsonResponse } from './parse-response';
 import {
   clearTokens,
   getAccessToken,
@@ -16,26 +17,11 @@ type RequestOptions = {
   retry?: boolean;
 };
 
-async function parseErrorResponse(res: Response): Promise<ApiError> {
-  try {
-    const data = await res.json();
-    const err = data?.error;
-    return new ApiError(
-      res.status,
-      err?.code ?? 'API_ERROR',
-      err?.message ?? res.statusText,
-      err?.details ?? {},
-    );
-  } catch {
-    return new ApiError(res.status, 'API_ERROR', res.statusText || 'Request failed');
-  }
-}
-
 async function refreshAccessToken(): Promise<boolean> {
   const refreshToken = await getRefreshToken();
   if (!refreshToken) return false;
 
-  const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+  const res = await safeFetch(`${API_BASE_URL}/auth/refresh`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({ refreshToken }),
@@ -46,7 +32,14 @@ async function refreshAccessToken(): Promise<boolean> {
     return false;
   }
 
-  const data = await res.json();
+  const data = await parseJsonResponse<{
+    accessToken?: string;
+    refreshToken?: string;
+  }>(res);
+  if (!data?.accessToken || !data?.refreshToken) {
+    await clearTokens();
+    return false;
+  }
   await setTokens(data.accessToken, data.refreshToken);
   return true;
 }
@@ -65,20 +58,11 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     if (token) headers.Authorization = `Bearer ${token}`;
   }
 
-  let res: Response;
-  try {
-    res = await fetch(`${API_BASE_URL}${path}`, {
-      method,
-      headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
-  } catch {
-    throw new ApiError(
-      0,
-      'NETWORK_ERROR',
-      `Cannot reach the API at ${API_BASE_URL}. Make sure the backend is running.`,
-    );
-  }
+  const res = await safeFetch(`${API_BASE_URL}${path}`, {
+    method,
+    headers,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
 
   if (res.status === 401 && auth && retry) {
     const refreshed = await refreshAccessToken();
@@ -92,10 +76,10 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   }
 
   if (!res.ok) {
-    throw await parseErrorResponse(res);
+    throw await parseJsonError(res);
   }
 
-  return res.json() as Promise<T>;
+  return parseJsonResponse<T>(res);
 }
 
 export { setTokens, clearTokens, getAccessToken, getRefreshToken };

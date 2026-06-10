@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/empty-state';
 import { UserAvatar } from '@/components/user-avatar';
 import { FilterChip } from '@/components/ui/filter-chip';
 import { useAppTheme } from '@/contexts/theme-context';
@@ -24,11 +25,13 @@ export function InstructorPicker({
 
   if (instructors.length === 0) {
     return (
-      <View style={styles.empty}>
-        <Text style={[styles.emptyText, { color: colors.textMuted }]}>
-          No hay staff vinculado. Agregá o invitá instructores primero.
-        </Text>
-      </View>
+      <EmptyState
+        compact
+        icon="people-outline"
+        title="Sin instructores vinculados"
+        description="Agregá o invitá instructores a tu equipo antes de crear la clase."
+        style={styles.empty}
+      />
     );
   }
 
@@ -67,7 +70,6 @@ const styles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '600', marginBottom: Spacing.sm },
   row: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: Spacing.xs },
   empty: { marginBottom: Spacing.md },
-  emptyText: { fontSize: 14, lineHeight: 20 },
   preview: {
     flexDirection: 'row',
     alignItems: 'center',

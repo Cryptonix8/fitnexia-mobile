@@ -25,130 +25,24 @@ import {
 import { getAccessToken } from '@/services/api/token-storage';
 import { getErrorMessage } from '@/services/api/errors';
 import { resolveMediaUrl, resolveMediaUrls } from '@/services/api/media.api';
-import type { Certification, UserRole, WeeklySchedule } from '@/types/api';
-import { defaultWeeklySchedule } from '@/utils/schedule';
+import type { UserRole } from '@/types/api';
+import type { AuthUser, RegisterParams, UpdateProfileParams } from '@/types/auth-user';
 
-export interface NotificationPreferences {
-  bookingConfirmed: boolean;
-  classReminders: boolean;
-  paymentUpdates: boolean;
-  creditsExpiring: boolean;
-  marketing: boolean;
-}
-
-export interface PaymentMethod {
-  id: string;
-  brand: string;
-  last4: string;
-  expiry: string;
-  isDefault: boolean;
-}
-
-export interface InstructorProfileData {
-  displayName: string;
-  bio: string;
-  disciplines: string[];
-  certifications: Certification[];
-  availableNow: boolean;
-  weeklySchedule: WeeklySchedule;
-  hourlyRate: string;
-  verified: boolean;
-}
-
-export interface InstructorInvite {
-  id: string;
-  email: string;
-  sentAt: string;
-  status: 'pending' | 'accepted';
-}
-
-export interface InstitutionProfileData {
-  name: string;
-  description: string;
-  address: string;
-  city: string;
-  country: string;
-  verified: boolean;
-  gallery: string[];
-  instructorIds: string[];
-  pendingInvites: InstructorInvite[];
-}
-
-export interface AuthUser {
-  id: string;
-  email: string;
-  role: UserRole;
-  firstName: string;
-  lastName: string;
-  avatarUri?: string | null;
-  favoriteSports: string[];
-  notificationPreferences: NotificationPreferences;
-  paymentMethods: PaymentMethod[];
-  instructorId?: string;
-  instructorProfile?: InstructorProfileData;
-  institutionId?: string;
-  institutionProfile?: InstitutionProfileData;
-}
-
-const DEFAULT_NOTIFICATIONS: NotificationPreferences = {
-  bookingConfirmed: true,
-  classReminders: true,
-  paymentUpdates: true,
-  creditsExpiring: true,
-  marketing: false,
-};
-
-export function defaultInstructorProfile(
-  firstName: string,
-  lastName: string,
-  disciplines: string[] = [],
-): InstructorProfileData {
-  return {
-    displayName: `${firstName} ${lastName}`.trim(),
-    bio: '',
-    disciplines,
-    certifications: [],
-    availableNow: false,
-    weeklySchedule: defaultWeeklySchedule(),
-    hourlyRate: '',
-    verified: false,
-  };
-}
-
-export function defaultInstitutionProfile(name: string): InstitutionProfileData {
-  return {
-    name,
-    description: '',
-    address: '',
-    city: '',
-    country: '',
-    verified: false,
-    gallery: [],
-    instructorIds: [],
-    pendingInvites: [],
-  };
-}
-
-export type RegisterParams = {
-  email: string;
-  password: string;
-  role: UserRole;
-  firstName: string;
-  lastName: string;
-  avatarUri?: string | null;
-  favoriteSports?: string[];
-  disciplines?: string[];
-  institutionName?: string;
-};
-
-export type UpdateProfileParams = Partial<
-  Pick<AuthUser, 'firstName' | 'lastName' | 'email' | 'avatarUri' | 'favoriteSports'>
-> & {
-  notificationPreferences?: Partial<NotificationPreferences>;
-  paymentMethods?: PaymentMethod[];
-  instructorProfile?: Partial<InstructorProfileData>;
-  institutionProfile?: Partial<InstitutionProfileData>;
-};
+export type {
+  AuthUser,
+  InstitutionProfileData,
+  InstructorInvite,
+  InstructorProfileData,
+  NotificationPreferences,
+  PaymentMethod,
+  RegisterParams,
+  UpdateProfileParams,
+} from '@/types/auth-user';
+export {
+  DEFAULT_NOTIFICATIONS,
+  defaultInstructorProfile,
+  defaultInstitutionProfile,
+} from '@/types/auth-user';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -325,4 +219,4 @@ export function useAuth() {
   return ctx;
 }
 
-export { DEFAULT_NOTIFICATIONS, forgotPasswordApi, getErrorMessage };
+export { forgotPasswordApi, getErrorMessage };

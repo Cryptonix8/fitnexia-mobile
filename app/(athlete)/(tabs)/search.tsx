@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
+import { EmptyState } from '@/components/ui/empty-state';
 import { ClassesMap } from '@/components/search/classes-map';
 import { FilterChip } from '@/components/ui/filter-chip';
 import { FilterSelect } from '@/components/ui/filter-select';
@@ -291,15 +292,15 @@ export default function SearchScreen() {
       ) : null}
 
       {results.length === 0 ? (
-        <View style={[styles.empty, { backgroundColor: colors.surface }]}>
-          <Ionicons name="search-outline" size={40} color={colors.textMuted} />
-          <Text style={[styles.emptyTitle, { color: colors.text }]}>Ninguna clase coincide</Text>
-          <Text style={[styles.emptySub, { color: colors.textMuted }]}>
-            {geoEnabled && nearMe && !coords
+        <EmptyState
+          icon="search-outline"
+          title="Ninguna clase coincide"
+          description={
+            geoEnabled && nearMe && !coords
               ? GEO_LABELS.enableNearMeHint
-              : 'Probá ajustar ubicación, horario o precio.'}
-          </Text>
-        </View>
+              : 'Probá ajustar ubicación, horario o precio.'
+          }
+        />
       ) : viewMode === 'list' ? (
         results.map((c) => (
           <ClassCard key={c.id} item={c} distanceLabel={distanceFor(c.id)} />
@@ -360,12 +361,4 @@ const styles = StyleSheet.create({
   },
   geoHint: { fontSize: 12, marginTop: Spacing.sm },
   count: { fontSize: 13, marginBottom: Spacing.md },
-  empty: {
-    alignItems: 'center',
-    padding: Spacing.xl,
-    borderRadius: Radius.lg,
-    marginTop: Spacing.sm,
-  },
-  emptyTitle: { fontSize: 17, fontWeight: '700', marginTop: Spacing.md },
-  emptySub: { fontSize: 14, textAlign: 'center', marginTop: Spacing.sm },
 });

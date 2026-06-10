@@ -4,6 +4,7 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BookingsCalendar } from '@/components/bookings-calendar';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { useBookings } from '@/contexts/bookings-context';
 import { useClasses } from '@/contexts/classes-context';
@@ -110,15 +111,22 @@ export default function BookingsScreen() {
       <Text style={[styles.sectionTitle, { color: colors.text }]}>{selectedLabel}</Text>
 
       {entries.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>
-          {tab === 'upcoming'
-            ? 'No tenés reservas próximas. ¡Explorá clases para reservar!'
-            : 'No tenés reservas anteriores. ¡Explorá clases para reservar!'}
-        </Text>
+        <EmptyState
+          icon="calendar-outline"
+          title={tab === 'upcoming' ? 'Sin reservas próximas' : 'Sin reservas anteriores'}
+          description={
+            tab === 'upcoming'
+              ? 'Explorá clases y reservá tu próximo entrenamiento.'
+              : 'Cuando completes clases, aparecerán acá tu historial.'
+          }
+        />
       ) : dayEntries.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>
-          No hay reservas este día. Seleccioná una fecha marcada o cambiá de pestaña.
-        </Text>
+        <EmptyState
+          compact
+          icon="today-outline"
+          title="Nada este día"
+          description="Seleccioná una fecha marcada en el calendario o cambiá de pestaña."
+        />
       ) : (
         dayEntries.map(({ booking, cls }) => (
           <View
@@ -216,7 +224,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: Spacing.md,
   },
-  empty: { textAlign: 'center', marginTop: Spacing.sm, marginBottom: Spacing.xl, lineHeight: 22 },
   card: {
     borderRadius: Radius.lg,
     borderWidth: 1,

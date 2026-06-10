@@ -5,13 +5,13 @@ import type {
   InstructorProfileData,
   NotificationPreferences,
   RegisterParams,
-} from '@/contexts/auth-context';
-import { DEFAULT_NOTIFICATIONS, defaultInstructorProfile, defaultInstitutionProfile } from '@/contexts/auth-context';
+} from '@/types/auth-user';
+import { DEFAULT_NOTIFICATIONS, defaultInstructorProfile, defaultInstitutionProfile } from '@/types/auth-user';
 import type { Certification, Instructor, Institution, UserRole, WeeklySchedule } from '@/types/api';
 import { defaultWeeklySchedule } from '@/utils/schedule';
 
-import { apiRequest, clearTokens, setTokens } from './client';
-import { resolveMediaUrl } from './media.api';
+import { apiRequest, clearTokens, getRefreshToken, setTokens } from './client';
+import { isLocalMediaUri, uploadLocalImage } from './media.api';
 
 type AuthResponse = {
   user: { id: string; email: string; role: UserRole };
@@ -237,7 +237,10 @@ export async function loginApi(email: string, password: string): Promise<AuthUse
 }
 
 export async function registerApi(params: RegisterParams): Promise<AuthUser> {
-  const photoUrl = await resolveMediaUrl(params.avatarUri);
+  const localAvatar =
+    params.avatarUri && isLocalMediaUri(params.avatarUri) ? params.avatarUri : null;
+  const remotePhotoUrl =
+    params.avatarUri && !isLocalMediaUri(params.avatarUri) ? params.avatarUri : undefined;
 
   const response = await apiRequest<AuthResponse>('/auth/register', {
     method: 'POST',
@@ -249,13 +252,32 @@ export async function registerApi(params: RegisterParams): Promise<AuthUser> {
       firstName: params.firstName,
       lastName: params.lastName,
       acceptTerms: true,
-      photoUrl: photoUrl ?? undefined,
+      photoUrl: remotePhotoUrl,
       favoriteSports: params.favoriteSports,
       disciplines: params.disciplines,
       institutionName: params.institutionName,
     },
   });
-  return persistAuthResponse(response, params);
+
+  let user = await persistAuthResponse(response, params);
+
+  if (localAvatar) {
+    try {
+      const photoUrl = await uploadLocalImage(localAvatar);
+      if (user.role === 'athlete') {
+        await updateAthleteProfileApi({ photoUrl });
+      } else if (user.role === 'instructor') {
+        await updateInstructorProfileApi({ photoUrl });
+      } else if (user.role === 'institution') {
+        await updateInstitutionProfileApi({ logoUrl: photoUrl });
+      }
+      user = await fetchCurrentUser();
+    } catch {
+      // Registration succeeded; avatar upload can be retried from profile edit.
+    }
+  }
+
+  return user;
 }
 
 export type GoogleSignInParams = {
@@ -278,7 +300,7 @@ export async function googleSignInApi(params: GoogleSignInParams): Promise<AuthU
 }
 
 export async function logoutApi(): Promise<void> {
-  const refreshToken = await (await import('./token-storage')).getRefreshToken();
+  const refreshToken = await getRefreshToken();
   try {
     if (refreshToken) {
       await apiRequest('/auth/logout', { method: 'POST', body: { refreshToken } });

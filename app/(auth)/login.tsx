@@ -4,6 +4,7 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { GoogleSignInButton } from '@/components/google-sign-in-button';
 import { Button } from '@/components/ui/button';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { getErrorMessage, useAuth } from '@/contexts/auth-context';
@@ -71,13 +72,12 @@ export default function LoginScreen() {
         <Text style={styles.forgot}>¿Olvidaste tu contraseña?</Text>
       </Pressable>
 
-      <Button title={BUTTON_LABELS.signIn} loading={loading} onPress={handleLogin} />
+      <Button title={BUTTON_LABELS.signIn} disabled={loading} onPress={handleLogin} />
 
       {googleSignIn ? (
         <GoogleSignInButton
           onPress={handleGoogleSignIn}
-          loading={googlePending}
-          disabled={!googleReady || loading}
+          disabled={!googleReady || loading || googlePending}
         />
       ) : null}
 
@@ -87,6 +87,11 @@ export default function LoginScreen() {
           <Text style={styles.link}>Crear cuenta</Text>
         </Pressable>
       </View>
+
+      <LoadingOverlay
+        visible={loading || googlePending}
+        message={googlePending ? 'Iniciando sesión con Google…' : 'Iniciando sesión…'}
+      />
     </Screen>
   );
 }

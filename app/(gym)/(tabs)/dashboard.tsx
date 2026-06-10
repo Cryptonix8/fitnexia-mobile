@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ClassCard } from '@/components/class-card';
 import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
@@ -56,9 +57,12 @@ export default function GymDashboardScreen() {
       </View>
 
       {stats.todayClasses.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>
-          No hay clases grupales programadas hoy.
-        </Text>
+        <EmptyState
+          compact
+          icon="today-outline"
+          title="Sin clases hoy"
+          description="No hay clases grupales programadas para hoy."
+        />
       ) : (
         stats.todayClasses.map((c) => {
           const booked = computeClassBooked(c);
@@ -112,7 +116,12 @@ export default function GymDashboardScreen() {
           <ClassCard key={c.id} item={c} institutionLogoUri={user?.avatarUri} />
         ))
       ) : (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>Todavía no hay clases grupales</Text>
+        <EmptyState
+          compact
+          icon="fitness-outline"
+          title="Sin clases grupales"
+          description="Creá tu primera clase grupal para empezar a recibir reservas."
+        />
       )}
     </Screen>
   );
@@ -148,7 +157,6 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: 11, marginTop: 4 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md },
   section: { fontSize: 18, fontWeight: '700' },
-  empty: { fontSize: 15, lineHeight: 22, marginBottom: Spacing.md },
   scheduleItem: { marginBottom: Spacing.sm },
   scheduleCard: {
     borderRadius: Radius.md,

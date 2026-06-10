@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BookingsCalendar } from '@/components/bookings-calendar';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
@@ -96,19 +97,29 @@ export default function InstructorCalendarScreen() {
       <Text style={[styles.sectionTitle, { color: colors.text }]}>{selectedLabel}</Text>
 
       {allEvents.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>
-          Todavía no tenés clases. Creá una desde la pestaña Clases.
-        </Text>
+        <EmptyState
+          icon="calendar-outline"
+          title="Todavía no tenés clases"
+          description="Creá una clase desde la pestaña Clases o con el botón de abajo."
+        />
       ) : events.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>
-          {tab === 'upcoming'
-            ? 'No tenés clases próximas en tu agenda.'
-            : 'No tenés clases pasadas en tu agenda.'}
-        </Text>
+        <EmptyState
+          compact
+          icon="calendar-outline"
+          title={tab === 'upcoming' ? 'Sin clases próximas' : 'Sin clases pasadas'}
+          description={
+            tab === 'upcoming'
+              ? 'No tenés clases próximas en tu agenda.'
+              : 'No tenés clases pasadas en tu agenda.'
+          }
+        />
       ) : dayEvents.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>
-          No hay clases este día. Seleccioná una fecha marcada o cambiá de pestaña.
-        </Text>
+        <EmptyState
+          compact
+          icon="today-outline"
+          title="Nada este día"
+          description="Seleccioná una fecha marcada en el calendario o cambiá de pestaña."
+        />
       ) : (
         dayEvents.map((c) => (
           <View
@@ -181,7 +192,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: Spacing.md,
   },
-  empty: { textAlign: 'center', marginBottom: Spacing.xl, lineHeight: 22 },
   card: {
     borderRadius: Radius.lg,
     borderWidth: 1,

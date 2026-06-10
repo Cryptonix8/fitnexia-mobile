@@ -11,6 +11,7 @@ import {
   cancelClassApi,
   createClassApi,
   fetchClassesSearch,
+  fetchGymClasses,
   fetchMyClasses,
   updateClassApi,
 } from '@/services/api/classes.api';
@@ -88,7 +89,6 @@ export function ClassesProvider({ children }: { children: React.ReactNode }) {
         const mine = await fetchMyClasses();
         setClasses(sortByStartAt(mine));
       } else if (user?.role === 'institution') {
-        const { fetchGymClasses } = await import('@/services/api/classes.api');
         const gymClasses = await fetchGymClasses();
         const search = await fetchClassesSearch({ limit: 50 });
         const merged = new Map<string, ClassListItem>();
