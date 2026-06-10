@@ -1,4 +1,5 @@
 import { isSameCalendarDay } from '@/utils/schedule';
+import { APP_LOCALE } from '@/utils/locale';
 
 export function toDateKey(date: Date): string {
   const y = date.getFullYear();
@@ -21,10 +22,10 @@ export function addMonths(date: Date, count: number): Date {
 }
 
 export function formatMonthYear(date: Date): string {
-  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  return date.toLocaleDateString(APP_LOCALE, { month: 'long', year: 'numeric' });
 }
 
-const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+const WEEKDAY_LABELS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'] as const;
 
 export function getWeekdayLabels(): readonly string[] {
   return WEEKDAY_LABELS;

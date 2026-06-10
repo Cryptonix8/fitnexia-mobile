@@ -12,6 +12,7 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
+import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
 import { MODALITY_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
@@ -72,18 +73,18 @@ export default function CreateClassScreen() {
 
   const publish = async () => {
     if (!title.trim()) {
-      Alert.alert('Missing info', 'Class name is required.');
+      Alert.alert('Faltan datos', 'El nombre de la clase es obligatorio.');
       return;
     }
 
     const durationMinutes = parseInt(duration, 10);
     if (Number.isNaN(durationMinutes) || durationMinutes < 15) {
-      Alert.alert('Invalid duration', 'Duration must be at least 15 minutes.');
+      Alert.alert('Duración inválida', 'La duración debe ser de al menos 15 minutos.');
       return;
     }
     const priceAmount = Math.round(parseFloat(price) * 100);
     if (Number.isNaN(priceAmount) || priceAmount <= 0) {
-      Alert.alert('Invalid price', 'Enter a valid price.');
+      Alert.alert('Precio inválido', 'Ingresá un precio válido.');
       return;
     }
 
@@ -94,11 +95,11 @@ export default function CreateClassScreen() {
       if (isGym) {
         const cap = parseInt(capacity, 10);
         if (Number.isNaN(cap) || cap < 2) {
-          Alert.alert('Invalid capacity', 'Group classes need at least 2 spots.');
+          Alert.alert('Cupos inválidos', 'Las clases grupales necesitan al menos 2 cupos.');
           return;
         }
         if (!selectedInstructorId) {
-          Alert.alert('Select instructor', 'Choose a linked instructor to teach this class.');
+          Alert.alert('Seleccioná instructor', 'Elegí un instructor vinculado para dictar esta clase.');
           return;
         }
         const instructor = linkedInstructors.find((i) => i.id === selectedInstructorId);
@@ -111,13 +112,13 @@ export default function CreateClassScreen() {
           classFormat: 'group',
           startAt: startAt.toISOString(),
           durationMinutes,
-          price: { amount: priceAmount, currency: 'USD' },
+          price: { amount: priceAmount, currency: DEFAULT_CURRENCY },
           capacity: cap,
           spotsLeft: cap,
           instructor: { id: instructor.id, displayName: instructor.displayName },
           institution: {
             id: institutionId,
-            name: institutionProfile?.name ?? 'Gym',
+            name: institutionProfile?.name ?? 'Gimnasio',
           },
           location:
             modality === 'in_person'
@@ -132,7 +133,7 @@ export default function CreateClassScreen() {
         if (classFormat === 'group') {
           const cap = parseInt(capacity, 10);
           if (Number.isNaN(cap) || cap < 2) {
-            Alert.alert('Invalid capacity', 'Group classes need at least 2 spots.');
+            Alert.alert('Cupos inválidos', 'Las clases grupales necesitan al menos 2 cupos.');
             return;
           }
         }
@@ -145,7 +146,7 @@ export default function CreateClassScreen() {
           classFormat,
           startAt: startAt.toISOString(),
           durationMinutes,
-          price: { amount: priceAmount, currency: 'USD' },
+          price: { amount: priceAmount, currency: DEFAULT_CURRENCY },
           capacity: instructorCap,
           spotsLeft: instructorCap,
           instructor: {
@@ -156,11 +157,11 @@ export default function CreateClassScreen() {
       }
 
       await refreshClasses();
-      Alert.alert('Published', `"${title.trim()}" is now live.`, [
+      Alert.alert('Publicada', `"${title.trim()}" ya está disponible.`, [
         { text: 'OK', onPress: () => router.back() },
       ]);
     } catch (err) {
-      Alert.alert('Publish failed', getErrorMessage(err));
+      Alert.alert('Error al publicar', getErrorMessage(err));
     } finally {
       setPublishing(false);
     }
@@ -171,25 +172,25 @@ export default function CreateClassScreen() {
 
   return (
     <Screen scroll>
-      <Header title={isGym ? 'New group class' : 'New class'} showBack />
+      <Header title={isGym ? 'Nueva clase grupal' : 'Nueva clase'} showBack />
 
       {isGym ? (
         <Text style={[styles.gymHint, { color: colors.textMuted }]}>
-          Group classes at your gym with limited capacity. Assign a linked instructor.
+          Clases grupales en tu gimnasio con cupos limitados. Asigná un instructor vinculado.
         </Text>
       ) : null}
 
       <Input
-        label="Class name"
+        label="Nombre de la clase"
         value={title}
         onChangeText={setTitle}
-        placeholder="e.g. Morning Yoga"
+        placeholder="ej. Yoga matutino"
       />
       <Input
-        label="Description"
+        label="Descripción"
         value={description}
         onChangeText={setDescription}
-        placeholder="What athletes should expect..."
+        placeholder="Qué pueden esperar los atletas..."
         multiline
       />
 
@@ -198,30 +199,30 @@ export default function CreateClassScreen() {
           instructors={linkedInstructors}
           selectedId={selectedInstructorId}
           onSelect={setSelectedInstructorId}
-          label="Assign instructor"
+          label="Asignar instructor"
         />
       ) : null}
 
-      <Text style={[styles.label, { color: colors.textSecondary }]}>Date & time</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>Fecha y hora</Text>
       <DateTimeField
-        label="Date"
+        label="Fecha"
         mode="date"
         value={startDate}
         onChange={setStartDate}
         minimumDate={minDate}
       />
-      <DateTimeField label="Start time" mode="time" value={startTime} onChange={setStartTime} />
+      <DateTimeField label="Hora de inicio" mode="time" value={startTime} onChange={setStartTime} />
       <Input
-        label="Duration (minutes)"
+        label="Duración (minutos)"
         value={duration}
         onChangeText={setDuration}
         keyboardType="number-pad"
-        placeholder="e.g. 60"
+        placeholder="ej. 60"
       />
 
       {!isGym ? (
         <>
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Class type</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Tipo de clase</Text>
           <View style={styles.row}>
             <FilterChip
               label="Individual"
@@ -229,7 +230,7 @@ export default function CreateClassScreen() {
               onPress={() => setClassFormat('individual')}
             />
             <FilterChip
-              label="Group"
+              label="Grupal"
               active={classFormat === 'group'}
               onPress={() => {
                 setClassFormat('group');
@@ -239,19 +240,19 @@ export default function CreateClassScreen() {
           </View>
           <Text style={[styles.helper, { color: colors.textMuted }]}>
             {classFormat === 'individual'
-              ? 'Private 1-on-1 session. Capacity is fixed at 1 athlete.'
-              : 'Open session for multiple athletes. Set max capacity below.'}
+              ? 'Sesión privada 1 a 1. El cupo es fijo en 1 atleta.'
+              : 'Sesión abierta para varios atletas. Definí el cupo máximo abajo.'}
           </Text>
         </>
       ) : (
         <View style={[styles.groupBadge, { backgroundColor: colors.primaryMuted }]}>
           <Text style={[styles.groupBadgeText, { color: colors.primaryText }]}>
-            Group class · limited spots
+            Clase grupal · cupos limitados
           </Text>
         </View>
       )}
 
-      <Text style={[styles.label, { color: colors.textSecondary }]}>Discipline</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>Disciplina</Text>
       <View style={styles.row}>
         {DISCIPLINES.slice(0, 5).map((d) => (
           <FilterChip
@@ -263,7 +264,7 @@ export default function CreateClassScreen() {
         ))}
       </View>
 
-      <Text style={[styles.label, { color: colors.textSecondary }]}>Modality</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>Modalidad</Text>
       <View style={styles.row}>
         <FilterChip
           label={MODALITY_LABELS.inPerson}
@@ -277,28 +278,28 @@ export default function CreateClassScreen() {
         />
       </View>
 
-      <Input label="Price (USD)" value={price} onChangeText={setPrice} keyboardType="decimal-pad" />
+      <Input label={`Precio (${DEFAULT_CURRENCY})`} value={price} onChangeText={setPrice} keyboardType="decimal-pad" />
 
       {!isGym && classFormat === 'individual' ? (
         <View style={[styles.individualCap, { backgroundColor: colors.surfaceMuted }]}>
           <Text style={[styles.individualCapText, { color: colors.textSecondary }]}>
-            Capacity: 1 athlete
+            Cupo: 1 atleta
           </Text>
         </View>
       ) : (
         <Input
-          label="Max capacity"
+          label="Cupo máximo"
           value={capacity}
           onChangeText={setCapacity}
           keyboardType="number-pad"
-          placeholder="e.g. 20"
+          placeholder="ej. 20"
         />
       )}
 
       {!isGym && recurringClasses ? (
         <View style={styles.recurRow}>
           <FilterChip
-            label={recurring ? '✓ Repeats weekly' : 'Repeat weekly'}
+            label={recurring ? '✓ Se repite semanalmente' : 'Repetir semanalmente'}
             active={recurring}
             onPress={() => setRecurring(!recurring)}
           />
@@ -307,7 +308,7 @@ export default function CreateClassScreen() {
 
       {isGym && linkedInstructors.length === 0 ? (
         <Button
-          title="Add staff first"
+          title="Agregá staff primero"
           variant="outline"
           onPress={() => router.push('/(gym)/profile/instructors')}
           style={{ marginBottom: Spacing.sm }}
@@ -315,7 +316,7 @@ export default function CreateClassScreen() {
       ) : null}
 
       <Button
-        title="Publish class"
+        title="Publicar clase"
         loading={publishing}
         onPress={publish}
         disabled={isGym && linkedInstructors.length === 0}

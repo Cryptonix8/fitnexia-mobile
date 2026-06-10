@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Fitnexia uses your location to show classes near you on the map."
+        "NSLocationWhenInUseUsageDescription": "Fitnexia usa tu ubicación para mostrarte clases cerca tuyo en el mapa."
       }
     },
     "android": {
@@ -37,7 +37,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Fitnexia needs access to your photos so you can set a profile picture."
+          "photosPermission": "Fitnexia necesita acceso a tus fotos para que puedas elegir una foto de perfil."
         }
       ],
       [
@@ -70,7 +70,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Fitnexia uses your location to show classes near you on the map."
+          "locationWhenInUsePermission": "Fitnexia usa tu ubicación para mostrarte clases cerca tuyo en el mapa."
         }
       ],
       [
@@ -78,7 +78,8 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.635752178238-9r22776qjpgrnb6e6b5d460n49c1hog9"
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,

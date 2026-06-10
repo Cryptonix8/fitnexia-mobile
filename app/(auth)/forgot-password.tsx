@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { forgotPasswordApi } from '@/contexts/auth-context';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { AUTH_LABELS } from '@/constants/labels';
 import { getErrorMessage } from '@/services/api/errors';
 
 export default function ForgotPasswordScreen() {
@@ -15,23 +16,23 @@ export default function ForgotPasswordScreen() {
 
   return (
     <Screen scroll>
-      <Header title="Reset password" showBack />
+      <Header title="Restablecer contraseña" showBack />
       <Text style={styles.body}>
-        Enter your email and we will send you a link to reset your password.
+        Ingresá tu email y te enviaremos un enlace para restablecer tu contraseña.
       </Text>
       <Input
-        label="Email"
+        label={AUTH_LABELS.email}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
       />
       <Button
-        title="Send reset link"
+        title="Enviar enlace"
         onPress={async () => {
           try {
             await forgotPasswordApi(email.trim());
-            Alert.alert('Email sent', 'If an account exists, a reset link will be sent.', [
+            Alert.alert('Email enviado', 'Si existe una cuenta, se enviará un enlace de restablecimiento.', [
               { text: 'OK', onPress: () => router.back() },
             ]);
           } catch (err) {

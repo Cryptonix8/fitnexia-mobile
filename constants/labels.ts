@@ -1,18 +1,17 @@
 /**
- * User-facing copy — single source of truth for product labels.
- * Change a value here instead of hunting strings across screens.
+ * Textos de la interfaz — fuente única de etiquetas del producto.
  */
 import type { ClassFormat, Modality } from '@/types/api';
 
 export const BADGE_LABELS = {
-  verified: 'Verified',
-  availableNow: 'Available now',
-  full: 'Full',
+  verified: 'Verificado',
+  availableNow: 'Disponible ahora',
+  full: 'Completo',
 } as const;
 
 export const CLASS_FORMAT_LABELS = {
-  individual: '1-on-1',
-  group: 'Group',
+  individual: '1 a 1',
+  group: 'Grupal',
 } as const;
 
 export function resolveClassFormat(
@@ -39,17 +38,17 @@ export function classFormatDescription(
 ): string {
   const format = resolveClassFormat(classFormat, options);
   return format === 'individual'
-    ? 'Private session with one athlete.'
-    : 'Open session for multiple athletes.';
+    ? 'Sesión privada con un atleta.'
+    : 'Sesión abierta para varios atletas.';
 }
 
 export const CLASS_CARD_LABELS = {
-  spotsLeft: (count: number) => `${count} spots left`,
+  spotsLeft: (count: number) => `${count} lugares disponibles`,
 } as const;
 
 export const MODALITY_LABELS = {
-  online: 'Online',
-  inPerson: 'In person',
+  online: 'En línea',
+  inPerson: 'Presencial',
 } as const;
 
 export function modalityBadgeLabel(modality: Modality): string {
@@ -63,89 +62,89 @@ export function modalityLocationLabel(modality: Modality, locationLabel?: string
 
 export const TAB_LABELS = {
   athlete: {
-    home: 'Home',
-    search: 'Search',
-    bookings: 'Bookings',
-    profile: 'Profile',
+    home: 'Inicio',
+    search: 'Buscar',
+    bookings: 'Reservas',
+    profile: 'Perfil',
   },
   instructor: {
-    dashboard: 'Dashboard',
-    classes: 'Classes',
-    calendar: 'Calendar',
-    earnings: 'Earnings',
-    profile: 'Profile',
+    dashboard: 'Panel',
+    classes: 'Clases',
+    calendar: 'Calendario',
+    earnings: 'Ingresos',
+    profile: 'Perfil',
   },
   gym: {
-    dashboard: 'Dashboard',
-    staff: 'Staff',
-    classes: 'Classes',
-    metrics: 'Metrics',
-    profile: 'Gym',
+    dashboard: 'Panel',
+    staff: 'Equipo',
+    classes: 'Clases',
+    metrics: 'Métricas',
+    profile: 'Gimnasio',
   },
 } as const;
 
 export const PROFILE_MENU_LABELS = {
-  favoriteSports: 'Favorite sports',
-  notifications: 'Notifications',
-  paymentMethods: 'Payment methods',
-  payoutAccount: 'Payout account',
-  planCommission: 'Plan & commission',
-  helpSupport: 'Help & support',
-  location: 'Location',
-  disciplines: 'Disciplines',
-  certifications: 'Certifications',
-  scheduleAvailability: 'Schedule & availability',
-  photoGallery: 'Photo gallery',
-  instructors: 'Instructors',
+  favoriteSports: 'Deportes favoritos',
+  notifications: 'Notificaciones',
+  paymentMethods: 'Métodos de pago',
+  payoutAccount: 'Cuenta de cobros',
+  planCommission: 'Plan y comisión',
+  helpSupport: 'Ayuda y soporte',
+  location: 'Ubicación',
+  disciplines: 'Disciplinas',
+  certifications: 'Certificaciones',
+  scheduleAvailability: 'Horario y disponibilidad',
+  photoGallery: 'Galería de fotos',
+  instructors: 'Instructores',
 } as const;
 
 export const SCREEN_TITLES = {
-  profile: 'Profile',
-  gymProfile: 'Gym profile',
-  editProfile: 'Edit profile',
-  notifications: 'Notifications',
-  favoriteSports: 'Favorite sports',
-  paymentMethods: 'Payment methods',
-  payoutAccount: 'Payout account',
-  helpSupport: 'Help & support',
-  planCommission: 'Plan & commission',
-  inviteInstructor: 'Invite instructor',
-  class: 'Class',
-  classDetails: 'Class details',
-  classNotFound: 'Class not found',
+  profile: 'Perfil',
+  gymProfile: 'Perfil del gimnasio',
+  editProfile: 'Editar perfil',
+  notifications: 'Notificaciones',
+  favoriteSports: 'Deportes favoritos',
+  paymentMethods: 'Métodos de pago',
+  payoutAccount: 'Cuenta de cobros',
+  helpSupport: 'Ayuda y soporte',
+  planCommission: 'Plan y comisión',
+  inviteInstructor: 'Invitar instructor',
+  class: 'Clase',
+  classDetails: 'Detalles de la clase',
+  classNotFound: 'Clase no encontrada',
 } as const;
 
 export const BUTTON_LABELS = {
-  signOut: 'Sign out',
-  save: 'Save',
-  saveChanges: 'Save changes',
-  edit: 'Edit',
-  continue: 'Continue',
-  createAccount: 'Create account',
-  signIn: 'Sign in',
-  bookNow: 'Book now',
-  editClass: 'Edit class',
-  joinWaitlist: 'Join waiting list',
-  joinWaitlistShort: 'Join waitlist',
-  classFull: 'Class full',
-  viewProfile: 'Profile',
-  confirmBooking: 'Confirm booking',
-  payAndConfirm: 'Pay & confirm',
+  signOut: 'Cerrar sesión',
+  save: 'Guardar',
+  saveChanges: 'Guardar cambios',
+  edit: 'Editar',
+  continue: 'Continuar',
+  createAccount: 'Crear cuenta',
+  signIn: 'Iniciar sesión',
+  bookNow: 'Reservar ahora',
+  editClass: 'Editar clase',
+  joinWaitlist: 'Unirse a lista de espera',
+  joinWaitlistShort: 'Lista de espera',
+  classFull: 'Clase completa',
+  viewProfile: 'Perfil',
+  confirmBooking: 'Confirmar reserva',
+  payAndConfirm: 'Pagar y confirmar',
 } as const;
 
 export const CLASS_DETAIL_LABELS = {
-  when: 'When',
-  duration: 'Duration',
-  where: 'Where',
-  price: 'Price',
-  spots: 'Spots',
-  format: 'Class type',
-  about: 'About',
-  locationTbd: 'TBD',
-  full: 'Full',
-  fullWaitlist: 'Full — waitlist available',
-  liveStream: 'Live stream on Fitnexia',
-  onlineSessionLink: 'Online session (link shared after booking)',
+  when: 'Cuándo',
+  duration: 'Duración',
+  where: 'Dónde',
+  price: 'Precio',
+  spots: 'Cupos',
+  format: 'Tipo de clase',
+  about: 'Acerca de',
+  locationTbd: 'Por definir',
+  full: 'Completo',
+  fullWaitlist: 'Completo — lista de espera disponible',
+  liveStream: 'Transmisión en vivo en Fitnexia',
+  onlineSessionLink: 'Sesión en línea (enlace compartido después de reservar)',
 } as const;
 
 export function classSpotsLabel(
@@ -158,56 +157,56 @@ export function classSpotsLabel(
       ? CLASS_DETAIL_LABELS.fullWaitlist
       : CLASS_DETAIL_LABELS.full;
   }
-  return `${spotsLeft} of ${capacity} left`;
+  return `${spotsLeft} de ${capacity} disponibles`;
 }
 
 export const AUTH_LABELS = {
-  welcomeBack: 'Welcome back',
-  signInSubtitle: 'Sign in to continue',
-  continueWithGoogle: 'Continue with Google',
-  chooseProfile: 'Choose your profile',
-  createAccount: 'Create account',
-  howWillYouUse: 'How will you use Fitnexia?',
-  completeProfile: 'Complete your basic profile',
-  gymSchoolName: 'Gym / school name',
-  gymSchoolPlaceholder: 'Your facility name',
-  firstName: 'First name',
-  lastName: 'Last name',
+  welcomeBack: 'Bienvenido de nuevo',
+  signInSubtitle: 'Iniciá sesión para continuar',
+  continueWithGoogle: 'Continuar con Google',
+  chooseProfile: 'Elegí tu perfil',
+  createAccount: 'Crear cuenta',
+  howWillYouUse: '¿Cómo vas a usar Fitnexia?',
+  completeProfile: 'Completá tu perfil básico',
+  gymSchoolName: 'Nombre del gimnasio / escuela',
+  gymSchoolPlaceholder: 'Nombre de tu instalación',
+  firstName: 'Nombre',
+  lastName: 'Apellido',
   email: 'Email',
-  password: 'Password',
-  logoPhoto: 'Logo / photo',
-  profilePhoto: 'Profile photo',
+  password: 'Contraseña',
+  logoPhoto: 'Logo / foto',
+  profilePhoto: 'Foto de perfil',
 } as const;
 
 export const ALERT_LABELS = {
-  signOutTitle: 'Sign out',
-  signOutMessage: 'Are you sure?',
-  cancel: 'Cancel',
-  missingInfoTitle: 'Missing info',
-  fillAllFields: 'Please fill in all fields.',
-  invalidEmail: 'Enter a valid email address.',
-  passwordMinLength: 'Password must be at least 8 characters.',
-  gymNameRequired: 'Gym / school name is required.',
-  savedTitle: 'Saved',
-  validationFailedTitle: 'Check your input',
+  signOutTitle: 'Cerrar sesión',
+  signOutMessage: '¿Estás seguro?',
+  cancel: 'Cancelar',
+  missingInfoTitle: 'Faltan datos',
+  fillAllFields: 'Completá todos los campos.',
+  invalidEmail: 'Ingresá un email válido.',
+  passwordMinLength: 'La contraseña debe tener al menos 8 caracteres.',
+  gymNameRequired: 'El nombre del gimnasio / escuela es obligatorio.',
+  savedTitle: 'Guardado',
+  validationFailedTitle: 'Revisá los datos',
 } as const;
 
 export const ROLE_DESCRIPTIONS = {
-  athlete: 'Find and book classes near you',
-  instructor: 'Teach and manage your schedule',
-  institution: 'Manage instructors and group classes',
+  athlete: 'Encontrá y reservá clases cerca tuyo',
+  instructor: 'Dictá clases y gestioná tu agenda',
+  institution: 'Gestioná instructores y clases grupales',
   admin: '',
 } as const;
 
 export const GEO_LABELS = {
-  nearMe: 'Near me',
-  listView: 'List',
-  mapView: 'Map',
-  youAreHere: 'You are here',
-  locationHint: 'City, neighborhood, or venue...',
-  mapWebFallback: 'Interactive map is available on iOS and Android.',
-  noMapPins: 'No in-person classes with a map location match your filters.',
-  enableNearMeHint: 'Turn on Near me to show classes around your location.',
-  locationDenied: 'Location access denied. Enable it in settings or search by area name.',
-  withinRadius: (km: number) => `Within ${km} km`,
+  nearMe: 'Cerca mío',
+  listView: 'Lista',
+  mapView: 'Mapa',
+  youAreHere: 'Estás acá',
+  locationHint: 'Ciudad, barrio o sede...',
+  mapWebFallback: 'El mapa interactivo está disponible en iOS y Android.',
+  noMapPins: 'Ninguna clase presencial con ubicación coincide con tus filtros.',
+  enableNearMeHint: 'Activá Cerca mío para ver clases alrededor de tu ubicación.',
+  locationDenied: 'Acceso a ubicación denegado. Activá el permiso en ajustes o buscá por zona.',
+  withinRadius: (km: number) => `Dentro de ${km} km`,
 } as const;

@@ -14,6 +14,7 @@ import { getErrorMessage } from '@/services/api/errors';
 import { openPaymentCheckout } from '@/utils/booking-payment';
 import type { Booking, ClassListItem } from '@/types/api';
 import { startOfMonth, toDateKey } from '@/utils/calendar';
+import { APP_LOCALE } from '@/utils/locale';
 import { isSameCalendarDay } from '@/utils/schedule';
 
 type BookingEntry = {
@@ -70,7 +71,7 @@ export default function BookingsScreen() {
     [entries, selectedDate],
   );
 
-  const selectedLabel = selectedDate.toLocaleDateString('en-US', {
+  const selectedLabel = selectedDate.toLocaleDateString(APP_LOCALE, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -78,24 +79,24 @@ export default function BookingsScreen() {
 
   const completePayment = async (booking: Booking) => {
     if (!booking.checkoutUrl) {
-      Alert.alert('Payment unavailable', 'Start a new booking to pay for this class.');
+      Alert.alert('Pago no disponible', 'Iniciá una nueva reserva para pagar esta clase.');
       return;
     }
     try {
       await openPaymentCheckout(booking.checkoutUrl, booking.id);
       await refreshBookings();
-      Alert.alert('Payment confirmed', 'Your booking is now confirmed.');
+      Alert.alert('Pago confirmado', 'Tu reserva ya está confirmada.');
     } catch (err) {
-      Alert.alert('Payment failed', getErrorMessage(err));
+      Alert.alert('Pago fallido', getErrorMessage(err));
     }
   };
 
   return (
     <Screen scroll>
-      <Text style={[styles.title, { color: colors.text }]}>My bookings</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Mis reservas</Text>
       <View style={[styles.tabs, { backgroundColor: colors.surfaceMuted }]}>
-        <Tab label="Upcoming" active={tab === 'upcoming'} onPress={() => setTab('upcoming')} />
-        <Tab label="History" active={tab === 'past'} onPress={() => setTab('past')} />
+        <Tab label="Próximas" active={tab === 'upcoming'} onPress={() => setTab('upcoming')} />
+        <Tab label="Historial" active={tab === 'past'} onPress={() => setTab('past')} />
       </View>
 
       <BookingsCalendar
@@ -110,11 +111,13 @@ export default function BookingsScreen() {
 
       {entries.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textMuted }]}>
-          No {tab === 'upcoming' ? 'upcoming' : 'past'} bookings yet. Explore classes to book!
+          {tab === 'upcoming'
+            ? 'No tenés reservas próximas. ¡Explorá clases para reservar!'
+            : 'No tenés reservas anteriores. ¡Explorá clases para reservar!'}
         </Text>
       ) : dayEntries.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textMuted }]}>
-          No bookings on this day. Select a highlighted date or switch tabs.
+          No hay reservas este día. Seleccioná una fecha marcada o cambiá de pestaña.
         </Text>
       ) : (
         dayEntries.map(({ booking, cls }) => (
@@ -137,26 +140,32 @@ export default function BookingsScreen() {
                   booking.status === 'completed' && { backgroundColor: colors.surfaceMuted },
                 ]}>
                 <Text style={[styles.badgeText, { color: colors.primaryText }]}>
-                  {booking.status === 'pending_payment' ? 'Awaiting payment' : booking.status}
+                  {booking.status === 'pending_payment'
+                    ? 'Pago pendiente'
+                    : booking.status === 'confirmed'
+                      ? 'Confirmada'
+                      : booking.status === 'completed'
+                        ? 'Completada'
+                        : booking.status}
                 </Text>
               </View>
             </View>
             {booking.status === 'pending_payment' ? (
               <Button
-                title="Complete payment"
+                title="Completar pago"
                 size="sm"
                 onPress={() => completePayment(booking)}
               />
             ) : booking.status === 'completed' ? (
               <Button
-                title="Leave a review"
+                title="Dejar una reseña"
                 variant="outline"
                 size="sm"
                 onPress={() => router.push(`/review/${booking.id}`)}
               />
             ) : (
               <Pressable onPress={() => router.push(`/class/${cls.id}`)}>
-                <Text style={[styles.link, { color: colors.primary }]}>View class</Text>
+                <Text style={[styles.link, { color: colors.primary }]}>Ver clase</Text>
               </Pressable>
             )}
           </View>

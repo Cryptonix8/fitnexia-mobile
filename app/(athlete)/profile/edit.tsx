@@ -33,7 +33,7 @@ export default function EditProfileScreen() {
         email: email.trim(),
         avatarUri,
       });
-      Alert.alert(ALERT_LABELS.savedTitle, 'Your profile has been updated.', [
+      Alert.alert(ALERT_LABELS.savedTitle, 'Tu perfil fue actualizado.', [
         { text: 'OK', onPress: () => router.back() },
       ]);
     } catch (err) {

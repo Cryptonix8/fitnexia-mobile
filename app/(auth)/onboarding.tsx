@@ -19,18 +19,18 @@ const { width } = Dimensions.get('window');
 
 const SLIDES = [
   {
-    title: 'Find your next class',
-    body: 'Discover sports and fitness classes from top instructors and gyms near you.',
+    title: 'Encontrá tu próxima clase',
+    body: 'Descubrí clases de deporte y fitness con los mejores instructores y gimnasios cerca tuyo.',
     emoji: '🏃',
   },
   {
-    title: 'Book in one tap',
-    body: 'Reserve in-person or online sessions. Get reminders before every class.',
+    title: 'Reservá en un toque',
+    body: 'Reservá sesiones presenciales o en línea. Recibí recordatorios antes de cada clase.',
     emoji: '📅',
   },
   {
-    title: 'Train with the best',
-    body: 'Verified instructors, real reviews, and a loyalty program that rewards you.',
+    title: 'Entrená con los mejores',
+    body: 'Instructores verificados, reseñas reales y un programa de fidelidad que te premia.',
     emoji: '⭐',
   },
 ];
@@ -86,11 +86,11 @@ export default function OnboardingScreen() {
       </View>
       <View style={styles.actions}>
         <Button
-          title={index === SLIDES.length - 1 ? 'Get started' : 'Next'}
+          title={index === SLIDES.length - 1 ? 'Empezar' : 'Siguiente'}
           onPress={next}
         />
         {index < SLIDES.length - 1 ? (
-          <Button title="Skip" variant="ghost" onPress={finish} />
+          <Button title="Omitir" variant="ghost" onPress={finish} />
         ) : null}
       </View>
     </Screen>

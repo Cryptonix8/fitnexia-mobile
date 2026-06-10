@@ -4,6 +4,7 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { useAppTheme } from '@/contexts/theme-context';
+import { APP_LOCALE } from '@/utils/locale';
 
 type DateTimeFieldProps = {
   label: string;
@@ -25,13 +26,13 @@ export function DateTimeField({
 
   const display =
     mode === 'date'
-      ? value.toLocaleDateString('en-US', {
+      ? value.toLocaleDateString(APP_LOCALE, {
           weekday: 'short',
           month: 'short',
           day: 'numeric',
           year: 'numeric',
         })
-      : value.toLocaleTimeString('en-US', {
+      : value.toLocaleTimeString(APP_LOCALE, {
           hour: '2-digit',
           minute: '2-digit',
         });
@@ -63,7 +64,7 @@ export function DateTimeField({
       ) : null}
       {open && Platform.OS === 'ios' ? (
         <Pressable onPress={() => setOpen(false)} style={styles.done}>
-          <Text style={[styles.doneText, { color: colors.primary }]}>Done</Text>
+          <Text style={[styles.doneText, { color: colors.primary }]}>Listo</Text>
         </Pressable>
       ) : null}
     </View>

@@ -50,17 +50,17 @@ export default function InstructorProfileScreen() {
   if (!profile) {
     return (
       <Screen>
-        <Text>Profile not available</Text>
+        <Text>Perfil no disponible</Text>
       </Screen>
     );
   }
 
   const disciplinesLabel =
-    profile.disciplines.length > 0 ? profile.disciplines.join(', ') : 'None selected';
+    profile.disciplines.length > 0 ? profile.disciplines.join(', ') : 'Ninguna seleccionada';
   const certificationsLabel =
     (profile.certifications?.length ?? 0) > 0
-      ? `${profile.certifications!.length} added`
-      : 'None added';
+      ? `${profile.certifications!.length} agregadas`
+      : 'Ninguna agregada';
   const scheduleLabel = formatWeeklyScheduleSummary(
     profile.weeklySchedule ?? defaultWeeklySchedule(),
   );
@@ -98,7 +98,7 @@ export default function InstructorProfileScreen() {
           color={profile.availableNow ? colors.success : colors.textMuted}
         />
         <Text style={[styles.availableText, { color: colors.textSecondary }]}>
-          {profile.availableNow ? 'Available now — tap to turn off' : 'Mark as available now'}
+          {profile.availableNow ? 'Disponible ahora — tocá para desactivar' : 'Marcar como disponible ahora'}
         </Text>
       </Pressable>
 
@@ -143,8 +143,8 @@ export default function InstructorProfileScreen() {
           label={PROFILE_MENU_LABELS.payoutAccount}
           value={
             user.paymentMethods.length
-              ? `${user.paymentMethods.length} saved`
-              : 'None added'
+              ? `${user.paymentMethods.length} guardados`
+              : 'Ninguno agregado'
           }
           onPress={() => router.push('/(instructor)/profile/payment-methods')}
         />

@@ -1,6 +1,6 @@
 import type { WeeklyDaySchedule, WeeklySchedule } from '@/types/api';
 
-const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+const WEEKDAY_LABELS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'] as const;
 
 export function weekdayLabel(weekday: number): string {
   return WEEKDAY_LABELS[weekday] ?? '?';
@@ -42,21 +42,21 @@ export function combineDateAndTime(date: Date, time: Date): Date {
 }
 
 export function formatScheduleDay(day: WeeklyDaySchedule): string {
-  if (!day.enabled) return 'Off';
+  if (!day.enabled) return 'Apagado';
   return `${day.startTime} – ${day.endTime}`;
 }
 
 export function formatWeeklyScheduleSummary(schedule: WeeklySchedule): string {
   const active = schedule.filter((d) => d.enabled);
-  if (active.length === 0) return 'No hours set';
+  if (active.length === 0) return 'Sin horario definido';
   if (active.length === 7 && active.every((d) => d.startTime === active[0].startTime && d.endTime === active[0].endTime)) {
-    return `Daily ${active[0].startTime}–${active[0].endTime}`;
+    return `Diario ${active[0].startTime}–${active[0].endTime}`;
   }
   const weekdays = active.filter((d) => d.weekday >= 1 && d.weekday <= 5);
   if (weekdays.length === 5 && active.length === 5) {
-    return `Mon–Fri ${weekdays[0].startTime}–${weekdays[0].endTime}`;
+    return `Lun–Vie ${weekdays[0].startTime}–${weekdays[0].endTime}`;
   }
-  return `${active.length} days/week`;
+  return `${active.length} días/semana`;
 }
 
 export function isSameCalendarDay(a: Date, b: Date): boolean {

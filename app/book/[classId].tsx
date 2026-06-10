@@ -16,9 +16,9 @@ import { BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
 import type { PaymentModel } from '@/types/api';
 
 const ALL_PAYMENT_OPTIONS: { id: PaymentModel; label: string; desc: string }[] = [
-  { id: 'per_class', label: 'Pay per class', desc: 'One-time payment at booking' },
-  { id: 'monthly_unlimited', label: 'Monthly unlimited', desc: 'Unlimited bookings per month' },
-  { id: 'per_period', label: 'Weekly / quarterly', desc: 'Pay for your usage period' },
+  { id: 'per_class', label: 'Pago por clase', desc: 'Pago único al reservar' },
+  { id: 'monthly_unlimited', label: 'Ilimitado mensual', desc: 'Reservas ilimitadas por mes' },
+  { id: 'per_period', label: 'Semanal / trimestral', desc: 'Pagá por tu período de uso' },
 ];
 
 export default function BookScreen() {
@@ -52,7 +52,7 @@ export default function BookScreen() {
   if (!cls) {
     return (
       <Screen>
-        <Header title="Book" showBack />
+        <Header title="Reservar" showBack />
         <Text>{SCREEN_TITLES.classNotFound}</Text>
       </Screen>
     );
@@ -63,8 +63,8 @@ export default function BookScreen() {
     try {
       if (isWaitlist) {
         Alert.alert(
-          'On waitlist',
-          'We will notify you when a spot opens. You will have 2 hours to confirm.',
+          'En lista de espera',
+          'Te avisaremos cuando se libere un cupo. Tendrás 2 horas para confirmar.',
           [{ text: 'OK', onPress: () => router.replace('/(athlete)/(tabs)/bookings') }],
         );
         return;
@@ -75,7 +75,7 @@ export default function BookScreen() {
       if (integratedPayments && result.payment?.checkoutUrl) {
         await openPaymentCheckout(result.payment.checkoutUrl, result.booking.id);
         await Promise.all([refreshBookings(), refreshClasses()]);
-        Alert.alert('Booking confirmed', 'Payment successful. Your spot is reserved.', [
+        Alert.alert('Reserva confirmada', 'Pago exitoso. Tu cupo está reservado.', [
           { text: 'OK', onPress: () => router.replace('/(athlete)/(tabs)/bookings') },
         ]);
         return;
@@ -83,14 +83,14 @@ export default function BookScreen() {
 
       await refreshClasses();
       Alert.alert(
-        'Booking confirmed',
+        'Reserva confirmada',
         result.booking.status === 'pending_payment'
-          ? 'Complete payment from My bookings when checkout is available.'
-          : 'Your spot is reserved.',
+          ? 'Completá el pago desde Mis reservas cuando el checkout esté disponible.'
+          : 'Tu cupo está reservado.',
         [{ text: 'OK', onPress: () => router.replace('/(athlete)/(tabs)/bookings') }],
       );
     } catch (err) {
-      Alert.alert('Booking failed', getErrorMessage(err));
+      Alert.alert('Reserva fallida', getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -113,7 +113,7 @@ export default function BookScreen() {
           <>
             {subscriptionModels ? (
               <>
-                <Text style={styles.section}>Payment model</Text>
+                <Text style={styles.section}>Modelo de pago</Text>
                 {paymentOptions.map((opt) => (
                   <Pressable
                     key={opt.id}
@@ -131,19 +131,19 @@ export default function BookScreen() {
               </>
             ) : null}
 
-            <Text style={styles.section}>Payment method</Text>
+            <Text style={styles.section}>Método de pago</Text>
             <View style={styles.method}>
               <Text style={styles.methodText}>Mercado Pago</Text>
               {digitalWallets ? (
                 <Text style={styles.methodSub}>Card · Apple Pay · Google Pay</Text>
               ) : (
-                <Text style={styles.methodSub}>Credit or debit card</Text>
+                <Text style={styles.methodSub}>Tarjeta de crédito o débito</Text>
               )}
             </View>
           </>
         ) : (
           <Text style={styles.mvpHint}>
-            Payment is disabled. The booking will be confirmed without charging.
+            El pago está deshabilitado. La reserva se confirmará sin cobrar.
           </Text>
         )
       ) : null}

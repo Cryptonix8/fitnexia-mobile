@@ -122,24 +122,24 @@ export const DISCIPLINES = [
 ] as const;
 
 export const ROLE_LABELS = {
-  athlete: 'Athlete',
+  athlete: 'Atleta',
   instructor: 'Instructor',
-  institution: 'Gym / School',
+  institution: 'Gimnasio / Escuela',
 } as const;
 
 export const MOCK_LOCATION_AREAS = [
-  'Downtown',
+  'Centro',
   'FitHub',
   'Wellness Loft',
   'Central Courts',
-  'Online',
+  'En línea',
 ] as const;
 
 export const PRICE_RANGES = [
-  { id: 'any', label: 'Any price', min: 0, max: Infinity },
-  { id: 'budget', label: 'Under $20', min: 0, max: 2000 },
-  { id: 'mid', label: '$20 – $35', min: 2000, max: 3500 },
-  { id: 'premium', label: '$35+', min: 3500, max: Infinity },
+  { id: 'any', label: 'Cualquier precio', min: 0, max: Infinity },
+  { id: 'budget', label: 'Menos de USD 20', min: 0, max: 2000 },
+  { id: 'mid', label: 'USD 20 – 35', min: 2000, max: 3500 },
+  { id: 'premium', label: 'USD 35+', min: 3500, max: Infinity },
 ] as const;
 
 export type ScheduleFilter =
@@ -151,10 +151,10 @@ export type ScheduleFilter =
   | 'evening';
 
 export const SCHEDULE_FILTERS: { id: ScheduleFilter; label: string }[] = [
-  { id: 'any', label: 'Any time' },
-  { id: 'week', label: 'Next 7 days' },
-  { id: 'month', label: 'Next 30 days' },
-  { id: 'morning', label: 'Morning' },
-  { id: 'afternoon', label: 'Afternoon' },
-  { id: 'evening', label: 'Evening' },
+  { id: 'any', label: 'Cualquier horario' },
+  { id: 'week', label: 'Próximos 7 días' },
+  { id: 'month', label: 'Próximos 30 días' },
+  { id: 'morning', label: 'Mañana' },
+  { id: 'afternoon', label: 'Tarde' },
+  { id: 'evening', label: 'Noche' },
 ];

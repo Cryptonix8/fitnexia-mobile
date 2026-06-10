@@ -27,36 +27,36 @@ export default function GymDashboardScreen() {
   return (
     <Screen scroll>
       <Text style={[styles.greet, { color: colors.textMuted }]}>
-        {profile?.name ?? 'Gym'}
+        {profile?.name ?? 'Gimnasio'}
       </Text>
-      <Text style={[styles.title, { color: colors.text }]}>Control panel</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Panel de control</Text>
 
       <View style={styles.stats}>
         <MiniStat
-          label="Bookings today"
+          label="Reservas hoy"
           value={String(stats.todayBookings)}
           colors={colors}
         />
         <MiniStat
-          label="Revenue (booked)"
+          label="Ingresos (reservados)"
           value={formatRevenueCompact(stats.weekRevenueCents)}
           colors={colors}
         />
         <MiniStat
-          label="Occupancy"
+          label="Ocupación"
           value={formatAttendanceRate(stats.occupancyRate)}
           colors={colors}
         />
       </View>
 
       <View style={styles.row}>
-        <Text style={[styles.section, { color: colors.text }]}>{"Today's schedule"}</Text>
-        <Button title="+ New" size="sm" onPress={() => router.push('/create-class')} />
+        <Text style={[styles.section, { color: colors.text }]}>Agenda de hoy</Text>
+        <Button title="+ Nueva" size="sm" onPress={() => router.push('/create-class')} />
       </View>
 
       {stats.todayClasses.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textMuted }]}>
-          No group classes scheduled today.
+          No hay clases grupales programadas hoy.
         </Text>
       ) : (
         stats.todayClasses.map((c) => {
@@ -74,18 +74,18 @@ export default function GymDashboardScreen() {
                     {formatClassDate(c.startAt)}
                   </Text>
                   <Text style={[styles.occupancyBadge, { color: colors.textMuted }]}>
-                    {booked}/{cap} booked
+                    {booked}/{cap} reservados
                   </Text>
                 </View>
                 <Text style={[styles.scheduleTitle, { color: colors.text }]}>{c.title}</Text>
                 <Text style={[styles.scheduleMeta, { color: colors.textMuted }]}>
-                  {c.instructor.displayName} · {cap - booked} spots left
+                  {c.instructor.displayName} · {cap - booked} lugares disponibles
                 </Text>
                 <Pressable
                   onPress={() =>
                     router.push({ pathname: '/edit-class/[id]', params: { id: c.id } })
                   }>
-                  <Text style={[styles.editLink, { color: colors.primary }]}>Manage</Text>
+                  <Text style={[styles.editLink, { color: colors.primary }]}>Gestionar</Text>
                 </Pressable>
               </View>
             </View>
@@ -94,12 +94,12 @@ export default function GymDashboardScreen() {
       )}
 
       <Text style={[styles.section, { color: colors.text, marginTop: Spacing.lg }]}>
-        All group classes
+        Todas las clases grupales
       </Text>
       {stats.gymClasses.length ? (
         stats.gymClasses.map((c) => <ClassCard key={c.id} item={c} />)
       ) : (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>No group classes yet</Text>
+        <Text style={[styles.empty, { color: colors.textMuted }]}>Todavía no hay clases grupales</Text>
       )}
     </Screen>
   );

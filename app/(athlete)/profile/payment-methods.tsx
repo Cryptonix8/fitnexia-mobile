@@ -7,7 +7,7 @@ import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useAuth, type PaymentMethod } from '@/contexts/auth-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
-import { SCREEN_TITLES } from '@/constants/labels';
+import { ALERT_LABELS, SCREEN_TITLES } from '@/constants/labels';
 
 export default function PaymentMethodsScreen() {
   const { user, updateProfile } = useAuth();
@@ -22,7 +22,7 @@ export default function PaymentMethodsScreen() {
       isDefault: methods.length === 0,
     };
     updateProfile({ paymentMethods: [...methods, newCard] });
-    Alert.alert('Card added', 'Mercado Pago integration will replace this mock flow.');
+    Alert.alert('Tarjeta agregada', 'La integración con Mercado Pago reemplazará este flujo simulado.');
   };
 
   const setDefault = (id: string) => {
@@ -32,10 +32,10 @@ export default function PaymentMethodsScreen() {
   };
 
   const remove = (id: string) => {
-    Alert.alert('Remove card', 'Remove this payment method?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('Eliminar tarjeta', '¿Eliminar este método de pago?', [
+      { text: ALERT_LABELS.cancel, style: 'cancel' },
       {
-        text: 'Remove',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: () => {
           const next = methods.filter((m) => m.id !== id);
@@ -52,13 +52,13 @@ export default function PaymentMethodsScreen() {
     <Screen scroll>
       <Header title={SCREEN_TITLES.paymentMethods} showBack />
       <Text style={styles.hint}>
-        Cards are stored securely by Mercado Pago. This is a mock UI until the API is connected.
+        Las tarjetas se almacenan de forma segura en Mercado Pago. Esta es una interfaz simulada hasta conectar la API.
       </Text>
 
       {methods.length === 0 ? (
         <View style={styles.empty}>
           <Ionicons name="card-outline" size={48} color={FitnexiaColors.gray400} />
-          <Text style={styles.emptyText}>No payment methods yet</Text>
+          <Text style={styles.emptyText}>No hay métodos de pago</Text>
         </View>
       ) : (
         methods.map((m) => (
@@ -68,25 +68,25 @@ export default function PaymentMethodsScreen() {
               <Text style={styles.cardTitle}>
                 {m.brand} ·••• {m.last4}
               </Text>
-              <Text style={styles.cardMeta}>Expires {m.expiry}</Text>
-              {m.isDefault ? <Text style={styles.defaultBadge}>Default</Text> : null}
+              <Text style={styles.cardMeta}>Vence {m.expiry}</Text>
+              {m.isDefault ? <Text style={styles.defaultBadge}>Predeterminada</Text> : null}
             </View>
             <View style={styles.cardActions}>
               {!m.isDefault ? (
                 <Pressable onPress={() => setDefault(m.id)}>
-                  <Text style={styles.link}>Set default</Text>
+                  <Text style={styles.link}>Usar por defecto</Text>
                 </Pressable>
               ) : null}
               <Pressable onPress={() => remove(m.id)}>
-                <Text style={styles.remove}>Remove</Text>
+                <Text style={styles.remove}>Eliminar</Text>
               </Pressable>
             </View>
           </View>
         ))
       )}
 
-      <Button title="Add card" onPress={addMockCard} style={{ marginTop: Spacing.md }} />
-      <Button title="Done" variant="ghost" onPress={() => router.back()} />
+      <Button title="Agregar tarjeta" onPress={addMockCard} style={{ marginTop: Spacing.md }} />
+      <Button title="Listo" variant="ghost" onPress={() => router.back()} />
     </Screen>
   );
 }

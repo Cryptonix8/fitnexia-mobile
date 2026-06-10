@@ -34,7 +34,7 @@ export default function LoginScreen() {
       await login(email, password);
       router.replace('/');
     } catch (err) {
-      Alert.alert('Sign in failed', getErrorMessage(err));
+      Alert.alert('Error al iniciar sesión', getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -68,7 +68,7 @@ export default function LoginScreen() {
       />
 
       <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
-        <Text style={styles.forgot}>Forgot password?</Text>
+        <Text style={styles.forgot}>¿Olvidaste tu contraseña?</Text>
       </Pressable>
 
       <Button title={BUTTON_LABELS.signIn} loading={loading} onPress={handleLogin} />
@@ -82,9 +82,9 @@ export default function LoginScreen() {
       ) : null}
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>New here? </Text>
+        <Text style={styles.footerText}>¿Sos nuevo? </Text>
         <Pressable onPress={() => router.push('/(auth)/register')}>
-          <Text style={styles.link}>Create account</Text>
+          <Text style={styles.link}>Crear cuenta</Text>
         </Pressable>
       </View>
     </Screen>

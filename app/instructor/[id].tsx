@@ -49,7 +49,7 @@ export default function InstructorProfileScreen() {
     return (
       <Screen>
         <Header title="Instructor" showBack />
-        <Text style={{ color: colors.text }}>Instructor not found</Text>
+        <Text style={{ color: colors.text }}>Instructor no encontrado</Text>
       </Screen>
     );
   }
@@ -67,14 +67,14 @@ export default function InstructorProfileScreen() {
           ) : null}
         </View>
         <Text style={[styles.rating, { color: colors.textMuted }]}>
-          ★ {instructor.averageRating} ({instructor.reviewCount} athlete reviews)
+          ★ {instructor.averageRating} ({instructor.reviewCount} reseñas de atletas)
         </Text>
         <Text style={[styles.bio, { color: colors.textSecondary }]}>{instructor.bio}</Text>
       </View>
 
       {instructor.disciplines.length > 0 ? (
         <>
-          <Text style={[styles.section, { color: colors.text }]}>Disciplines</Text>
+          <Text style={[styles.section, { color: colors.text }]}>{PROFILE_MENU_LABELS.disciplines}</Text>
           <View style={styles.chips}>
             {instructor.disciplines.map((d) => (
               <View key={d} style={[styles.chip, { backgroundColor: colors.surfaceMuted }]}>
@@ -108,7 +108,7 @@ export default function InstructorProfileScreen() {
 
       {staffReviews.length > 0 ? (
         <>
-          <Text style={[styles.section, { color: colors.text }]}>Gym staff reviews</Text>
+          <Text style={[styles.section, { color: colors.text }]}>Reseñas del staff del gimnasio</Text>
           {staffReviews.map((review) => (
             <View
               key={review.id}
@@ -123,9 +123,9 @@ export default function InstructorProfileScreen() {
         </>
       ) : null}
 
-      <Text style={[styles.section, { color: colors.text }]}>Upcoming classes</Text>
+      <Text style={[styles.section, { color: colors.text }]}>Próximas clases</Text>
       {instructorClasses.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>No upcoming classes listed.</Text>
+        <Text style={[styles.empty, { color: colors.textMuted }]}>No hay clases próximas publicadas.</Text>
       ) : (
         instructorClasses.map((c) => <ClassCard key={c.id} item={c} />)
       )}

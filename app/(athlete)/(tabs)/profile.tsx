@@ -28,7 +28,7 @@ export default function AthleteProfileScreen() {
   const credits = MOCK_CREDITS;
 
   const favoriteSportsLabel =
-    user?.favoriteSports.length ? user.favoriteSports.join(', ') : 'None selected';
+    user?.favoriteSports.length ? user.favoriteSports.join(', ') : 'Ninguno seleccionado';
 
   const signOut = () => {
     Alert.alert(ALERT_LABELS.signOutTitle, ALERT_LABELS.signOutMessage, [
@@ -67,7 +67,7 @@ export default function AthleteProfileScreen() {
         <View style={[styles.creditsCard, { backgroundColor: colors.surface }]}>
           <View style={styles.creditsTop}>
             <Ionicons name="gift" size={24} color={colors.primary} />
-            <Text style={[styles.creditsTitle, { color: colors.text }]}>Loyalty credits</Text>
+            <Text style={[styles.creditsTitle, { color: colors.text }]}>Créditos de fidelidad</Text>
           </View>
           <Text style={[styles.creditsBalance, { color: colors.primary }]}>
             {credits.balance} <Text style={{ color: colors.textMuted }}>/ 10</Text>
@@ -81,7 +81,7 @@ export default function AthleteProfileScreen() {
             />
           </View>
           <Text style={[styles.creditsHint, { color: colors.textMuted }]}>
-            {credits.creditsUntilReward} more for a free class (up to $30)
+            {credits.creditsUntilReward} más para una clase gratis (hasta $30)
           </Text>
         </View>
       ) : null}
@@ -105,8 +105,8 @@ export default function AthleteProfileScreen() {
           label={PROFILE_MENU_LABELS.paymentMethods}
           value={
             user?.paymentMethods.length
-              ? `${user.paymentMethods.length} saved`
-              : 'None added'
+              ? `${user.paymentMethods.length} guardados`
+              : 'Ninguno agregado'
           }
           onPress={() => router.push('/(athlete)/profile/payment-methods')}
         />

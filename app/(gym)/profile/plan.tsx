@@ -5,28 +5,29 @@ import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { SCREEN_TITLES } from '@/constants/labels';
 
 const PLANS = [
-  { id: 'basic', name: 'Basic', fee: 'Free', commission: '15%', active: false },
-  { id: 'institutional', name: 'Institutional', fee: '$99/mo', commission: '5%', active: true },
+  { id: 'basic', name: 'Basic', fee: 'Gratis', commission: '15%', active: false },
+  { id: 'institutional', name: 'Institutional', fee: '$99/mes', commission: '5%', active: true },
 ];
 
 export default function GymPlanScreen() {
   return (
     <Screen scroll>
-      <Header title="Plan & commission" showBack />
-      <Text style={styles.hint}>Institutional plans include instructor management and analytics.</Text>
+      <Header title={SCREEN_TITLES.planCommission} showBack />
+      <Text style={styles.hint}>Los planes institucionales incluyen gestión de instructores y analíticas.</Text>
       {PLANS.map((plan) => (
         <View key={plan.id} style={[styles.card, plan.active && styles.cardActive]}>
           <View style={styles.cardHeader}>
             <Text style={styles.planName}>{plan.name}</Text>
-            {plan.active ? <Badge label="Current" variant="verified" /> : null}
+            {plan.active ? <Badge label="Actual" variant="verified" /> : null}
           </View>
-          <Text style={styles.meta}>Monthly: {plan.fee}</Text>
-          <Text style={styles.meta}>Commission: {plan.commission} per transaction</Text>
+          <Text style={styles.meta}>Mensual: {plan.fee}</Text>
+          <Text style={styles.meta}>Comisión: {plan.commission} por transacción</Text>
         </View>
       ))}
-      <Button title="Manage subscription (mock)" variant="outline" style={{ marginTop: Spacing.md }} />
+      <Button title="Gestionar suscripción (simulación)" variant="outline" style={{ marginTop: Spacing.md }} />
     </Screen>
   );
 }

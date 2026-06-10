@@ -12,7 +12,7 @@ export class ApiError extends Error {
   }
 }
 
-export function getErrorMessage(error: unknown, fallback = 'Something went wrong'): string {
+export function getErrorMessage(error: unknown, fallback = 'Algo salió mal'): string {
   if (error instanceof ApiError) {
     const errors = error.details?.errors as Array<{ message: string }> | undefined;
     if (Array.isArray(errors) && errors.length) {

@@ -20,13 +20,13 @@ export default function InstructorClassesScreen() {
   return (
     <Screen scroll>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>My classes</Text>
-        <Button title="New class" size="sm" onPress={() => router.push('/create-class')} />
+        <Text style={[styles.title, { color: colors.text }]}>Mis clases</Text>
+        <Button title="Nueva clase" size="sm" onPress={() => router.push('/create-class')} />
       </View>
 
       {mine.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textMuted }]}>
-          No classes yet. Create your first class to open bookings.
+          Todavía no tenés clases. Creá la primera para abrir reservas.
         </Text>
       ) : (
         mine.map((c) => <ClassCard key={c.id} item={c} />)

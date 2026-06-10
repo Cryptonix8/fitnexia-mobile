@@ -23,7 +23,7 @@ export const VALIDATION_LIMITS = {
 } as const;
 
 function fail(errors: ValidationError[]): ValidationResult {
-  return { ok: false, message: errors[0]?.message ?? 'Validation failed', errors };
+  return { ok: false, message: errors[0]?.message ?? 'Error de validación', errors };
 }
 
 function ok(): ValidationResult {
@@ -36,65 +36,65 @@ function collect(checks: Array<() => ValidationError | null>): ValidationError[]
 
 export function validateEmail(email: string, required = true): ValidationError | null {
   const value = email.trim();
-  if (!value) return required ? { field: 'email', message: 'Email is required' } : null;
-  if (value.length > 254) return { field: 'email', message: 'Email is too long' };
-  if (!EMAIL_REGEX.test(value)) return { field: 'email', message: 'Enter a valid email address' };
+  if (!value) return required ? { field: 'email', message: 'El email es obligatorio' } : null;
+  if (value.length > 254) return { field: 'email', message: 'El email es demasiado largo' };
+  if (!EMAIL_REGEX.test(value)) return { field: 'email', message: 'Ingresá un email válido' };
   return null;
 }
 
 export function validatePassword(password: string, required = true): ValidationError | null {
-  if (!password) return required ? { field: 'password', message: 'Password is required' } : null;
+  if (!password) return required ? { field: 'password', message: 'La contraseña es obligatoria' } : null;
   if (password.length < VALIDATION_LIMITS.passwordMin) {
-    return { field: 'password', message: `Password must be at least ${VALIDATION_LIMITS.passwordMin} characters` };
+    return { field: 'password', message: `La contraseña debe tener al menos ${VALIDATION_LIMITS.passwordMin} caracteres` };
   }
   if (password.length > VALIDATION_LIMITS.passwordMax) {
-    return { field: 'password', message: `Password must be at most ${VALIDATION_LIMITS.passwordMax} characters` };
+    return { field: 'password', message: `La contraseña debe tener como máximo ${VALIDATION_LIMITS.passwordMax} caracteres` };
   }
   return null;
 }
 
 export function validateFirstName(name: string, required = true): ValidationError | null {
   const value = name.trim();
-  if (!value) return required ? { field: 'firstName', message: 'First name is required' } : null;
-  if (!NAME_REGEX.test(value)) return { field: 'firstName', message: 'First name must be 1–50 letters' };
+  if (!value) return required ? { field: 'firstName', message: 'El nombre es obligatorio' } : null;
+  if (!NAME_REGEX.test(value)) return { field: 'firstName', message: 'El nombre debe tener 1–50 letras' };
   return null;
 }
 
 export function validateLastName(name: string, required = true): ValidationError | null {
   const value = name.trim();
-  if (!value) return required ? { field: 'lastName', message: 'Last name is required' } : null;
-  if (!NAME_REGEX.test(value)) return { field: 'lastName', message: 'Last name must be 1–50 letters' };
+  if (!value) return required ? { field: 'lastName', message: 'El apellido es obligatorio' } : null;
+  if (!NAME_REGEX.test(value)) return { field: 'lastName', message: 'El apellido debe tener 1–50 letras' };
   return null;
 }
 
 export function validateInstitutionName(name: string, required = true): ValidationError | null {
   const value = name.trim();
-  if (!value) return required ? { field: 'institutionName', message: 'Gym / school name is required' } : null;
+  if (!value) return required ? { field: 'institutionName', message: 'El nombre del gimnasio / escuela es obligatorio' } : null;
   if (!INSTITUTION_NAME_REGEX.test(value)) {
-    return { field: 'institutionName', message: 'Gym / school name must be 2–100 characters' };
+    return { field: 'institutionName', message: 'El nombre debe tener entre 2 y 100 caracteres' };
   }
   return null;
 }
 
 export function validateDisplayName(name: string, required = true): ValidationError | null {
   const value = name.trim();
-  if (!value) return required ? { field: 'displayName', message: 'Display name is required' } : null;
+  if (!value) return required ? { field: 'displayName', message: 'El nombre para mostrar es obligatorio' } : null;
   if (!DISPLAY_NAME_REGEX.test(value)) {
-    return { field: 'displayName', message: 'Display name must be 2–100 characters' };
+    return { field: 'displayName', message: 'El nombre para mostrar debe tener entre 2 y 100 caracteres' };
   }
   return null;
 }
 
 export function validateBio(bio: string): ValidationError | null {
   if (bio.length > VALIDATION_LIMITS.bio) {
-    return { field: 'bio', message: `Bio must be at most ${VALIDATION_LIMITS.bio} characters` };
+    return { field: 'bio', message: `La biografía debe tener como máximo ${VALIDATION_LIMITS.bio} caracteres` };
   }
   return null;
 }
 
 export function validateDescription(description: string): ValidationError | null {
   if (description.length > VALIDATION_LIMITS.description) {
-    return { field: 'description', message: `Description must be at most ${VALIDATION_LIMITS.description} characters` };
+    return { field: 'description', message: `La descripción debe tener como máximo ${VALIDATION_LIMITS.description} caracteres` };
   }
   return null;
 }
@@ -103,7 +103,7 @@ export function validateCountry(country: string): ValidationError | null {
   if (!country.trim()) return null;
   const value = country.trim().toUpperCase();
   if (!COUNTRY_REGEX.test(value)) {
-    return { field: 'country', message: 'Country must be a 2-letter code (e.g. AR)' };
+    return { field: 'country', message: 'El país debe ser un código de 2 letras (ej. AR)' };
   }
   return null;
 }
@@ -112,24 +112,24 @@ export function validateHourlyRate(rate: string): ValidationError | null {
   if (!rate.trim()) return null;
   const amount = parseFloat(rate);
   if (!Number.isFinite(amount) || amount <= 0) {
-    return { field: 'hourlyRate', message: 'Hourly rate must be a positive number' };
+    return { field: 'hourlyRate', message: 'La tarifa por hora debe ser un número positivo' };
   }
   if (amount > VALIDATION_LIMITS.hourlyRateMax) {
-    return { field: 'hourlyRate', message: `Hourly rate must be at most ${VALIDATION_LIMITS.hourlyRateMax}` };
+    return { field: 'hourlyRate', message: `La tarifa por hora debe ser como máximo ${VALIDATION_LIMITS.hourlyRateMax}` };
   }
   return null;
 }
 
 export function validateDisciplines(list: string[]): ValidationError | null {
   const invalid = list.filter((item) => !DISCIPLINES.includes(item));
-  if (invalid.length) return { field: 'disciplines', message: 'Invalid discipline selected' };
+  if (invalid.length) return { field: 'disciplines', message: 'Disciplina seleccionada inválida' };
   return null;
 }
 
 export function validateLoginForm(email: string, password: string): ValidationResult {
   const errors = collect([
     () => validateEmail(email),
-    () => (password ? null : { field: 'password', message: 'Password is required' }),
+    () => (password ? null : { field: 'password', message: 'La contraseña es obligatoria' }),
   ]);
   return errors.length ? fail(errors) : ok();
 }
@@ -202,11 +202,11 @@ export function validateInstitutionProfileForm(params: {
     () => validateCountry(params.country),
     () =>
       params.address.length > VALIDATION_LIMITS.address
-        ? { field: 'address', message: `Address must be at most ${VALIDATION_LIMITS.address} characters` }
+        ? { field: 'address', message: `La dirección debe tener como máximo ${VALIDATION_LIMITS.address} caracteres` }
         : null,
     () =>
       params.city.length > VALIDATION_LIMITS.city
-        ? { field: 'city', message: `City must be at most ${VALIDATION_LIMITS.city} characters` }
+        ? { field: 'city', message: `La ciudad debe tener como máximo ${VALIDATION_LIMITS.city} caracteres` }
         : null,
   ]);
   return errors.length ? fail(errors) : ok();

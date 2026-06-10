@@ -8,14 +8,14 @@ import { Screen } from '@/components/ui/screen';
 import { DEFAULT_NOTIFICATIONS, useAuth, type NotificationPreferences } from '@/contexts/auth-context';
 import { isNotificationPrefVisible } from '@/constants/features';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
-import { BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
+import { ALERT_LABELS, BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
 
 const ALL_ITEMS: { key: keyof NotificationPreferences; label: string; desc: string }[] = [
-  { key: 'bookingConfirmed', label: 'Booking confirmations', desc: 'When a class is booked or cancelled' },
-  { key: 'classReminders', label: 'Class reminders', desc: '24h and 1h before your class' },
-  { key: 'paymentUpdates', label: 'Payment updates', desc: 'Receipts and refund notices' },
-  { key: 'creditsExpiring', label: 'Credits expiring', desc: '30 days before loyalty credits expire' },
-  { key: 'marketing', label: 'Promotions', desc: 'Offers and new features' },
+  { key: 'bookingConfirmed', label: 'Confirmaciones de reserva', desc: 'Cuando se reserva o cancela una clase' },
+  { key: 'classReminders', label: 'Recordatorios de clase', desc: '24 h y 1 h antes de tu clase' },
+  { key: 'paymentUpdates', label: 'Actualizaciones de pago', desc: 'Recibos y avisos de reembolso' },
+  { key: 'creditsExpiring', label: 'Créditos por vencer', desc: '30 días antes de que venzan los créditos' },
+  { key: 'marketing', label: 'Promociones', desc: 'Ofertas y novedades' },
 ];
 
 export default function NotificationsScreen() {
@@ -30,7 +30,7 @@ export default function NotificationsScreen() {
 
   const save = () => {
     updateProfile({ notificationPreferences: prefs });
-    Alert.alert('Saved', 'Notification preferences updated.', [
+    Alert.alert(ALERT_LABELS.savedTitle, 'Preferencias de notificación actualizadas.', [
       { text: 'OK', onPress: () => router.back() },
     ]);
   };
@@ -38,7 +38,7 @@ export default function NotificationsScreen() {
   return (
     <Screen scroll>
       <Header title={SCREEN_TITLES.notifications} showBack />
-      <Text style={styles.hint}>Choose what you want to receive by push and email.</Text>
+      <Text style={styles.hint}>Elegí qué querés recibir por push y email.</Text>
       {ALL_ITEMS.filter((item) => isNotificationPrefVisible(item.key)).map((item) => (
         <View key={item.key} style={styles.row}>
           <View style={styles.rowText}>

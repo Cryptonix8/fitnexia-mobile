@@ -44,8 +44,8 @@ export default function AthleteHomeScreen() {
     <Screen scroll>
       <View style={styles.top}>
         <View>
-          <Text style={styles.greet}>Good morning 👋</Text>
-          <Text style={styles.headline}>Find your next class</Text>
+          <Text style={styles.greet}>Buenos días 👋</Text>
+          <Text style={styles.headline}>Encontrá tu próxima clase</Text>
         </View>
         <View style={styles.bell}>
           <Ionicons name="notifications-outline" size={24} color={FitnexiaColors.gray900} />
@@ -55,14 +55,14 @@ export default function AthleteHomeScreen() {
       <View style={styles.searchBox}>
         <Ionicons name="search" size={20} color={FitnexiaColors.gray400} />
         <TextInput
-          placeholder="Search classes, coaches, gyms..."
+          placeholder="Buscar clases, coaches, gimnasios..."
           placeholderTextColor={FitnexiaColors.gray400}
           style={styles.searchInput}
           onFocus={() => router.push('/(athlete)/(tabs)/search')}
         />
       </View>
 
-      <Text style={styles.section}>{geoEnabled && coords ? 'Nearby' : 'Upcoming'}</Text>
+      <Text style={styles.section}>{geoEnabled && coords ? 'Cerca' : 'Próximas'}</Text>
       {nearby.map((c) => (
         <ClassCard
           key={c.id}
@@ -78,7 +78,7 @@ export default function AthleteHomeScreen() {
         />
       ))}
 
-      <Text style={styles.section}>Recommended for you</Text>
+      <Text style={styles.section}>Recomendadas para vos</Text>
       {recommended.map((c) => (
         <ClassCard key={`r-${c.id}`} item={c} />
       ))}

@@ -11,9 +11,9 @@ export function DarkModeToggle() {
     <View style={[styles.row, { backgroundColor: colors.surface }]}>
       <Ionicons name={isDark ? 'moon' : 'sunny-outline'} size={22} color={colors.textSecondary} />
       <View style={styles.text}>
-        <Text style={[styles.label, { color: colors.text }]}>Dark mode</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Modo oscuro</Text>
         <Text style={[styles.sub, { color: colors.textMuted }]}>
-          {themeMode === 'system' ? 'System' : isDark ? 'On' : 'Off'}
+          {themeMode === 'system' ? 'Sistema' : isDark ? 'Activado' : 'Desactivado'}
         </Text>
       </View>
       <Switch

@@ -5,6 +5,7 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { UserAvatar, type AvatarKind } from '@/components/user-avatar';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { ALERT_LABELS, AUTH_LABELS } from '@/constants/labels';
 
 type AvatarPickerProps = {
   uri?: string | null;
@@ -19,12 +20,12 @@ export function AvatarPicker({
   onChange,
   size = 96,
   kind = 'user',
-  label = 'Profile photo',
+  label = AUTH_LABELS.profilePhoto,
 }: AvatarPickerProps) {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Allow photo library access to upload an avatar.');
+      Alert.alert('Permiso necesario', 'Permití acceso a la galería para subir una foto.');
       return;
     }
 
@@ -41,9 +42,9 @@ export function AvatarPicker({
   };
 
   const removePhoto = () => {
-    Alert.alert('Remove photo', 'Use the default avatar instead?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => onChange(null) },
+    Alert.alert('Eliminar foto', '¿Usar el avatar predeterminado?', [
+      { text: ALERT_LABELS.cancel, style: 'cancel' },
+      { text: 'Eliminar', style: 'destructive', onPress: () => onChange(null) },
     ]);
   };
 
@@ -65,11 +66,11 @@ export function AvatarPicker({
       </Pressable>
       <View style={styles.actions}>
         <Pressable onPress={pickImage}>
-          <Text style={styles.actionText}>{uri ? 'Change photo' : 'Upload photo'}</Text>
+          <Text style={styles.actionText}>{uri ? 'Cambiar foto' : 'Subir foto'}</Text>
         </Pressable>
         {uri ? (
           <Pressable onPress={removePhoto}>
-            <Text style={styles.removeText}>Remove</Text>
+            <Text style={styles.removeText}>Eliminar</Text>
           </Pressable>
         ) : null}
       </View>

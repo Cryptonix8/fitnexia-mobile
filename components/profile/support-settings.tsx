@@ -5,8 +5,9 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { ALERT_LABELS } from '@/constants/labels';
 
-const CATEGORIES = ['General', 'Booking', 'Payment', 'Account'] as const;
+const CATEGORIES = ['General', 'Reservas', 'Pagos', 'Cuenta'] as const;
 
 export function SupportSettings() {
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('General');
@@ -15,20 +16,20 @@ export function SupportSettings() {
 
   const submit = () => {
     if (!subject.trim() || !message.trim()) {
-      Alert.alert('Missing info', 'Please enter a subject and message.');
+      Alert.alert(ALERT_LABELS.missingInfoTitle, 'Ingresá un asunto y un mensaje.');
       return;
     }
     Alert.alert(
-      'Ticket submitted',
-      'Our team will reply within 24 hours. (Mock — connects to POST /support/tickets later.)',
+      'Ticket enviado',
+      'Nuestro equipo responderá en 24 horas. (Simulación — se conectará a POST /support/tickets más adelante.)',
       [{ text: 'OK', onPress: () => router.back() }],
     );
   };
 
   return (
     <>
-      <Text style={styles.hint}>Describe your issue and we will get back to you by email.</Text>
-      <Text style={styles.label}>Category</Text>
+      <Text style={styles.hint}>Describí tu problema y te responderemos por email.</Text>
+      <Text style={styles.label}>Categoría</Text>
       <View style={styles.chips}>
         {CATEGORIES.map((c) => (
           <Pressable
@@ -39,22 +40,22 @@ export function SupportSettings() {
           </Pressable>
         ))}
       </View>
-      <Input label="Subject" value={subject} onChangeText={setSubject} placeholder="Brief summary" />
+      <Input label="Asunto" value={subject} onChangeText={setSubject} placeholder="Resumen breve" />
       <Input
-        label="Message"
+        label="Mensaje"
         value={message}
         onChangeText={setMessage}
-        placeholder="Tell us what happened..."
+        placeholder="Contanos qué pasó..."
         multiline
         style={styles.messageInput}
       />
       <View style={styles.faq}>
-        <Text style={styles.faqTitle}>Quick answers</Text>
-        <Text style={styles.faqItem}>• Pro plan: 8% commission on payouts</Text>
-        <Text style={styles.faqItem}>• Institutional plan: 5% commission</Text>
-        <Text style={styles.faqItem}>• Payouts arrive within 5–7 business days</Text>
+        <Text style={styles.faqTitle}>Respuestas rápidas</Text>
+        <Text style={styles.faqItem}>• Plan Pro: 8% de comisión en cobros</Text>
+        <Text style={styles.faqItem}>• Plan institucional: 5% de comisión</Text>
+        <Text style={styles.faqItem}>• Los cobros llegan en 5–7 días hábiles</Text>
       </View>
-      <Button title="Submit ticket" onPress={submit} style={{ marginTop: Spacing.md }} />
+      <Button title="Enviar ticket" onPress={submit} style={{ marginTop: Spacing.md }} />
     </>
   );
 }

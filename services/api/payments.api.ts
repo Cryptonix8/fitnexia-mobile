@@ -36,10 +36,10 @@ export async function waitForBookingConfirmation(
     const booking = await fetchBookingById(bookingId);
     if (booking.status === 'confirmed') return booking;
     if (booking.status === 'cancelled' || booking.status === 'refunded') {
-      throw new Error('Payment was not completed.');
+      throw new Error('El pago no se completó.');
     }
     await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
 
-  throw new Error('Payment is still processing. Check My bookings in a moment.');
+  throw new Error('El pago sigue procesándose. Revisá Mis reservas en un momento.');
 }

@@ -7,9 +7,9 @@ import { Header } from '@/components/ui/header';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
-import { SCREEN_TITLES } from '@/constants/labels';
+import { ALERT_LABELS, SCREEN_TITLES } from '@/constants/labels';
 
-const CATEGORIES = ['General', 'Booking', 'Payment', 'Account'] as const;
+const CATEGORIES = ['General', 'Reservas', 'Pagos', 'Cuenta'] as const;
 
 export default function SupportScreen() {
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('General');
@@ -18,12 +18,12 @@ export default function SupportScreen() {
 
   const submit = () => {
     if (!subject.trim() || !message.trim()) {
-      Alert.alert('Missing info', 'Please enter a subject and message.');
+      Alert.alert(ALERT_LABELS.missingInfoTitle, 'Ingresá un asunto y un mensaje.');
       return;
     }
     Alert.alert(
-      'Ticket submitted',
-      'Our team will reply within 24 hours. (Mock — connects to POST /support/tickets later.)',
+      'Ticket enviado',
+      'Nuestro equipo responderá en 24 horas. (Simulación — se conectará a POST /support/tickets más adelante.)',
       [{ text: 'OK', onPress: () => router.back() }],
     );
   };
@@ -31,9 +31,9 @@ export default function SupportScreen() {
   return (
     <Screen scroll>
       <Header title={SCREEN_TITLES.helpSupport} showBack />
-      <Text style={styles.hint}>Describe your issue and we will get back to you by email.</Text>
+      <Text style={styles.hint}>Describí tu problema y te responderemos por email.</Text>
 
-      <Text style={styles.label}>Category</Text>
+      <Text style={styles.label}>Categoría</Text>
       <View style={styles.chips}>
         {CATEGORIES.map((c) => (
           <Pressable
@@ -45,24 +45,24 @@ export default function SupportScreen() {
         ))}
       </View>
 
-      <Input label="Subject" value={subject} onChangeText={setSubject} placeholder="Brief summary" />
+      <Input label="Asunto" value={subject} onChangeText={setSubject} placeholder="Resumen breve" />
       <Input
-        label="Message"
+        label="Mensaje"
         value={message}
         onChangeText={setMessage}
-        placeholder="Tell us what happened..."
+        placeholder="Contanos qué pasó..."
         multiline
         style={styles.messageInput}
       />
 
       <View style={styles.faq}>
-        <Text style={styles.faqTitle}>Quick answers</Text>
-        <Text style={styles.faqItem}>• Cancel free up to 24h before class</Text>
-        <Text style={styles.faqItem}>• Credits expire 12 months after last booking</Text>
-        <Text style={styles.faqItem}>• Refunds process in 5–7 business days</Text>
+        <Text style={styles.faqTitle}>Respuestas rápidas</Text>
+        <Text style={styles.faqItem}>• Cancelá gratis hasta 24 h antes de la clase</Text>
+        <Text style={styles.faqItem}>• Los créditos vencen 12 meses después de la última reserva</Text>
+        <Text style={styles.faqItem}>• Los reembolsos se procesan en 5–7 días hábiles</Text>
       </View>
 
-      <Button title="Submit ticket" onPress={submit} style={{ marginTop: Spacing.md }} />
+      <Button title="Enviar ticket" onPress={submit} style={{ marginTop: Spacing.md }} />
     </Screen>
   );
 }

@@ -8,26 +8,26 @@ import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import { SCREEN_TITLES } from '@/constants/labels';
 
 const PLANS = [
-  { id: 'basic', name: 'Basic', fee: 'Free', commission: '15%', active: false },
-  { id: 'pro', name: 'Pro', fee: '$29/mo', commission: '8%', active: true },
+  { id: 'basic', name: 'Basic', fee: 'Gratis', commission: '15%', active: false },
+  { id: 'pro', name: 'Pro', fee: '$29/mes', commission: '8%', active: true },
 ];
 
 export default function InstructorPlanScreen() {
   return (
     <Screen scroll>
       <Header title={SCREEN_TITLES.planCommission} showBack />
-      <Text style={styles.hint}>Your platform fee is deducted automatically from each payout.</Text>
+      <Text style={styles.hint}>La comisión de plataforma se descuenta automáticamente de cada cobro.</Text>
       {PLANS.map((plan) => (
         <View key={plan.id} style={[styles.card, plan.active && styles.cardActive]}>
           <View style={styles.cardHeader}>
             <Text style={styles.planName}>{plan.name}</Text>
-            {plan.active ? <Badge label="Current" variant="verified" /> : null}
+            {plan.active ? <Badge label="Actual" variant="verified" /> : null}
           </View>
-          <Text style={styles.meta}>Monthly: {plan.fee}</Text>
-          <Text style={styles.meta}>Commission: {plan.commission} per transaction</Text>
+          <Text style={styles.meta}>Mensual: {plan.fee}</Text>
+          <Text style={styles.meta}>Comisión: {plan.commission} por transacción</Text>
         </View>
       ))}
-      <Button title="Upgrade plan (mock)" variant="outline" style={{ marginTop: Spacing.md }} />
+      <Button title="Mejorar plan (simulación)" variant="outline" style={{ marginTop: Spacing.md }} />
     </Screen>
   );
 }

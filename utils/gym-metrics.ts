@@ -1,4 +1,5 @@
 import { MOCK_GYM_WEEKLY_METRICS } from '@/data/mock';
+import { APP_LOCALE } from '@/utils/locale';
 import type { ClassListItem } from '@/types/api';
 
 export type GymMetricsView = {
@@ -14,7 +15,7 @@ export type GymMetricsView = {
 
 function formatChange(pct: number): string {
   const sign = pct >= 0 ? '+' : '';
-  return `${sign}${Math.round(pct * 100)}% vs last week`;
+  return `${sign}${Math.round(pct * 100)}% vs semana anterior`;
 }
 
 export function formatGymChange(pct: number): string {
@@ -25,7 +26,7 @@ export function formatRevenueCompact(cents: number): string {
   if (cents >= 100000) {
     return `$${(cents / 100000).toFixed(1)}k`;
   }
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(APP_LOCALE, {
     style: 'currency',
     currency: 'USD',
     maximumFractionDigits: 0,
@@ -70,8 +71,8 @@ export function getGymMetrics(institutionId: string, classes: ClassListItem[]): 
       topClasses.length > 0
         ? topClasses.sort((a, b) => b.attendancePct - a.attendancePct)
         : [
-            { title: 'Group CrossFit', attendancePct: 1, bookings: 20 },
-            { title: 'Morning HIIT', attendancePct: 0.85, bookings: 17 },
+            { title: 'CrossFit Grupal', attendancePct: 1, bookings: 20 },
+            { title: 'HIIT Matutino', attendancePct: 0.85, bookings: 17 },
           ],
   };
 }

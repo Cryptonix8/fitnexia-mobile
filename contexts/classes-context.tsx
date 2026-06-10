@@ -99,7 +99,7 @@ export function ClassesProvider({ children }: { children: React.ReactNode }) {
         setClasses(sortByStartAt(result.data));
       }
     } catch (err) {
-      setError(getErrorMessage(err, 'Failed to load classes'));
+      setError(getErrorMessage(err, 'No se pudieron cargar las clases'));
     } finally {
       setIsLoading(false);
     }

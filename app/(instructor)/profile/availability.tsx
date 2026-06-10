@@ -10,7 +10,7 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { PROFILE_MENU_LABELS } from '@/constants/labels';
+import { ALERT_LABELS, PROFILE_MENU_LABELS } from '@/constants/labels';
 import type { WeeklyDaySchedule } from '@/types/api';
 import {
   dateToTimeString,
@@ -35,7 +35,7 @@ export default function InstructorAvailabilityScreen() {
     return (
       <Screen>
         <Header title={PROFILE_MENU_LABELS.scheduleAvailability} showBack />
-        <Text>Profile not available</Text>
+        <Text>Perfil no disponible</Text>
       </Screen>
     );
   }
@@ -61,7 +61,7 @@ export default function InstructorAvailabilityScreen() {
       return day.startTime >= day.endTime;
     });
     if (invalid) {
-      Alert.alert('Invalid hours', `${weekdayLabel(invalid.weekday)} end time must be after start time.`);
+      Alert.alert('Horario inválido', `La hora de fin de ${weekdayLabel(invalid.weekday)} debe ser posterior al inicio.`);
       return;
     }
 
@@ -71,7 +71,7 @@ export default function InstructorAvailabilityScreen() {
         weeklySchedule: schedule,
       },
     });
-    Alert.alert('Saved', 'Your availability has been updated.', [
+    Alert.alert(ALERT_LABELS.savedTitle, 'Tu disponibilidad fue actualizada.', [
       { text: 'OK', onPress: () => router.back() },
     ]);
   };
@@ -80,9 +80,9 @@ export default function InstructorAvailabilityScreen() {
     <Screen scroll>
       <Header title={PROFILE_MENU_LABELS.scheduleAvailability} showBack />
 
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>Available now</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Disponible ahora</Text>
       <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
-        Show athletes you are free for immediate bookings.
+        Mostrá a los atletas que estás libre para reservas inmediatas.
       </Text>
       <Pressable
         style={[
@@ -96,16 +96,16 @@ export default function InstructorAvailabilityScreen() {
           color={availableNow ? colors.success : colors.textMuted}
         />
         <Text style={[styles.nowText, { color: colors.textSecondary }]}>
-          {availableNow ? 'Available now — athletes can see you online' : 'Mark as available now'}
+          {availableNow ? 'Disponible ahora — los atletas pueden verte en línea' : 'Marcar como disponible ahora'}
         </Text>
         <Switch value={availableNow} onValueChange={setAvailableNow} />
       </Pressable>
 
       <Text style={[styles.sectionTitle, { color: colors.text, marginTop: Spacing.lg }]}>
-        Weekly hours
+        Horario semanal
       </Text>
       <Text style={[styles.sectionHint, { color: colors.textMuted }]}>
-        Set when you usually accept bookings. Used for discovery and scheduling hints.
+        Definí cuándo aceptás reservas habitualmente. Se usa para descubrimiento y sugerencias de agenda.
       </Text>
 
       {schedule.map((day) => (
@@ -123,19 +123,19 @@ export default function InstructorAvailabilityScreen() {
               </Text>
               <Pressable onPress={() => setEditingDay(editingDay === day.weekday ? null : day.weekday)}>
                 <Text style={[styles.editLink, { color: colors.primary }]}>
-                  {editingDay === day.weekday ? 'Hide times' : 'Edit times'}
+                  {editingDay === day.weekday ? 'Ocultar horarios' : 'Editar horarios'}
                 </Text>
               </Pressable>
               {editingDay === day.weekday ? (
                 <View style={styles.timePickers}>
                   <DateTimeField
-                    label="From"
+                    label="Desde"
                     mode="time"
                     value={timeStringToDate(day.startTime)}
                     onChange={(d) => updateDayTime(day.weekday, 'startTime', d)}
                   />
                   <DateTimeField
-                    label="Until"
+                    label="Hasta"
                     mode="time"
                     value={timeStringToDate(day.endTime)}
                     onChange={(d) => updateDayTime(day.weekday, 'endTime', d)}
@@ -144,12 +144,12 @@ export default function InstructorAvailabilityScreen() {
               ) : null}
             </>
           ) : (
-            <Text style={[styles.dayHours, { color: colors.textMuted }]}>Unavailable</Text>
+            <Text style={[styles.dayHours, { color: colors.textMuted }]}>No disponible</Text>
           )}
         </View>
       ))}
 
-      <Button title="Save availability" onPress={save} style={{ marginTop: Spacing.md }} />
+      <Button title="Guardar disponibilidad" onPress={save} style={{ marginTop: Spacing.md }} />
     </Screen>
   );
 }

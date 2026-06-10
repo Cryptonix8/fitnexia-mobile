@@ -119,9 +119,9 @@ export default function ClassDetailScreen() {
       <Text style={styles.section}>{CLASS_DETAIL_LABELS.about}</Text>
       <Text style={styles.desc}>
         {classFormat === 'individual'
-          ? `Book a private 1-on-1 ${cls.discipline.toLowerCase()} session with ${cls.instructor.displayName}.`
-          : `Join ${cls.instructor.displayName} for an engaging ${cls.discipline.toLowerCase()} group session.`}{' '}
-        Suitable for all levels. Bring water and comfortable gear.
+          ? `Reservá una sesión privada 1 a 1 de ${cls.discipline.toLowerCase()} con ${cls.instructor.displayName}.`
+          : `Unite a ${cls.instructor.displayName} en una sesión grupal de ${cls.discipline.toLowerCase()}.`}{' '}
+        Apto para todos los niveles. Traé agua y ropa cómoda.
       </Text>
 
       {canManage ? (

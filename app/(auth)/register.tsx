@@ -86,7 +86,7 @@ export default function RegisterScreen() {
       });
       router.replace('/');
     } catch (err) {
-      Alert.alert('Registration failed', getErrorMessage(err));
+      Alert.alert('Error en el registro', getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -95,7 +95,7 @@ export default function RegisterScreen() {
   return (
     <Screen scroll>
       <Pressable onPress={() => (step === 1 ? router.back() : setStep(1))}>
-        <Text style={styles.back}>← Back</Text>
+        <Text style={styles.back}>← Volver</Text>
       </Pressable>
       <Text style={styles.title}>
         {step === 1 ? AUTH_LABELS.chooseProfile : AUTH_LABELS.createAccount}
@@ -157,7 +157,7 @@ export default function RegisterScreen() {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            placeholder="At least 8 characters"
+            placeholder="Al menos 8 caracteres"
           />
 
           {/* {role === 'instructor' ? (

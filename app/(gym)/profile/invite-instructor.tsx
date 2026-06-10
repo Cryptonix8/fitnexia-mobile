@@ -11,7 +11,9 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth, getErrorMessage, type InstructorInvite } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { SCREEN_TITLES } from '@/constants/labels';
 import { cancelInviteApi, inviteInstructorApi } from '@/services/api/institutions.api';
+import { APP_LOCALE } from '@/utils/locale';
 import { validateEmail } from '@/utils/validation';
 
 export default function GymInviteInstructorScreen() {
@@ -27,52 +29,55 @@ export default function GymInviteInstructorScreen() {
   const sendInvite = async () => {
     const emailError = validateEmail(email);
     if (emailError) {
-      Alert.alert('Invalid email', emailError.message);
+      Alert.alert('Email inválido', emailError.message);
       return;
     }
 
     const trimmed = email.trim().toLowerCase();
     if (pending.some((i) => i.email === trimmed && i.status === 'pending')) {
-      Alert.alert('Already invited', 'An invite is already pending for this email.');
+      Alert.alert('Ya invitado', 'Ya hay una invitación pendiente para este email.');
       return;
     }
 
     setSaving(true);
     try {
-      const result = await inviteInstructorApi(trimmed, message.trim() || undefined);
+      const result = await inviteInstructorApi({
+        email: trimmed,
+        message: message.trim() || undefined,
+      });
       await refreshUser();
       setEmail('');
       setMessage('');
       if (result.emailSent) {
         Alert.alert(
-          'Invite sent',
-          `We emailed ${trimmed} and saved the invite. They can also accept it in the Fitnexia app.`,
+          'Invitación enviada',
+          `Enviamos un email a ${trimmed} y guardamos la invitación. También pueden aceptarla en la app Fitnexia.`,
         );
       } else {
         Alert.alert(
-          'Invite saved',
-          `The invite was saved for ${trimmed}, but no email was sent. Ask your admin to configure SMTP in backend/.env, or the instructor can accept from their app dashboard.`,
+          'Invitación guardada',
+          `La invitación se guardó para ${trimmed}, pero no se envió email. Pedile a tu admin que configure SMTP en backend/.env, o el instructor puede aceptarla desde su panel en la app.`,
         );
       }
     } catch (err) {
-      Alert.alert('Could not send invite', getErrorMessage(err));
+      Alert.alert('No se pudo enviar la invitación', getErrorMessage(err));
     } finally {
       setSaving(false);
     }
   };
 
   const cancelInvite = (invite: InstructorInvite) => {
-    Alert.alert('Cancel invite', `Withdraw invite to ${invite.email}?`, [
-      { text: 'Keep', style: 'cancel' },
+    Alert.alert('Cancelar invitación', `¿Retirar la invitación a ${invite.email}?`, [
+      { text: 'Mantener', style: 'cancel' },
       {
-        text: 'Withdraw',
+        text: 'Retirar',
         style: 'destructive',
         onPress: async () => {
           try {
             await cancelInviteApi(invite.id);
             await refreshUser();
           } catch (err) {
-            Alert.alert('Could not cancel invite', getErrorMessage(err));
+            Alert.alert('No se pudo cancelar la invitación', getErrorMessage(err));
           }
         },
       },
@@ -82,42 +87,42 @@ export default function GymInviteInstructorScreen() {
   if (!profile) {
     return (
       <Screen>
-        <Header title="Invite instructor" showBack />
-        <Text style={{ color: colors.text }}>Profile not available</Text>
+        <Header title={SCREEN_TITLES.inviteInstructor} showBack />
+        <Text style={{ color: colors.text }}>Perfil no disponible</Text>
       </Screen>
     );
   }
 
   return (
     <Screen scroll>
-      <Header title="Invite instructor" showBack />
+      <Header title={SCREEN_TITLES.inviteInstructor} showBack />
       <Text style={[styles.hint, { color: colors.textMuted }]}>
-        Invite an instructor by email. They receive an email and can also accept the invite in the
-        Fitnexia app when they log in with that address.
+        Invitá a un instructor por email. Recibe un email y también puede aceptar la invitación en la
+        app Fitnexia al iniciar sesión con esa dirección.
       </Text>
 
       <Input
-        label="Instructor email"
+        label="Email del instructor"
         value={email}
         onChangeText={setEmail}
-        placeholder="coach@example.com"
+        placeholder="coach@ejemplo.com"
         autoCapitalize="none"
         keyboardType="email-address"
       />
       <Input
-        label="Personal message (optional)"
+        label="Mensaje personal (opcional)"
         value={message}
         onChangeText={setMessage}
-        placeholder="Join our team at..."
+        placeholder="Unite a nuestro equipo en..."
         multiline
       />
 
-      <Button title="Send invite" onPress={sendInvite} loading={saving} />
+      <Button title="Enviar invitación" onPress={sendInvite} loading={saving} />
 
       {pending.length > 0 ? (
         <>
           <Text style={[styles.section, { color: colors.text, marginTop: Spacing.lg }]}>
-            Pending invites ({pending.length})
+            Invitaciones pendientes ({pending.length})
           </Text>
           {pending.map((invite) => (
             <View
@@ -130,7 +135,7 @@ export default function GymInviteInstructorScreen() {
               <View style={styles.inviteBody}>
                 <Text style={[styles.inviteEmail, { color: colors.text }]}>{invite.email}</Text>
                 <Text style={[styles.inviteMeta, { color: colors.textMuted }]}>
-                  Sent {new Date(invite.sentAt).toLocaleDateString()} · Pending
+                  Enviada {new Date(invite.sentAt).toLocaleDateString(APP_LOCALE)} · Pendiente
                 </Text>
               </View>
               <View style={styles.inviteActions}>
@@ -144,7 +149,7 @@ export default function GymInviteInstructorScreen() {
       ) : null}
 
       <Button
-        title="Manage linked staff"
+        title="Gestionar equipo vinculado"
         variant="outline"
         onPress={() => router.push('/(gym)/profile/instructors')}
         style={{ marginTop: Spacing.lg }}

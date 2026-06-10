@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button';
 import { DEFAULT_NOTIFICATIONS, useAuth, type NotificationPreferences } from '@/contexts/auth-context';
 import { isNotificationPrefVisible } from '@/constants/features';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
-import { BUTTON_LABELS } from '@/constants/labels';
+import { ALERT_LABELS, BUTTON_LABELS } from '@/constants/labels';
 
 const ALL_ITEMS: { key: keyof NotificationPreferences; label: string; desc: string }[] = [
-  { key: 'bookingConfirmed', label: 'Booking confirmations', desc: 'When someone books or cancels' },
-  { key: 'classReminders', label: 'Class reminders', desc: '24h and 1h before your classes' },
-  { key: 'paymentUpdates', label: 'Payment updates', desc: 'Payouts and transaction receipts' },
-  { key: 'creditsExpiring', label: 'Account alerts', desc: 'Verification and policy updates' },
-  { key: 'marketing', label: 'Promotions', desc: 'Pro plan offers and platform news' },
+  { key: 'bookingConfirmed', label: 'Confirmaciones de reserva', desc: 'Cuando alguien reserva o cancela' },
+  { key: 'classReminders', label: 'Recordatorios de clase', desc: '24 h y 1 h antes de tus clases' },
+  { key: 'paymentUpdates', label: 'Actualizaciones de pago', desc: 'Cobros y recibos de transacciones' },
+  { key: 'creditsExpiring', label: 'Alertas de cuenta', desc: 'Verificación y actualizaciones de políticas' },
+  { key: 'marketing', label: 'Promociones', desc: 'Ofertas del plan Pro y novedades de la plataforma' },
 ];
 
 export function NotificationsSettings() {
@@ -28,14 +28,14 @@ export function NotificationsSettings() {
 
   const save = () => {
     updateProfile({ notificationPreferences: prefs });
-    Alert.alert('Saved', 'Notification preferences updated.', [
+    Alert.alert(ALERT_LABELS.savedTitle, 'Preferencias de notificación actualizadas.', [
       { text: 'OK', onPress: () => router.back() },
     ]);
   };
 
   return (
     <>
-      <Text style={styles.hint}>Choose what you want to receive by push and email.</Text>
+      <Text style={styles.hint}>Elegí qué querés recibir por push y email.</Text>
       {ALL_ITEMS.filter((item) => isNotificationPrefVisible(item.key)).map((item) => (
         <View key={item.key} style={styles.row}>
           <View style={styles.rowText}>

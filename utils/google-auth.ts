@@ -25,14 +25,14 @@ export async function completeGoogleSignIn({
   institutionName,
 }: GoogleAuthOptions): Promise<void> {
   if (!isGoogleSignInConfigured()) {
-    Alert.alert('Google Sign-In', getGoogleSetupInstructions());
+    Alert.alert('Inicio de sesión con Google', getGoogleSetupInstructions());
     return;
   }
 
   if (isRunningInExpoGo()) {
     Alert.alert(
-      'Use a development build',
-      'Google blocks Sign-In inside Expo Go (Error 400).\n\nRun: npx expo run:android\n\nThen open the Fitnexia dev app, not Expo Go.',
+      'Usá una build de desarrollo',
+      'Google bloquea el inicio de sesión dentro de Expo Go (Error 400).\n\nEjecutá: npx expo run:android\n\nLuego abrí la app de desarrollo de Fitnexia, no Expo Go.',
     );
     return;
   }
@@ -49,20 +49,20 @@ export async function completeGoogleSignIn({
     router.replace('/');
   } catch (err) {
     if (err instanceof Error && err.message === 'EXPO_GO_UNSUPPORTED') {
-      Alert.alert('Use a development build', getGoogleSetupInstructions());
+      Alert.alert('Usá una build de desarrollo', getGoogleSetupInstructions());
       return;
     }
     if (err instanceof ApiError && err.code === 'NEEDS_ROLE') {
-      Alert.alert('Create an account', getErrorMessage(err), [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign up', onPress: () => router.push('/(auth)/register') },
+      Alert.alert('Crear una cuenta', getErrorMessage(err), [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Registrarse', onPress: () => router.push('/(auth)/register') },
       ]);
       return;
     }
     if (err instanceof Error && err.message.includes('DEVELOPER_ERROR')) {
-      Alert.alert('Google Cloud setup required', getGoogleDeveloperErrorHelp());
+      Alert.alert('Se requiere configuración de Google Cloud', getGoogleDeveloperErrorHelp());
       return;
     }
-    Alert.alert('Google Sign-In failed', getErrorMessage(err));
+    Alert.alert('Error en el inicio de sesión con Google', getErrorMessage(err));
   }
 }

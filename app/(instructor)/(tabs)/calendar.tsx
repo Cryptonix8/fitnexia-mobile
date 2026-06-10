@@ -8,11 +8,12 @@ import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { modalityLocationLabel } from '@/constants/labels';
+import { BUTTON_LABELS, modalityLocationLabel } from '@/constants/labels';
 import { formatClassDate } from '@/data/mock';
 import type { ClassListItem } from '@/types/api';
 import { startOfMonth, toDateKey } from '@/utils/calendar';
 import { getLinkedInstructorId } from '@/utils/instructor';
+import { APP_LOCALE } from '@/utils/locale';
 import { isSameCalendarDay } from '@/utils/schedule';
 
 function classEndAt(cls: ClassListItem): Date {
@@ -62,7 +63,7 @@ export default function InstructorCalendarScreen() {
     [events, selectedDate],
   );
 
-  const selectedLabel = selectedDate.toLocaleDateString('en-US', {
+  const selectedLabel = selectedDate.toLocaleDateString(APP_LOCALE, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -71,17 +72,17 @@ export default function InstructorCalendarScreen() {
   return (
     <Screen scroll>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Calendar</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Calendario</Text>
         <Pressable
           onPress={() => router.push('/(instructor)/profile/availability')}
           hitSlop={8}>
-          <Text style={[styles.manageLink, { color: colors.primary }]}>Manage availability</Text>
+          <Text style={[styles.manageLink, { color: colors.primary }]}>Gestionar disponibilidad</Text>
         </Pressable>
       </View>
 
       <View style={[styles.tabs, { backgroundColor: colors.surfaceMuted }]}>
-        <Tab label="Upcoming" active={tab === 'upcoming'} onPress={() => setTab('upcoming')} />
-        <Tab label="Past" active={tab === 'past'} onPress={() => setTab('past')} />
+        <Tab label="Próximas" active={tab === 'upcoming'} onPress={() => setTab('upcoming')} />
+        <Tab label="Pasadas" active={tab === 'past'} onPress={() => setTab('past')} />
       </View>
 
       <BookingsCalendar
@@ -96,15 +97,17 @@ export default function InstructorCalendarScreen() {
 
       {allEvents.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textMuted }]}>
-          No classes yet. Create one from the Classes tab.
+          Todavía no tenés clases. Creá una desde la pestaña Clases.
         </Text>
       ) : events.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textMuted }]}>
-          No {tab === 'upcoming' ? 'upcoming' : 'past'} classes in your schedule.
+          {tab === 'upcoming'
+            ? 'No tenés clases próximas en tu agenda.'
+            : 'No tenés clases pasadas en tu agenda.'}
         </Text>
       ) : dayEvents.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textMuted }]}>
-          No classes on this day. Select a highlighted date or switch tabs.
+          No hay clases este día. Seleccioná una fecha marcada o cambiá de pestaña.
         </Text>
       ) : (
         dayEvents.map((c) => (
@@ -115,16 +118,16 @@ export default function InstructorCalendarScreen() {
             <Text style={[styles.eventTitle, { color: colors.text }]}>{c.title}</Text>
             <Text style={[styles.meta, { color: colors.textMuted }]}>
               {modalityLocationLabel(c.modality, c.location?.label)}
-              {c.classFormat === 'individual' ? ' · 1-on-1' : ''}
-              {c.spotsLeft != null ? ` · ${c.spotsLeft} spots left` : ''}
+              {c.classFormat === 'individual' ? ' · 1 a 1' : ''}
+              {c.spotsLeft != null ? ` · ${c.spotsLeft} lugares disponibles` : ''}
             </Text>
             <View style={styles.actions}>
               <Pressable onPress={() => router.push(`/class/${c.id}`)}>
-                <Text style={[styles.link, { color: colors.primary }]}>View</Text>
+                <Text style={[styles.link, { color: colors.primary }]}>Ver</Text>
               </Pressable>
               <Pressable
                 onPress={() => router.push({ pathname: '/edit-class/[id]', params: { id: c.id } })}>
-                <Text style={[styles.link, { color: colors.primary }]}>Edit</Text>
+                <Text style={[styles.link, { color: colors.primary }]}>{BUTTON_LABELS.edit}</Text>
               </Pressable>
             </View>
           </View>

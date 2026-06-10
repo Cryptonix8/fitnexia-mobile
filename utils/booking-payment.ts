@@ -20,7 +20,7 @@ export async function openPaymentCheckout(checkoutUrl: string, bookingId: string
     const url = new URL(result.url);
     const status = url.searchParams.get('status');
     if (status === 'failure') {
-      throw new Error('Payment was cancelled or failed.');
+      throw new Error('El pago fue cancelado o falló.');
     }
   }
 

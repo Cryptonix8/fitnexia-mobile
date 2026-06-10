@@ -12,8 +12,9 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
+import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
-import { MODALITY_LABELS } from '@/constants/labels';
+import { BUTTON_LABELS, MODALITY_LABELS, SCREEN_TITLES } from '@/constants/labels';
 import { getInstitutionById } from '@/data/mock';
 import {
   canManageGymClass,
@@ -77,8 +78,8 @@ export default function EditClassScreen() {
   if (!cls) {
     return (
       <Screen>
-        <Header title="Edit class" showBack />
-        <Text style={{ color: colors.text }}>Class not found</Text>
+        <Header title="Editar clase" showBack />
+        <Text style={{ color: colors.text }}>{SCREEN_TITLES.classNotFound}</Text>
       </Screen>
     );
   }
@@ -90,35 +91,35 @@ export default function EditClassScreen() {
   if (!canEdit) {
     return (
       <Screen>
-        <Header title="Edit class" showBack />
-        <Text style={{ color: colors.text }}>You can only edit your own classes.</Text>
+        <Header title="Editar clase" showBack />
+        <Text style={{ color: colors.text }}>Solo podés editar tus propias clases.</Text>
       </Screen>
     );
   }
 
   const save = () => {
     if (!title.trim()) {
-      Alert.alert('Missing info', 'Class name is required.');
+      Alert.alert('Faltan datos', 'El nombre de la clase es obligatorio.');
       return;
     }
     const durationMinutes = parseInt(duration, 10);
     if (Number.isNaN(durationMinutes) || durationMinutes < 15) {
-      Alert.alert('Invalid duration', 'Duration must be at least 15 minutes.');
+      Alert.alert('Duración inválida', 'La duración debe ser de al menos 15 minutos.');
       return;
     }
     const priceAmount = Math.round(parseFloat(price) * 100);
     if (Number.isNaN(priceAmount) || priceAmount <= 0) {
-      Alert.alert('Invalid price', 'Enter a valid price.');
+      Alert.alert('Precio inválido', 'Ingresá un precio válido.');
       return;
     }
     const cap = isGym ? parseInt(capacity, 10) : classFormat === 'individual' ? 1 : parseInt(capacity, 10);
     if (Number.isNaN(cap) || cap < 2) {
-      Alert.alert('Invalid capacity', 'Group classes need at least 2 spots.');
+      Alert.alert('Cupos inválidos', 'Las clases grupales necesitan al menos 2 cupos.');
       return;
     }
 
     if (isGym && !selectedInstructorId) {
-      Alert.alert('Select instructor', 'Choose a linked instructor.');
+      Alert.alert('Seleccioná instructor', 'Elegí un instructor vinculado.');
       return;
     }
 
@@ -140,7 +141,7 @@ export default function EditClassScreen() {
       classFormat: isGym ? 'group' : classFormat,
       startAt: startAt.toISOString(),
       durationMinutes,
-      price: { amount: priceAmount, currency: 'USD' },
+      price: { amount: priceAmount, currency: DEFAULT_CURRENCY },
       capacity: cap,
       spotsLeft,
       instructor: instructor
@@ -149,7 +150,7 @@ export default function EditClassScreen() {
       institution: isGym
         ? {
             id: institutionId,
-            name: profile?.name ?? mockGym?.name ?? 'Gym',
+            name: profile?.name ?? mockGym?.name ?? 'Gimnasio',
           }
         : cls.institution,
       location:
@@ -170,17 +171,17 @@ export default function EditClassScreen() {
           : undefined,
     });
 
-    Alert.alert('Saved', 'Class updated.', [{ text: 'OK', onPress: () => router.back() }]);
+    Alert.alert('Guardado', 'Clase actualizada.', [{ text: 'OK', onPress: () => router.back() }]);
   };
 
   const remove = () => {
     Alert.alert(
-      'Cancel class',
-      'Remove this class from your schedule? Existing bookings would be refunded in production.',
+      'Cancelar clase',
+      '¿Eliminar esta clase de tu agenda? En producción se reembolsarían las reservas existentes.',
       [
-        { text: 'Keep class', style: 'cancel' },
+        { text: 'Mantener clase', style: 'cancel' },
         {
-          text: 'Cancel class',
+          text: 'Cancelar clase',
           style: 'destructive',
           onPress: () => {
             cancelClass(cls.id);
@@ -197,37 +198,37 @@ export default function EditClassScreen() {
 
   return (
     <Screen scroll>
-      <Header title={isGym ? 'Edit group class' : 'Edit class'} showBack />
+      <Header title={isGym ? 'Editar clase grupal' : 'Editar clase'} showBack />
 
       {isGym ? (
         <View style={[styles.occupancy, { backgroundColor: colors.surfaceMuted }]}>
           <Text style={[styles.occupancyText, { color: colors.textSecondary }]}>
-            {booked} / {cls.capacity ?? capacity} spots booked
+            {booked} / {cls.capacity ?? capacity} reservados
           </Text>
         </View>
       ) : null}
 
-      <Input label="Class name" value={title} onChangeText={setTitle} />
+      <Input label="Nombre de la clase" value={title} onChangeText={setTitle} />
 
       {isGym ? (
         <InstructorPicker
           instructors={linkedInstructors}
           selectedId={selectedInstructorId}
           onSelect={setSelectedInstructorId}
-          label="Assign instructor"
+          label="Asignar instructor"
         />
       ) : null}
 
       <DateTimeField
-        label="Date"
+        label="Fecha"
         mode="date"
         value={startDate}
         onChange={setStartDate}
         minimumDate={minDate}
       />
-      <DateTimeField label="Start time" mode="time" value={startTime} onChange={setStartTime} />
+      <DateTimeField label="Hora de inicio" mode="time" value={startTime} onChange={setStartTime} />
       <Input
-        label="Duration (minutes)"
+        label="Duración (minutos)"
         value={duration}
         onChangeText={setDuration}
         keyboardType="number-pad"
@@ -235,7 +236,7 @@ export default function EditClassScreen() {
 
       {!isGym ? (
         <>
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Class type</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Tipo de clase</Text>
           <View style={styles.row}>
             <FilterChip
               label="Individual"
@@ -243,7 +244,7 @@ export default function EditClassScreen() {
               onPress={() => setClassFormat('individual')}
             />
             <FilterChip
-              label="Group"
+              label="Grupal"
               active={classFormat === 'group'}
               onPress={() => {
                 setClassFormat('group');
@@ -254,7 +255,7 @@ export default function EditClassScreen() {
         </>
       ) : null}
 
-      <Text style={[styles.label, { color: colors.textSecondary }]}>Modality</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>Modalidad</Text>
       <View style={styles.row}>
         <FilterChip
           label={MODALITY_LABELS.inPerson}
@@ -269,22 +270,22 @@ export default function EditClassScreen() {
       </View>
 
       {!isGym && modality === 'in_person' ? (
-        <Input label="Location" value={location} onChangeText={setLocation} />
+        <Input label="Ubicación" value={location} onChangeText={setLocation} />
       ) : null}
 
-      <Input label="Price (USD)" value={price} onChangeText={setPrice} keyboardType="decimal-pad" />
+      <Input label={`Precio (${DEFAULT_CURRENCY})`} value={price} onChangeText={setPrice} keyboardType="decimal-pad" />
 
       {(isGym || classFormat === 'group') ? (
         <Input
-          label="Max capacity"
+          label="Cupo máximo"
           value={capacity}
           onChangeText={setCapacity}
           keyboardType="number-pad"
         />
       ) : null}
 
-      <Button title="Save changes" onPress={save} style={{ marginTop: Spacing.md }} />
-      <Button title="Cancel class" variant="outline" onPress={remove} style={{ marginTop: Spacing.sm }} />
+      <Button title={BUTTON_LABELS.saveChanges} onPress={save} style={{ marginTop: Spacing.md }} />
+      <Button title="Cancelar clase" variant="outline" onPress={remove} style={{ marginTop: Spacing.sm }} />
     </Screen>
   );
 }

@@ -28,19 +28,19 @@ export default function ReviewScreen() {
   if (!booking || !cls) {
     return (
       <Screen>
-        <Header title="Review" showBack />
-        <Text>Booking not found</Text>
+        <Header title="Reseña" showBack />
+        <Text>Reserva no encontrada</Text>
       </Screen>
     );
   }
 
   return (
     <Screen scroll>
-      <Header title="Leave a review" showBack />
+      <Header title="Dejar una reseña" showBack />
       <Text style={styles.className}>{cls.title}</Text>
-      <Text style={styles.hint}>Only verified attendees can review. Reviews cannot be edited.</Text>
+      <Text style={styles.hint}>Solo los asistentes verificados pueden reseñar. Las reseñas no se pueden editar.</Text>
 
-      <Text style={styles.label}>Rating</Text>
+      <Text style={styles.label}>Calificación</Text>
       <View style={styles.stars}>
         {[1, 2, 3, 4, 5].map((n) => (
           <Pressable key={n} onPress={() => setRating(n)}>
@@ -53,28 +53,28 @@ export default function ReviewScreen() {
         ))}
       </View>
 
-      <Text style={styles.label}>Comment (optional)</Text>
+      <Text style={styles.label}>Comentario (opcional)</Text>
       <TextInput
         style={styles.input}
         multiline
-        placeholder="Share your experience..."
+        placeholder="Contanos tu experiencia..."
         placeholderTextColor={FitnexiaColors.gray400}
         value={comment}
         onChangeText={setComment}
       />
 
       <Button
-        title="Submit review"
+        title="Enviar reseña"
         loading={loading}
         onPress={async () => {
           setLoading(true);
           try {
             await submitReviewApi(booking.id, rating, comment.trim() || undefined);
-            Alert.alert('Thank you!', 'Your review has been published.', [
+            Alert.alert('¡Gracias!', 'Tu reseña fue publicada.', [
               { text: 'OK', onPress: () => router.back() },
             ]);
           } catch (err) {
-            Alert.alert('Review failed', getErrorMessage(err));
+            Alert.alert('Error al enviar reseña', getErrorMessage(err));
           } finally {
             setLoading(false);
           }

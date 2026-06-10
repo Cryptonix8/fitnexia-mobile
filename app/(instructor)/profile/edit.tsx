@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { useAuth, getErrorMessage } from '@/contexts/auth-context';
 import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
-import { SCREEN_TITLES, ALERT_LABELS } from '@/constants/labels';
+import { AUTH_LABELS, BUTTON_LABELS, SCREEN_TITLES, ALERT_LABELS, PROFILE_MENU_LABELS } from '@/constants/labels';
 import { validateInstructorProfileForm } from '@/utils/validation';
 
 export default function InstructorEditProfileScreen() {
@@ -52,7 +52,7 @@ export default function InstructorEditProfileScreen() {
           disciplines,
         },
       });
-      Alert.alert(ALERT_LABELS.savedTitle, 'Your professional profile has been updated.', [
+      Alert.alert(ALERT_LABELS.savedTitle, 'Tu perfil profesional fue actualizado.', [
         { text: 'OK', onPress: () => router.back() },
       ]);
     } catch (err) {
@@ -64,18 +64,18 @@ export default function InstructorEditProfileScreen() {
     <Screen scroll>
       <Header title={SCREEN_TITLES.editProfile} showBack />
       <AvatarPicker uri={avatarUri} onChange={setAvatarUri} size={96} kind="instructor" />
-      <Input label="Display name" value={displayName} onChangeText={setDisplayName} />
-      <Input label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
-      <Input label="Bio" value={bio} onChangeText={setBio} multiline placeholder="Tell athletes about your experience..." />
+      <Input label="Nombre público" value={displayName} onChangeText={setDisplayName} />
+      <Input label={AUTH_LABELS.email} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
+      <Input label="Bio" value={bio} onChangeText={setBio} multiline placeholder="Contales a los atletas sobre tu experiencia..." />
       <Input
-        label="Hourly rate (USD, optional)"
+        label="Tarifa por hora (USD, opcional)"
         value={hourlyRate}
         onChangeText={setHourlyRate}
         keyboardType="decimal-pad"
-        placeholder="e.g. 50"
+        placeholder="ej. 50"
       />
 
-      <Text style={styles.label}>Disciplines</Text>
+      <Text style={styles.label}>{PROFILE_MENU_LABELS.disciplines}</Text>
       <View style={styles.grid}>
         {DISCIPLINES.map((sport) => {
           const active = disciplines.includes(sport);
@@ -90,7 +90,7 @@ export default function InstructorEditProfileScreen() {
         })}
       </View>
 
-      <Button title="Save changes" onPress={save} style={{ marginTop: Spacing.md }} />
+      <Button title={BUTTON_LABELS.saveChanges} onPress={save} style={{ marginTop: Spacing.md }} />
     </Screen>
   );
 }

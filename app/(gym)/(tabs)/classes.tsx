@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
+import { BUTTON_LABELS } from '@/constants/labels';
 import { computeClassBooked, getGymClasses, resolveInstitutionId } from '@/utils/gym-classes';
 
 export default function GymClassesScreen() {
@@ -20,13 +21,13 @@ export default function GymClassesScreen() {
   return (
     <Screen scroll>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Group classes</Text>
-        <Button title="New" size="sm" onPress={() => router.push('/create-class')} />
+        <Text style={[styles.title, { color: colors.text }]}>Clases grupales</Text>
+        <Button title="Nueva" size="sm" onPress={() => router.push('/create-class')} />
       </View>
 
       {gymClasses.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textMuted }]}>
-          Create a group class with capacity limits and assign an instructor.
+          Creá una clase grupal con cupos limitados y asigná un instructor.
         </Text>
       ) : (
         gymClasses.map((c) => {
@@ -37,10 +38,10 @@ export default function GymClassesScreen() {
               <ClassCard item={c} />
               <View style={styles.metaRow}>
                 <Text style={[styles.meta, { color: colors.textMuted }]}>
-                  {c.instructor.displayName} · {booked}/{cap} booked
+                  {c.instructor.displayName} · {booked}/{cap} reservados
                 </Text>
                 <Button
-                  title="Edit"
+                  title={BUTTON_LABELS.edit}
                   size="sm"
                   variant="outline"
                   onPress={() =>

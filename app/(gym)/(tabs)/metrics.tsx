@@ -45,34 +45,34 @@ export default function GymMetricsScreen() {
 
   return (
     <Screen scroll>
-      <Text style={[styles.title, { color: colors.text }]}>Metrics</Text>
-      <Text style={[styles.period, { color: colors.textMuted }]}>This week</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Métricas</Text>
+      <Text style={[styles.period, { color: colors.textMuted }]}>Esta semana</Text>
 
       <View style={styles.statsRow}>
         <StatCard
           icon="calendar-outline"
-          label="Bookings"
+          label="Reservas"
           value={String(metrics.bookings)}
           change={formatGymChange(metrics.bookingsChangePct)}
           colors={colors}
         />
         <StatCard
           icon="cash-outline"
-          label="Revenue"
+          label="Ingresos"
           value={formatRevenueCompact(metrics.revenueCents)}
           change={formatGymChange(metrics.revenueChangePct)}
           colors={colors}
         />
         <StatCard
           icon="people-outline"
-          label="Attendance"
+          label="Asistencia"
           value={formatAttendanceRate(metrics.attendanceRate)}
           change={formatGymChange(metrics.attendanceChangePct)}
           colors={colors}
         />
       </View>
 
-      <Text style={[styles.section, { color: colors.text }]}>Revenue trend</Text>
+      <Text style={[styles.section, { color: colors.text }]}>Tendencia de ingresos</Text>
       <LineChart
         chartId="revenue"
         data={revenueSeries}
@@ -82,7 +82,7 @@ export default function GymMetricsScreen() {
         height={220}
       />
 
-      <Text style={[styles.section, { color: colors.text }]}>Attendance trend</Text>
+      <Text style={[styles.section, { color: colors.text }]}>Tendencia de asistencia</Text>
       <LineChart
         chartId="attendance"
         data={attendanceSeries}
@@ -91,7 +91,7 @@ export default function GymMetricsScreen() {
         height={220}
       />
 
-      <Text style={[styles.section, { color: colors.text }]}>Bookings trend</Text>
+      <Text style={[styles.section, { color: colors.text }]}>Tendencia de reservas</Text>
       <LineChart
         chartId="bookings"
         data={bookingsSeries}
@@ -100,7 +100,7 @@ export default function GymMetricsScreen() {
         height={220}
       />
 
-      <Text style={[styles.section, { color: colors.text }]}>Top classes</Text>
+      <Text style={[styles.section, { color: colors.text }]}>Clases destacadas</Text>
       {metrics.topClasses.map((c) => (
         <View
           key={c.title}
@@ -108,7 +108,7 @@ export default function GymMetricsScreen() {
           <View style={styles.rowBody}>
             <Text style={[styles.rowName, { color: colors.text }]}>{c.title}</Text>
             <Text style={[styles.rowSub, { color: colors.textMuted }]}>
-              {c.bookings} bookings
+              {c.bookings} reservas
             </Text>
           </View>
           <Text style={[styles.rowVal, { color: colors.primary }]}>

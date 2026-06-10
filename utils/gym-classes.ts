@@ -67,7 +67,7 @@ export function gymLocationLabel(
   profile: { name: string; address?: string; city?: string } | undefined,
   institutionId: string,
 ): string {
-  if (!profile) return 'Gym location';
+  if (!profile) return 'Ubicación del gimnasio';
   const parts = [profile.address, profile.city].filter(Boolean);
   return parts.length > 0 ? parts.join(', ') : profile.name || institutionId;
 }

@@ -11,6 +11,7 @@ import {
   isToday,
   toDateKey,
 } from '@/utils/calendar';
+import { APP_LOCALE } from '@/utils/locale';
 import { isSameCalendarDay } from '@/utils/schedule';
 
 type BookingsCalendarProps = {
@@ -38,14 +39,14 @@ export function BookingsCalendar({
         <Pressable
           onPress={() => onMonthChange(addMonths(month, -1))}
           hitSlop={12}
-          accessibilityLabel="Previous month">
+          accessibilityLabel="Mes anterior">
           <Ionicons name="chevron-back" size={22} color={colors.text} />
         </Pressable>
         <Text style={[styles.monthLabel, { color: colors.text }]}>{formatMonthYear(month)}</Text>
         <Pressable
           onPress={() => onMonthChange(addMonths(month, 1))}
           hitSlop={12}
-          accessibilityLabel="Next month">
+          accessibilityLabel="Mes siguiente">
           <Ionicons name="chevron-forward" size={22} color={colors.text} />
         </Pressable>
       </View>
@@ -74,7 +75,7 @@ export function BookingsCalendar({
               key={key}
               style={styles.dayCell}
               onPress={() => onSelectDate(day)}
-              accessibilityLabel={day.toLocaleDateString('en-US', {
+              accessibilityLabel={day.toLocaleDateString(APP_LOCALE, {
                 weekday: 'long',
                 month: 'long',
                 day: 'numeric',

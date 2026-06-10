@@ -41,7 +41,7 @@ export default function BookingCompleteScreen() {
     <Screen>
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <ActivityIndicator color={colors.primary} />
-        <Text style={{ marginTop: Spacing.md, color: colors.textMuted }}>Confirming payment…</Text>
+        <Text style={{ marginTop: Spacing.md, color: colors.textMuted }}>Confirmando pago…</Text>
       </View>
     </Screen>
   );

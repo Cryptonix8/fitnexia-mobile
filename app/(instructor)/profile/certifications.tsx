@@ -19,7 +19,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { updateMockInstructor } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { PROFILE_MENU_LABELS } from '@/constants/labels';
+import { ALERT_LABELS, PROFILE_MENU_LABELS } from '@/constants/labels';
 import { getLinkedInstructorId } from '@/utils/instructor';
 import type { Certification } from '@/types/api';
 
@@ -29,11 +29,11 @@ function parseCertificationFields(
   year: string,
 ): { ok: true; cert: Certification } | { ok: false; message: string } {
   if (!name.trim() || !issuer.trim() || !year.trim()) {
-    return { ok: false, message: 'Enter certification name, issuer, and year.' };
+    return { ok: false, message: 'Ingresá nombre, emisor y año de la certificación.' };
   }
   const yearNum = parseInt(year, 10);
   if (Number.isNaN(yearNum) || yearNum < 1950 || yearNum > new Date().getFullYear()) {
-    return { ok: false, message: 'Enter a valid year.' };
+    return { ok: false, message: 'Ingresá un año válido.' };
   }
   return {
     ok: true,
@@ -76,7 +76,7 @@ export default function InstructorCertificationsScreen() {
   const addCertification = () => {
     const parsed = parseCertificationFields(name, issuer, year);
     if (!parsed.ok) {
-      Alert.alert('Missing info', parsed.message);
+      Alert.alert(ALERT_LABELS.missingInfoTitle, parsed.message);
       return;
     }
 
@@ -87,7 +87,7 @@ export default function InstructorCertificationsScreen() {
         c.year === parsed.cert.year,
     );
     if (duplicate) {
-      Alert.alert('Already added', 'This certification is already on your list.');
+      Alert.alert('Ya agregada', 'Esta certificación ya está en tu lista.');
       return;
     }
 
@@ -97,10 +97,10 @@ export default function InstructorCertificationsScreen() {
   };
 
   const removeCertification = (index: number) => {
-    Alert.alert('Remove certification', 'Delete this certification?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('Eliminar certificación', '¿Eliminar esta certificación?', [
+      { text: ALERT_LABELS.cancel, style: 'cancel' },
       {
-        text: 'Remove',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: () => persist(certifications.filter((_, i) => i !== index)),
       },
@@ -113,7 +113,7 @@ export default function InstructorCertificationsScreen() {
     if (name.trim() || issuer.trim() || year.trim()) {
       const parsed = parseCertificationFields(name, issuer, year);
       if (!parsed.ok) {
-        Alert.alert('Missing info', parsed.message);
+        Alert.alert(ALERT_LABELS.missingInfoTitle, parsed.message);
         return;
       }
       const duplicate = certifications.some(
@@ -129,7 +129,7 @@ export default function InstructorCertificationsScreen() {
 
     persist(next);
     clearForm();
-    Alert.alert('Saved', 'Certifications updated.', [
+    Alert.alert(ALERT_LABELS.savedTitle, 'Certificaciones actualizadas.', [
       { text: 'OK', onPress: () => router.back() },
     ]);
   };
@@ -138,7 +138,7 @@ export default function InstructorCertificationsScreen() {
     return (
       <Screen>
         <Header title={PROFILE_MENU_LABELS.certifications} showBack />
-        <Text style={{ color: colors.text }}>Profile not available</Text>
+        <Text style={{ color: colors.text }}>Perfil no disponible</Text>
       </Screen>
     );
   }
@@ -148,14 +148,14 @@ export default function InstructorCertificationsScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Header title={PROFILE_MENU_LABELS.certifications} showBack />
         <Text style={[styles.hint, { color: colors.textMuted }]}>
-          Add professional credentials shown on your public profile.
+          Agregá credenciales profesionales que se muestran en tu perfil público.
         </Text>
 
         {certifications.length === 0 ? (
           <View style={[styles.empty, { backgroundColor: colors.surface }]}>
             <Ionicons name="ribbon-outline" size={40} color={colors.textMuted} />
             <Text style={[styles.emptyText, { color: colors.textMuted }]}>
-              No certifications yet
+              Todavía no hay certificaciones
             </Text>
           </View>
         ) : (
@@ -180,29 +180,29 @@ export default function InstructorCertificationsScreen() {
         )}
 
         <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
-          Add certification
+          Agregar certificación
         </Text>
         <Input
-          label="Certification name"
+          label="Nombre de la certificación"
           value={name}
           onChangeText={setName}
-          placeholder="e.g. RYT-500"
+          placeholder="ej. RYT-500"
         />
         <Input
-          label="Issuer"
+          label="Emisor"
           value={issuer}
           onChangeText={setIssuer}
-          placeholder="e.g. Yoga Alliance"
+          placeholder="ej. Yoga Alliance"
         />
         <Input
-          label="Year"
+          label="Año"
           value={year}
           onChangeText={setYear}
           keyboardType="number-pad"
-          placeholder="e.g. 2022"
+          placeholder="ej. 2022"
         />
-        <Button title="Add certification" onPress={addCertification} />
-        <Button title="Done" variant="outline" onPress={save} style={{ marginTop: Spacing.sm }} />
+        <Button title="Agregar certificación" onPress={addCertification} />
+        <Button title="Listo" variant="outline" onPress={save} style={{ marginTop: Spacing.sm }} />
       </KeyboardAvoidingView>
     </Screen>
   );

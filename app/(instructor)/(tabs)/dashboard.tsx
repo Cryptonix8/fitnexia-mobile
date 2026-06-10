@@ -59,9 +59,9 @@ export default function InstructorDashboard() {
     try {
       const result = await acceptGymInviteApi(invite.id);
       setGymInvites((prev) => prev.filter((item) => item.id !== invite.id));
-      Alert.alert('Invite accepted', `You joined ${result.institutionName} as staff.`);
+      Alert.alert('Invitación aceptada', `Te uniste a ${result.institutionName} como staff.`);
     } catch (err) {
-      Alert.alert('Could not accept invite', getErrorMessage(err));
+      Alert.alert('No se pudo aceptar la invitación', getErrorMessage(err));
     } finally {
       setAcceptingInviteId(null);
     }
@@ -69,12 +69,12 @@ export default function InstructorDashboard() {
 
   return (
     <Screen scroll>
-      <Text style={[styles.greet, { color: colors.textMuted }]}>Hi, {user?.firstName} 👋</Text>
-      <Text style={[styles.title, { color: colors.text }]}>{"Today's overview"}</Text>
+      <Text style={[styles.greet, { color: colors.textMuted }]}>Hola, {user?.firstName} 👋</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Resumen de hoy</Text>
 
       {gymInvites.length > 0 ? (
         <View style={styles.invitesSection}>
-          <Text style={[styles.invitesTitle, { color: colors.text }]}>Gym invites</Text>
+          <Text style={[styles.invitesTitle, { color: colors.text }]}>Invitaciones de gimnasios</Text>
           {gymInvites.map((invite) => (
             <View
               key={invite.id}
@@ -85,12 +85,12 @@ export default function InstructorDashboard() {
               <View style={styles.inviteBody}>
                 <Text style={[styles.inviteName, { color: colors.text }]}>{invite.institutionName}</Text>
                 <Text style={[styles.inviteMeta, { color: colors.textMuted }]}>
-                  Invited you to join their staff
+                  Te invitó a unirte a su equipo
                   {invite.message ? ` · "${invite.message}"` : ''}
                 </Text>
               </View>
               <Button
-                title="Accept"
+                title="Aceptar"
                 size="sm"
                 loading={acceptingInviteId === invite.id}
                 onPress={() => acceptInvite(invite)}
@@ -102,19 +102,19 @@ export default function InstructorDashboard() {
 
       <View style={styles.stats}>
         <StatCard
-          label="Bookings"
+          label="Reservas"
           value={String(todayStats.bookings)}
           icon="calendar"
           colors={colors}
         />
         <StatCard
-          label="Revenue"
+          label="Ingresos"
           value={formatRevenueCompact(todayStats.revenueCents)}
           icon="cash"
           colors={colors}
         />
         <StatCard
-          label="Classes"
+          label="Clases"
           value={String(todayStats.classes)}
           icon="fitness"
           colors={colors}
@@ -133,19 +133,19 @@ export default function InstructorDashboard() {
           color={profile?.availableNow ? colors.success : colors.textMuted}
         />
         <Text style={[styles.availableText, { color: colors.textSecondary }]}>
-          {profile?.availableNow ? 'Available now — tap to turn off' : 'Mark as available now'}
+          {profile?.availableNow ? 'Disponible ahora — tocá para desactivar' : 'Marcar como disponible ahora'}
         </Text>
       </Pressable>
 
       <View style={styles.row}>
-        <Text style={[styles.section, { color: colors.text }]}>{"Today's classes"}</Text>
-        <Button title="+ New" size="sm" onPress={() => router.push('/create-class')} />
+        <Text style={[styles.section, { color: colors.text }]}>Clases de hoy</Text>
+        <Button title="+ Nueva" size="sm" onPress={() => router.push('/create-class')} />
       </View>
 
       {todayClasses.length ? (
         todayClasses.map((c) => <ClassCard key={c.id} item={c} />)
       ) : (
-        <Text style={[styles.empty, { color: colors.textMuted }]}>No classes scheduled today</Text>
+        <Text style={[styles.empty, { color: colors.textMuted }]}>No hay clases programadas hoy</Text>
       )}
     </Screen>
   );

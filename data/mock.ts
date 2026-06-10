@@ -5,13 +5,14 @@ import type {
   Instructor,
   Institution,
 } from '@/types/api';
+import { APP_LOCALE } from '@/utils/locale';
 
 export const MOCK_INSTRUCTORS: Instructor[] = [
   {
     id: 'inst-1',
     userId: 'u-1',
     displayName: 'Carlos Ruiz',
-    bio: 'PTR certified tennis coach with 10+ years experience.',
+    bio: 'Entrenador de tenis certificado PTR con más de 10 años de experiencia.',
     disciplines: ['Tennis', 'Padel'],
     verified: true,
     availableNow: true,
@@ -28,7 +29,7 @@ export const MOCK_INSTRUCTORS: Instructor[] = [
     id: 'inst-2',
     userId: 'u-2',
     displayName: 'Mia Chen',
-    bio: 'Yoga & mindfulness instructor. RYT-500.',
+    bio: 'Instructora de yoga y mindfulness. RYT-500.',
     disciplines: ['Yoga', 'Pilates'],
     verified: true,
     availableNow: false,
@@ -42,7 +43,7 @@ export const MOCK_INSTRUCTORS: Instructor[] = [
     id: 'inst-3',
     userId: 'u-3',
     displayName: 'James Okonkwo',
-    bio: 'HIIT & strength specialist.',
+    bio: 'Especialista en HIIT y fuerza.',
     disciplines: ['HIIT', 'CrossFit'],
     verified: false,
     availableNow: false,
@@ -56,7 +57,7 @@ export const MOCK_INSTITUTIONS: Institution[] = [
   {
     id: 'gym-1',
     name: 'FitHub Downtown',
-    description: 'Premium fitness studio in the city center.',
+    description: 'Estudio de fitness premium en el centro de la ciudad.',
     verified: true,
     plan: 'institutional',
     location: {
@@ -77,7 +78,7 @@ export const MOCK_INSTITUTIONS: Institution[] = [
 export const MOCK_CLASSES: ClassListItem[] = [
   {
     id: 'class-1',
-    title: 'Morning Flow Yoga',
+    title: 'Yoga Flow Matutino',
     discipline: 'Yoga',
     modality: 'in_person',
     startAt: '2026-06-10T08:00:00Z',
@@ -94,7 +95,7 @@ export const MOCK_CLASSES: ClassListItem[] = [
   },
   {
     id: 'class-2',
-    title: 'Tennis Fundamentals',
+    title: 'Fundamentos de Tenis',
     discipline: 'Tennis',
     modality: 'in_person',
     startAt: '2026-06-11T10:00:00Z',
@@ -111,7 +112,7 @@ export const MOCK_CLASSES: ClassListItem[] = [
   },
   {
     id: 'class-3',
-    title: 'HIIT Burn (Online)',
+    title: 'HIIT Burn (En línea)',
     discipline: 'HIIT',
     modality: 'online',
     startAt: '2026-06-12T18:00:00Z',
@@ -127,7 +128,7 @@ export const MOCK_CLASSES: ClassListItem[] = [
   },
   {
     id: 'class-4',
-    title: 'Group CrossFit',
+    title: 'CrossFit Grupal',
     discipline: 'CrossFit',
     modality: 'in_person',
     startAt: '2026-06-13T07:00:00Z',
@@ -145,7 +146,7 @@ export const MOCK_CLASSES: ClassListItem[] = [
   },
   {
     id: 'class-5',
-    title: 'Evening Pilates',
+    title: 'Pilates Nocturno',
     discipline: 'Pilates',
     modality: 'in_person',
     startAt: '2026-06-14T19:00:00Z',
@@ -215,18 +216,18 @@ export const MOCK_GYM_WEEKLY_METRICS: GymWeeklyMetrics = {
   revenueChangePct: 0.08,
   attendanceChangePct: 0.05,
   daily: [
-    { label: 'Mon', bookings: 6, revenueCents: 36000, attendancePct: 0.65 },
-    { label: 'Tue', bookings: 8, revenueCents: 48000, attendancePct: 0.82 },
-    { label: 'Wed', bookings: 5, revenueCents: 30000, attendancePct: 0.45 },
-    { label: 'Thu', bookings: 9, revenueCents: 54000, attendancePct: 0.9 },
-    { label: 'Fri', bookings: 8, revenueCents: 48000, attendancePct: 0.78 },
-    { label: 'Sat', bookings: 7, revenueCents: 42000, attendancePct: 0.95 },
-    { label: 'Sun', bookings: 4, revenueCents: 26000, attendancePct: 0.55 },
+    { label: 'Lun', bookings: 6, revenueCents: 36000, attendancePct: 0.65 },
+    { label: 'Mar', bookings: 8, revenueCents: 48000, attendancePct: 0.82 },
+    { label: 'Mié', bookings: 5, revenueCents: 30000, attendancePct: 0.45 },
+    { label: 'Jue', bookings: 9, revenueCents: 54000, attendancePct: 0.9 },
+    { label: 'Vie', bookings: 8, revenueCents: 48000, attendancePct: 0.78 },
+    { label: 'Sáb', bookings: 7, revenueCents: 42000, attendancePct: 0.95 },
+    { label: 'Dom', bookings: 4, revenueCents: 26000, attendancePct: 0.55 },
   ],
 };
 
 export function formatMoney(m: { amount: number; currency: string }): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(APP_LOCALE, {
     style: 'currency',
     currency: m.currency,
   }).format(m.amount / 100);
@@ -234,7 +235,7 @@ export function formatMoney(m: { amount: number; currency: string }): string {
 
 export function formatClassDate(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString('en-US', {
+  return d.toLocaleDateString(APP_LOCALE, {
     weekday: 'short',
     month: 'short',
     day: 'numeric',

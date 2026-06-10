@@ -14,15 +14,16 @@ import {
   type Payout,
   type PayoutSummary,
 } from '@/services/api/payouts.api';
+import { APP_LOCALE } from '@/utils/locale';
 
 function formatPlanLabel(summary: PayoutSummary): string {
   const planName = summary.plan.charAt(0).toUpperCase() + summary.plan.slice(1);
   const feePct = Math.round(summary.commissionRate * 100);
-  return `${planName} plan · ${feePct}% platform fee`;
+  return `Plan ${planName} · ${feePct}% comisión de plataforma`;
 }
 
 function formatPayoutDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return new Date(iso).toLocaleDateString(APP_LOCALE, { month: 'short', day: 'numeric' });
 }
 
 export default function EarningsScreen() {
@@ -42,7 +43,7 @@ export default function EarningsScreen() {
       setSummary(summaryData);
       setPayouts(payoutRows);
     } catch (err) {
-      Alert.alert('Could not load earnings', getErrorMessage(err));
+      Alert.alert('No se pudieron cargar los ingresos', getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -66,9 +67,9 @@ export default function EarningsScreen() {
         URL.revokeObjectURL(url);
         return;
       }
-      Alert.alert('Export ready', `Exported ${csv.split('\n').length - 1} payout rows.`);
+      Alert.alert('Exportación lista', `Se exportaron ${csv.split('\n').length - 1} filas de cobros.`);
     } catch (err) {
-      Alert.alert('Export failed', getErrorMessage(err));
+      Alert.alert('Exportación fallida', getErrorMessage(err));
     } finally {
       setExporting(false);
     }
@@ -77,7 +78,7 @@ export default function EarningsScreen() {
   if (loading) {
     return (
       <Screen>
-        <Text style={[styles.title, { color: colors.text }]}>Earnings</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Ingresos</Text>
         <ActivityIndicator style={{ marginTop: Spacing.xl }} color={colors.primary} />
       </Screen>
     );
@@ -89,25 +90,25 @@ export default function EarningsScreen() {
 
   return (
     <Screen scroll>
-      <Text style={[styles.title, { color: colors.text }]}>Earnings</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Ingresos</Text>
       <View style={[styles.summary, { backgroundColor: colors.primary }]}>
-        <Text style={styles.summaryLabel}>This month (net)</Text>
+        <Text style={styles.summaryLabel}>Este mes (neto)</Text>
         <Text style={styles.summaryValue}>{netDisplay}</Text>
         <Text style={styles.plan}>{summary ? formatPlanLabel(summary) : ''}</Text>
       </View>
 
       <Button
-        title="Export CSV"
+        title="Exportar CSV"
         variant="outline"
         size="sm"
         loading={exporting}
         onPress={exportCsv}
       />
 
-      <Text style={[styles.section, { color: colors.text }]}>Recent payouts</Text>
+      <Text style={[styles.section, { color: colors.text }]}>Cobros recientes</Text>
       {payouts.length === 0 ? (
         <Text style={[styles.empty, { color: colors.textMuted }]}>
-          No confirmed bookings yet. Payouts appear when athletes book your classes.
+          Todavía no hay reservas confirmadas. Los cobros aparecen cuando los atletas reservan tus clases.
         </Text>
       ) : (
         payouts.map((payout) => (
@@ -116,7 +117,7 @@ export default function EarningsScreen() {
             style={[styles.row, { backgroundColor: colors.surface }]}>
             <View>
               <Text style={[styles.rowTitle, { color: colors.text }]}>
-                {payout.classTitle ?? 'Class booking'}
+                {payout.classTitle ?? 'Reserva de clase'}
               </Text>
               <Text style={[styles.rowDate, { color: colors.textMuted }]}>
                 {formatPayoutDate(payout.createdAt)}

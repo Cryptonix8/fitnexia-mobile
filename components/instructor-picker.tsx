@@ -24,7 +24,7 @@ export function InstructorPicker({
     return (
       <View style={styles.empty}>
         <Text style={[styles.emptyText, { color: colors.textMuted }]}>
-          No staff linked. Add or invite instructors first.
+          No hay staff vinculado. Agregá o invitá instructores primero.
         </Text>
       </View>
     );

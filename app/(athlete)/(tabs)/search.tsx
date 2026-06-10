@@ -111,12 +111,12 @@ export default function SearchScreen() {
 
   return (
     <Screen scroll edges={['top']}>
-      <Text style={[styles.title, { color: colors.text }]}>Search</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Buscar</Text>
       <View style={[styles.searchBox, { backgroundColor: colors.input, borderColor: colors.border }]}>
         <Ionicons name="search" size={20} color={colors.textMuted} />
         <TextInput
           style={[styles.searchInput, { color: colors.text }]}
-          placeholder="Class, instructor, or gym..."
+          placeholder="Clase, instructor o gimnasio..."
           placeholderTextColor={colors.textMuted}
           value={query}
           onChangeText={setQuery}
@@ -139,7 +139,7 @@ export default function SearchScreen() {
       ) : null}
 
       <PressableRow
-        label={`Filters${activeFilterCount ? ` (${activeFilterCount})` : ''}`}
+        label={`Filtros${activeFilterCount ? ` (${activeFilterCount})` : ''}`}
         expanded={showFilters}
         onPress={() => setShowFilters(!showFilters)}
         colors={colors}
@@ -147,7 +147,7 @@ export default function SearchScreen() {
 
       {showFilters ? (
         <>
-          <FilterSection label="Location" colors={colors}>
+          <FilterSection label="Ubicación" colors={colors}>
             <TextInput
               style={[
                 styles.locationInput,
@@ -187,7 +187,7 @@ export default function SearchScreen() {
             ) : null}
           </FilterSection>
 
-          <FilterSection label="Schedule" colors={colors}>
+          <FilterSection label="Horario" colors={colors}>
             <View style={styles.chipWrap}>
               {SCHEDULE_FILTERS.map((s) => (
                 <FilterChip
@@ -200,7 +200,7 @@ export default function SearchScreen() {
             </View>
           </FilterSection>
 
-          <FilterSection label="Price" colors={colors}>
+          <FilterSection label="Precio" colors={colors}>
             <View style={styles.chipWrap}>
               {PRICE_RANGES.map((p) => (
                 <FilterChip
@@ -213,9 +213,9 @@ export default function SearchScreen() {
             </View>
           </FilterSection>
 
-          <FilterSection label="Sport" colors={colors}>
+          <FilterSection label="Deporte" colors={colors}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <FilterChip label="All" active={!discipline} onPress={() => setDiscipline(null)} />
+              <FilterChip label="Todos" active={!discipline} onPress={() => setDiscipline(null)} />
               {DISCIPLINES.map((d) => (
                 <FilterChip
                   key={d}
@@ -227,7 +227,7 @@ export default function SearchScreen() {
             </ScrollView>
           </FilterSection>
 
-          <FilterSection label="Modality" colors={colors}>
+          <FilterSection label="Modalidad" colors={colors}>
             <View style={styles.chipWrap}>
               <FilterChip
                 label={MODALITY_LABELS.inPerson}
@@ -243,14 +243,14 @@ export default function SearchScreen() {
           </FilterSection>
 
           {activeFilterCount > 0 ? (
-            <PressableRow label="Clear all filters" onPress={clearFilters} colors={colors} link />
+            <PressableRow label="Limpiar filtros" onPress={clearFilters} colors={colors} link />
           ) : null}
         </>
       ) : null}
 
       <Text style={[styles.count, { color: colors.textMuted }]}>
-        {results.length} class{results.length === 1 ? '' : 'es'} found
-        {geoEnabled && nearMe && coords ? ' · sorted by distance' : ''}
+        {results.length} {results.length === 1 ? 'clase encontrada' : 'clases encontradas'}
+        {geoEnabled && nearMe && coords ? ' · ordenadas por distancia' : ''}
       </Text>
 
       {geoEnabled && viewMode === 'map' ? (
@@ -260,11 +260,11 @@ export default function SearchScreen() {
       {results.length === 0 ? (
         <View style={[styles.empty, { backgroundColor: colors.surface }]}>
           <Ionicons name="search-outline" size={40} color={colors.textMuted} />
-          <Text style={[styles.emptyTitle, { color: colors.text }]}>No classes match</Text>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>Ninguna clase coincide</Text>
           <Text style={[styles.emptySub, { color: colors.textMuted }]}>
             {geoEnabled && nearMe && !coords
               ? GEO_LABELS.enableNearMeHint
-              : 'Try adjusting location, schedule, or price filters.'}
+              : 'Probá ajustar ubicación, horario o precio.'}
           </Text>
         </View>
       ) : viewMode === 'list' ? (

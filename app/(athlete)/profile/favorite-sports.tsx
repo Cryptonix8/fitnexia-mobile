@@ -7,7 +7,7 @@ import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
-import { SCREEN_TITLES } from '@/constants/labels';
+import { ALERT_LABELS, BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
 
 export default function FavoriteSportsScreen() {
   const { user, updateProfile } = useAuth();
@@ -21,7 +21,7 @@ export default function FavoriteSportsScreen() {
 
   const save = () => {
     updateProfile({ favoriteSports: selected });
-    Alert.alert('Saved', 'Favorite sports updated.', [
+    Alert.alert(ALERT_LABELS.savedTitle, 'Deportes favoritos actualizados.', [
       { text: 'OK', onPress: () => router.back() },
     ]);
   };
@@ -29,7 +29,9 @@ export default function FavoriteSportsScreen() {
   return (
     <Screen scroll>
       <Header title={SCREEN_TITLES.favoriteSports} showBack />
-      <Text style={styles.hint}>Select sports you enjoy. We use this to personalize your feed.</Text>
+      <Text style={styles.hint}>
+        Seleccioná los deportes que te gustan. Los usamos para personalizar tu feed.
+      </Text>
       <View style={styles.grid}>
         {DISCIPLINES.map((sport) => {
           const active = selected.includes(sport);
@@ -43,7 +45,7 @@ export default function FavoriteSportsScreen() {
           );
         })}
       </View>
-      <Button title="Save" onPress={save} style={{ marginTop: Spacing.lg }} />
+      <Button title={BUTTON_LABELS.save} onPress={save} style={{ marginTop: Spacing.lg }} />
     </Screen>
   );
 }

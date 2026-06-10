@@ -46,12 +46,12 @@ export default function GymProfileScreen() {
   if (!profile) {
     return (
       <Screen>
-        <Text>Profile not available</Text>
+        <Text>Perfil no disponible</Text>
       </Screen>
     );
   }
 
-  const locationLabel = [profile.address, profile.city].filter(Boolean).join(', ') || 'Not set';
+  const locationLabel = [profile.address, profile.city].filter(Boolean).join(', ') || 'Sin definir';
   const gallery = profile.gallery ?? [];
   const instructorIds = profile.instructorIds ?? [];
   const linkedInstructors = instructorIds
@@ -87,7 +87,7 @@ export default function GymProfileScreen() {
       <View style={styles.sectionHeader}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>{PROFILE_MENU_LABELS.photoGallery}</Text>
         <Pressable onPress={() => router.push('/(gym)/profile/gallery')} hitSlop={8}>
-          <Text style={[styles.sectionLink, { color: colors.primary }]}>Manage</Text>
+          <Text style={[styles.sectionLink, { color: colors.primary }]}>Gestionar</Text>
         </Pressable>
       </View>
       {gallery.length === 0 ? (
@@ -96,7 +96,7 @@ export default function GymProfileScreen() {
           onPress={() => router.push('/(gym)/profile/gallery')}>
           <Ionicons name="images-outline" size={28} color={colors.textMuted} />
           <Text style={[styles.galleryEmptyText, { color: colors.textMuted }]}>
-            Add photos of your facility
+            Agregá fotos de tu instalación
           </Text>
         </Pressable>
       ) : (
@@ -115,7 +115,7 @@ export default function GymProfileScreen() {
       <View style={styles.sectionHeader}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>{PROFILE_MENU_LABELS.instructors}</Text>
         <Pressable onPress={() => router.push('/(gym)/profile/instructors')} hitSlop={8}>
-          <Text style={[styles.sectionLink, { color: colors.primary }]}>Manage</Text>
+          <Text style={[styles.sectionLink, { color: colors.primary }]}>Gestionar</Text>
         </Pressable>
       </View>
       {linkedInstructors.length === 0 ? (
@@ -124,7 +124,7 @@ export default function GymProfileScreen() {
           onPress={() => router.push('/(gym)/profile/instructors')}>
           <Ionicons name="people-outline" size={28} color={colors.textMuted} />
           <Text style={[styles.galleryEmptyText, { color: colors.textMuted }]}>
-            Link instructors to your gym
+            Vinculá instructores a tu gimnasio
           </Text>
         </Pressable>
       ) : (
@@ -170,8 +170,8 @@ export default function GymProfileScreen() {
           label={PROFILE_MENU_LABELS.payoutAccount}
           value={
             user.paymentMethods.length
-              ? `${user.paymentMethods.length} saved`
-              : 'None added'
+              ? `${user.paymentMethods.length} guardados`
+              : 'Ninguno agregado'
           }
           onPress={() => router.push('/(gym)/profile/payment-methods')}
         />

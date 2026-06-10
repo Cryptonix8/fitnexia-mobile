@@ -50,7 +50,7 @@ export default function GymEditProfileScreen() {
           country: country.trim().toUpperCase(),
         },
       });
-      Alert.alert(ALERT_LABELS.savedTitle, 'Institution profile has been updated.', [
+      Alert.alert(ALERT_LABELS.savedTitle, 'El perfil de la institución fue actualizado.', [
         { text: 'OK', onPress: () => router.back() },
       ]);
     } catch (err) {
@@ -71,16 +71,16 @@ export default function GymEditProfileScreen() {
       <Input label={AUTH_LABELS.gymSchoolName} value={name} onChangeText={setName} />
       <Input label={AUTH_LABELS.email} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
       <Input
-        label="Description"
+        label="Descripción"
         value={description}
         onChangeText={setDescription}
         multiline
-        placeholder="Describe your facility..."
+        placeholder="Describí tu instalación..."
       />
-      <Input label="Address" value={address} onChangeText={setAddress} placeholder="Street address" />
-      <Input label="City" value={city} onChangeText={setCity} />
-      <Input label="Country" value={country} onChangeText={setCountry} placeholder="e.g. AR" />
-      <Button title="Save changes" onPress={save} style={{ marginTop: Spacing.md }} />
+      <Input label="Dirección" value={address} onChangeText={setAddress} placeholder="Calle y número" />
+      <Input label="Ciudad" value={city} onChangeText={setCity} />
+      <Input label="País" value={country} onChangeText={setCountry} placeholder="ej. AR" />
+      <Button title={BUTTON_LABELS.saveChanges} onPress={save} style={{ marginTop: Spacing.md }} />
     </Screen>
   );
 }

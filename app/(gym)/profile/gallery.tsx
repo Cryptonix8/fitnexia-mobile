@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { updateMockInstitution } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { ALERT_LABELS, PROFILE_MENU_LABELS } from '@/constants/labels';
 import { getLinkedInstitutionId } from '@/utils/institution';
 
 export default function GymGalleryScreen() {
@@ -47,7 +48,7 @@ export default function GymGalleryScreen() {
   const addPhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Allow photo library access to upload gallery photos.');
+      Alert.alert('Permiso necesario', 'Permití acceso a la galería para subir fotos.');
       return;
     }
 
@@ -64,10 +65,10 @@ export default function GymGalleryScreen() {
   };
 
   const removePhoto = (index: number) => {
-    Alert.alert('Remove photo', 'Delete this photo from your gallery?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('Eliminar foto', '¿Eliminar esta foto de la galería?', [
+      { text: ALERT_LABELS.cancel, style: 'cancel' },
       {
-        text: 'Remove',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: () => persist(gallery.filter((_, i) => i !== index)),
       },
@@ -77,8 +78,8 @@ export default function GymGalleryScreen() {
   if (!profile) {
     return (
       <Screen>
-        <Header title="Photo gallery" showBack />
-        <Text style={{ color: colors.text }}>Profile not available</Text>
+        <Header title={PROFILE_MENU_LABELS.photoGallery} showBack />
+        <Text style={{ color: colors.text }}>Perfil no disponible</Text>
       </Screen>
     );
   }
@@ -86,9 +87,9 @@ export default function GymGalleryScreen() {
   return (
     <Screen scroll>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <Header title="Photo gallery" showBack />
+        <Header title={PROFILE_MENU_LABELS.photoGallery} showBack />
         <Text style={[styles.hint, { color: colors.textMuted }]}>
-          Showcase your facility on your public gym profile.
+          Mostrá tu instalación en el perfil público de tu gimnasio.
         </Text>
 
         {gallery.length === 0 ? (
@@ -97,7 +98,7 @@ export default function GymGalleryScreen() {
             onPress={addPhoto}>
             <Ionicons name="images-outline" size={40} color={colors.textMuted} />
             <Text style={[styles.emptyText, { color: colors.textMuted }]}>
-              No photos yet — tap to add
+              Todavía no hay fotos — tocá para agregar
             </Text>
           </Pressable>
         ) : (
@@ -115,9 +116,9 @@ export default function GymGalleryScreen() {
           </ScrollView>
         )}
 
-        <Button title="Add photo" onPress={addPhoto} style={{ marginTop: Spacing.md }} />
+        <Button title="Agregar foto" onPress={addPhoto} style={{ marginTop: Spacing.md }} />
         <Button
-          title="Done"
+          title="Listo"
           variant="outline"
           onPress={() => router.back()}
           style={{ marginTop: Spacing.sm }}
