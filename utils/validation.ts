@@ -134,6 +134,27 @@ export function validateLoginForm(email: string, password: string): ValidationRe
   return errors.length ? fail(errors) : ok();
 }
 
+export function validateForgotPasswordForm(email: string): ValidationResult {
+  const errors = collect([() => validateEmail(email)]);
+  return errors.length ? fail(errors) : ok();
+}
+
+export function validateResetPasswordForm(password: string, confirmPassword: string): ValidationResult {
+  const errors = collect([
+    () => validatePassword(password),
+    () => {
+      if (!confirmPassword) {
+        return { field: 'confirmPassword', message: 'Confirmá tu contraseña' };
+      }
+      if (password !== confirmPassword) {
+        return { field: 'confirmPassword', message: 'Las contraseñas no coinciden' };
+      }
+      return null;
+    },
+  ]);
+  return errors.length ? fail(errors) : ok();
+}
+
 export function validateRegisterForm(params: {
   role: UserRole;
   email: string;

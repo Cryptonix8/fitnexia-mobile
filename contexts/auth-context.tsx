@@ -15,6 +15,7 @@ import {
   loginApi,
   logoutApi,
   registerApi,
+  resetPasswordApi,
   setAvailableNowApi,
   updateAthleteProfileApi,
   updateInstructorProfileApi,
@@ -219,4 +220,4 @@ export function useAuth() {
   return ctx;
 }
 
-export { forgotPasswordApi, getErrorMessage };
+export { forgotPasswordApi, resetPasswordApi, getErrorMessage };

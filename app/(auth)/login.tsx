@@ -17,6 +17,7 @@ import { validateLoginForm } from '@/utils/validation';
 
 export default function LoginScreen() {
   const googleSignIn = useFeature('googleSignIn');
+  const passwordRecovery = useFeature('passwordRecovery');
   const { login, loginWithGoogle } = useAuth();
   const { signIn: getGoogleIdToken, pending: googlePending, ready: googleReady } = useGoogleSignIn();
   const [email, setEmail] = useState('');
@@ -68,9 +69,11 @@ export default function LoginScreen() {
         secureTextEntry
       />
 
-      <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
-        <Text style={styles.forgot}>¿Olvidaste tu contraseña?</Text>
-      </Pressable>
+      {passwordRecovery ? (
+        <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
+          <Text style={styles.forgot}>¿Olvidaste tu contraseña?</Text>
+        </Pressable>
+      ) : null}
 
       <Button title={BUTTON_LABELS.signIn} disabled={loading} onPress={handleLogin} />
 

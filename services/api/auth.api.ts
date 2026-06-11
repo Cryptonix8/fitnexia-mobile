@@ -320,6 +320,14 @@ export async function forgotPasswordApi(email: string): Promise<void> {
   });
 }
 
+export async function resetPasswordApi(token: string, password: string): Promise<void> {
+  await apiRequest('/auth/reset-password', {
+    method: 'POST',
+    auth: false,
+    body: { token, password },
+  });
+}
+
 export async function updateUserAccountApi(body: { email: string }) {
   return apiRequest<{ id: string; email: string; role: UserRole }>('/users/me', {
     method: 'PATCH',
