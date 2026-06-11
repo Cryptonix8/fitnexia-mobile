@@ -22,7 +22,7 @@ export default function InstructorProfileScreen() {
   const { signOut, signingOut } = useSignOut();
   const { colors } = useAppTheme();
   const showSupport = useFeature('platformSupport');
-  const showPaymentMethods = useFeature('savedPaymentMethods');
+  const showPayoutAccount = useFeature('marketplacePayouts') || useFeature('integratedPayments');
   const profile = user?.instructorProfile;
 
   const toggleAvailable = () => {
@@ -124,15 +124,11 @@ export default function InstructorProfileScreen() {
         label={PROFILE_MENU_LABELS.notifications}
         onPress={() => router.push('/(instructor)/profile/notifications')}
       />
-      {showPaymentMethods ? (
+      {showPayoutAccount ? (
         <ProfileMenuItem
-          icon="card-outline"
+          icon="wallet-outline"
           label={PROFILE_MENU_LABELS.payoutAccount}
-          value={
-            user.paymentMethods.length
-              ? `${user.paymentMethods.length} guardados`
-              : 'Ninguno agregado'
-          }
+          value="Mercado Pago"
           onPress={() => router.push('/(instructor)/profile/payment-methods')}
         />
       ) : null}

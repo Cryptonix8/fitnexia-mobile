@@ -12,6 +12,13 @@ export type PayoutSummary = {
   currency: string;
   commissionRate: number;
   plan: string;
+  marketplace?: {
+    enabled: boolean;
+    configured: boolean;
+    requireSellerConnect: boolean;
+    gymPayeePolicy: string;
+    passRevenuePolicy: string;
+  };
 };
 
 export type Payout = {

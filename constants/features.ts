@@ -32,6 +32,7 @@ export const FEATURES = {
   digitalWallets: false,
   subscriptionPaymentModels: true,
   integratedPayments: true,
+  marketplacePayouts: true,
   loyaltyCredits: false,
   reviewResponses: false,
   inAppNotificationCenter: false,

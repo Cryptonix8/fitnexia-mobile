@@ -97,6 +97,13 @@ export default function EarningsScreen() {
         <Text style={styles.summaryLabel}>Este mes (neto)</Text>
         <Text style={styles.summaryValue}>{netDisplay}</Text>
         <Text style={styles.plan}>{summary ? formatPlanLabel(summary) : ''}</Text>
+        {summary?.marketplace?.enabled ? (
+          <Text style={styles.marketplaceHint}>Cobros automáticos vía Mercado Pago Marketplace</Text>
+        ) : (
+          <Text style={styles.marketplaceHint}>
+            Estimado — transferencia manual hasta activar Marketplace
+          </Text>
+        )}
       </View>
 
       <Button
@@ -150,6 +157,12 @@ const styles = StyleSheet.create({
   summaryLabel: { color: 'rgba(255,255,255,0.85)', fontSize: 14 },
   summaryValue: { color: '#fff', fontSize: 36, fontWeight: '800', marginTop: Spacing.sm },
   plan: { color: 'rgba(255,255,255,0.85)', fontSize: 13, marginTop: Spacing.sm },
+  marketplaceHint: {
+    color: 'rgba(255,255,255,0.75)',
+    fontSize: 12,
+    marginTop: Spacing.sm,
+    lineHeight: 18,
+  },
   section: { fontSize: 18, fontWeight: '700', marginVertical: Spacing.md },
   row: {
     flexDirection: 'row',
