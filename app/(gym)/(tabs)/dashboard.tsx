@@ -16,18 +16,22 @@ import {
   computeGymDashboardStats,
   resolveInstitutionId,
 } from '@/utils/gym-classes';
+import { LOADING_LABELS } from '@/constants/labels';
 import { formatAttendanceRate, formatRevenueCompact } from '@/utils/gym-metrics';
 
 export default function GymDashboardScreen() {
   const { user } = useAuth();
   const { colors } = useAppTheme();
-  const { classes } = useClasses();
+  const { classes, isLoading } = useClasses();
   const institutionId = resolveInstitutionId(user);
   const profile = user?.institutionProfile;
   const stats = computeGymDashboardStats(institutionId, classes);
 
   return (
-    <Screen scroll>
+    <Screen
+      scroll
+      loading={isLoading && stats.gymClasses.length === 0}
+      loadingMessage={LOADING_LABELS.classes}>
       <Text style={[styles.greet, { color: colors.textMuted }]}>
         {profile?.name ?? 'Gimnasio'}
       </Text>

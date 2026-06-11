@@ -13,6 +13,7 @@ import { useAuth, getErrorMessage } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { LOADING_LABELS } from '@/constants/labels';
 import {
   acceptGymInviteApi,
   fetchMyGymInvitesApi,
@@ -25,7 +26,7 @@ import { isSameCalendarDay } from '@/utils/schedule';
 
 export default function InstructorDashboard() {
   const { user, updateProfile } = useAuth();
-  const { getClassesByInstructor } = useClasses();
+  const { getClassesByInstructor, isLoading } = useClasses();
   const { colors } = useAppTheme();
   const profile = user?.instructorProfile;
   const instructorId = getLinkedInstructorId(user);
@@ -74,7 +75,10 @@ export default function InstructorDashboard() {
   };
 
   return (
-    <Screen scroll>
+    <Screen
+      scroll
+      loading={isLoading && allClasses.length === 0}
+      loadingMessage={LOADING_LABELS.classes}>
       <Text style={[styles.greet, { color: colors.textMuted }]}>Hola, {user?.firstName} 👋</Text>
       <Text style={[styles.title, { color: colors.text }]}>Resumen de hoy</Text>
 

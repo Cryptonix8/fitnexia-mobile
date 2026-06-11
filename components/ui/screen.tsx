@@ -1,13 +1,19 @@
+import { Fragment } from 'react';
 import { ScrollView, StyleSheet, View, type ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Spacing } from '@/constants/fitnexia';
+import { LOADING_LABELS } from '@/constants/labels';
 import { useAppTheme } from '@/contexts/theme-context';
 
 type ScreenProps = ViewProps & {
   scroll?: boolean;
   padded?: boolean;
   edges?: ('top' | 'bottom')[];
+  /** Full-screen overlay while primary server data is loading. */
+  loading?: boolean;
+  loadingMessage?: string;
 };
 
 export function Screen({
@@ -15,6 +21,8 @@ export function Screen({
   scroll = false,
   padded = true,
   edges = ['top', 'bottom'],
+  loading = false,
+  loadingMessage = LOADING_LABELS.default,
   style,
   ...rest
 }: ScreenProps) {
@@ -36,29 +44,35 @@ export function Screen({
     </View>
   );
 
+  const overlay = <LoadingOverlay visible={loading} message={loadingMessage} />;
+
   if (scroll) {
     return (
-      <ScrollView
-        style={[styles.root, { backgroundColor: colors.background }]}
-        contentContainerStyle={[
-          styles.scrollContent,
-          padded && styles.padded,
-          {
-            paddingTop: paddingTop + (padded ? Spacing.md : 0),
-            paddingBottom,
-          },
-        ]}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled">
-        {children}
-      </ScrollView>
+      <Fragment>
+        <ScrollView
+          style={[styles.root, { backgroundColor: colors.background }]}
+          contentContainerStyle={[
+            styles.scrollContent,
+            padded && styles.padded,
+            {
+              paddingTop: paddingTop + (padded ? Spacing.md : 0),
+              paddingBottom,
+            },
+          ]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled">
+          {children}
+        </ScrollView>
+        {overlay}
+      </Fragment>
     );
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.background }]}>
-      {content}
-    </View>
+    <Fragment>
+      <View style={[styles.root, { backgroundColor: colors.background }]}>{content}</View>
+      {overlay}
+    </Fragment>
   );
 }
 

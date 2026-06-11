@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { BUTTON_LABELS, modalityLocationLabel } from '@/constants/labels';
+import { BUTTON_LABELS, LOADING_LABELS, modalityLocationLabel } from '@/constants/labels';
 import { formatClassDate } from '@/data/mock';
 import type { ClassListItem } from '@/types/api';
 import { startOfMonth, toDateKey } from '@/utils/calendar';
@@ -29,7 +29,7 @@ function isUpcomingClass(cls: ClassListItem): boolean {
 
 export default function InstructorCalendarScreen() {
   const { user } = useAuth();
-  const { getClassesByInstructor } = useClasses();
+  const { getClassesByInstructor, isLoading } = useClasses();
   const { colors } = useAppTheme();
   const instructorId = getLinkedInstructorId(user);
   const allEvents = getClassesByInstructor(instructorId);
@@ -71,7 +71,10 @@ export default function InstructorCalendarScreen() {
   });
 
   return (
-    <Screen scroll>
+    <Screen
+      scroll
+      loading={isLoading && allEvents.length === 0}
+      loadingMessage={LOADING_LABELS.classes}>
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>Calendario</Text>
         <Pressable

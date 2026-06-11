@@ -9,17 +9,21 @@ import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
+import { LOADING_LABELS } from '@/constants/labels';
 import { getLinkedInstructorId } from '@/utils/instructor';
 
 export default function InstructorClassesScreen() {
   const { user } = useAuth();
-  const { getClassesByInstructor } = useClasses();
+  const { getClassesByInstructor, isLoading } = useClasses();
   const { colors } = useAppTheme();
   const instructorId = getLinkedInstructorId(user);
   const mine = getClassesByInstructor(instructorId);
 
   return (
-    <Screen scroll>
+    <Screen
+      scroll
+      loading={isLoading && mine.length === 0}
+      loadingMessage={LOADING_LABELS.classes}>
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>Mis clases</Text>
         <Button title="Nueva clase" size="sm" onPress={() => router.push('/create-class')} />

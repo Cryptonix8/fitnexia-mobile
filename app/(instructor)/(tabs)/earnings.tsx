@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -8,6 +8,7 @@ import { Screen } from '@/components/ui/screen';
 import { useAppTheme } from '@/contexts/theme-context';
 import { formatMoney } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { LOADING_LABELS } from '@/constants/labels';
 import { getErrorMessage } from '@/services/api/errors';
 import {
   fetchPayoutSummary,
@@ -77,21 +78,12 @@ export default function EarningsScreen() {
     }
   };
 
-  if (loading) {
-    return (
-      <Screen>
-        <Text style={[styles.title, { color: colors.text }]}>Ingresos</Text>
-        <ActivityIndicator style={{ marginTop: Spacing.xl }} color={colors.primary} />
-      </Screen>
-    );
-  }
-
   const netDisplay = summary
     ? formatMoney({ amount: summary.net, currency: summary.currency })
     : '$0.00';
 
   return (
-    <Screen scroll>
+    <Screen scroll loading={loading} loadingMessage={LOADING_LABELS.earnings}>
       <Text style={[styles.title, { color: colors.text }]}>Ingresos</Text>
       <View style={[styles.summary, { backgroundColor: colors.primary }]}>
         <Text style={styles.summaryLabel}>Este mes (neto)</Text>

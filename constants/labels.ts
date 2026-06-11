@@ -210,3 +210,16 @@ export const GEO_LABELS = {
   locationDenied: 'Acceso a ubicación denegado. Activá el permiso en ajustes o buscá por zona.',
   withinRadius: (km: number) => `Dentro de ${km} km`,
 } as const;
+
+export const LOADING_LABELS = {
+  default: 'Cargando…',
+  classes: 'Cargando clases…',
+  bookings: 'Cargando reservas…',
+  instructor: 'Cargando instructor…',
+  earnings: 'Cargando ingresos…',
+  roster: 'Cargando instructores…',
+  payment: 'Confirmando pago…',
+  review: 'Verificando elegibilidad…',
+  session: 'Cargando sesión…',
+  passes: 'Cargando opciones de pago…',
+} as const;

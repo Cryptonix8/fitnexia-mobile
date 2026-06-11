@@ -14,7 +14,7 @@ import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
-import { BUTTON_LABELS, MODALITY_LABELS, SCREEN_TITLES } from '@/constants/labels';
+import { BUTTON_LABELS, LOADING_LABELS, MODALITY_LABELS, SCREEN_TITLES } from '@/constants/labels';
 import { getInstitutionById } from '@/data/mock';
 import {
   canManageGymClass,
@@ -31,7 +31,7 @@ export default function EditClassScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useAppTheme();
   const { user } = useAuth();
-  const { getClassById, updateClass, cancelClass } = useClasses();
+  const { getClassById, isLoading, updateClass, cancelClass } = useClasses();
   const cls = getClassById(id ?? '');
   const isGym = user?.role === 'institution';
   const institutionId = resolveInstitutionId(user);
@@ -77,9 +77,11 @@ export default function EditClassScreen() {
 
   if (!cls) {
     return (
-      <Screen>
+      <Screen loading={isLoading} loadingMessage={LOADING_LABELS.classes}>
         <Header title="Editar clase" showBack />
-        <Text style={{ color: colors.text }}>{SCREEN_TITLES.classNotFound}</Text>
+        {!isLoading ? (
+          <Text style={{ color: colors.text }}>{SCREEN_TITLES.classNotFound}</Text>
+        ) : null}
       </Screen>
     );
   }

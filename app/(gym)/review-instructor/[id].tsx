@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { UserAvatar } from '@/components/user-avatar';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,7 @@ import { useAuth, getErrorMessage } from '@/contexts/auth-context';
 import { useReviews } from '@/contexts/reviews-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { LOADING_LABELS } from '@/constants/labels';
 import { fetchStaffReviewEligibility } from '@/services/api/institutions.api';
 import { fetchInstructorById } from '@/services/api/instructors.api';
 import type { Instructor } from '@/types/api';
@@ -51,20 +52,13 @@ export default function GymReviewInstructorScreen() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) {
-    return (
-      <Screen>
-        <Header title="Reseñar instructor" showBack />
-        <ActivityIndicator style={{ marginTop: Spacing.xl }} color={colors.primary} />
-      </Screen>
-    );
-  }
-
   if (!instructor || !eligibility) {
     return (
-      <Screen>
+      <Screen loading={loading} loadingMessage={LOADING_LABELS.instructor}>
         <Header title="Reseñar instructor" showBack />
-        <Text style={{ color: colors.text }}>Instructor no encontrado</Text>
+        {!loading ? (
+          <Text style={{ color: colors.text }}>Instructor no encontrado</Text>
+        ) : null}
       </Screen>
     );
   }

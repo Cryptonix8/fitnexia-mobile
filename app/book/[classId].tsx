@@ -14,7 +14,7 @@ import { fetchMyActivePasses, fetchPassProducts } from '@/services/api/passes.ap
 import { useFeature } from '@/hooks/use-feature';
 import { openPaymentCheckout } from '@/utils/booking-payment';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
-import { BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
+import { BUTTON_LABELS, LOADING_LABELS, SCREEN_TITLES } from '@/constants/labels';
 import type { AthletePass, PassPeriodType, PassProducts, PaymentModel } from '@/types/api';
 
 const ALL_PAYMENT_OPTIONS: { id: PaymentModel; label: string; desc: string }[] = [
@@ -44,7 +44,7 @@ function findActivePass(
 
 export default function BookScreen() {
   const { classId, waitlist } = useLocalSearchParams<{ classId: string; waitlist?: string }>();
-  const { getClassById, refreshClasses } = useClasses();
+  const { getClassById, isLoading: classesLoading, refreshClasses } = useClasses();
   const { createBooking, refreshBookings } = useBookings();
   const waitlistEnabled = useFeature('waitlist');
   const subscriptionModels = useFeature('subscriptionPaymentModels');
@@ -56,6 +56,7 @@ export default function BookScreen() {
   const [passProducts, setPassProducts] = useState<PassProducts | null>(null);
   const [activePasses, setActivePasses] = useState<AthletePass[]>([]);
   const [loading, setLoading] = useState(false);
+  const [passesLoading, setPassesLoading] = useState(subscriptionModels);
 
   const isWaitlist = waitlist === '1' && waitlistEnabled;
 
@@ -94,6 +95,7 @@ export default function BookScreen() {
     let cancelled = false;
 
     (async () => {
+      setPassesLoading(true);
       try {
         const [products, passes] = await Promise.all([
           fetchPassProducts(),
@@ -105,6 +107,8 @@ export default function BookScreen() {
         }
       } catch (err) {
         console.warn('Failed to load pass data:', getErrorMessage(err));
+      } finally {
+        if (!cancelled) setPassesLoading(false);
       }
     })();
 
@@ -115,9 +119,9 @@ export default function BookScreen() {
 
   if (!cls) {
     return (
-      <Screen>
+      <Screen loading={classesLoading} loadingMessage={LOADING_LABELS.classes}>
         <Header title="Reservar" showBack />
-        <Text>{SCREEN_TITLES.classNotFound}</Text>
+        {!classesLoading ? <Text>{SCREEN_TITLES.classNotFound}</Text> : null}
       </Screen>
     );
   }
@@ -176,7 +180,7 @@ export default function BookScreen() {
   };
 
   return (
-    <Screen scroll>
+    <Screen scroll loading={passesLoading} loadingMessage={LOADING_LABELS.passes}>
       <Header
         title={isWaitlist ? BUTTON_LABELS.joinWaitlistShort : BUTTON_LABELS.confirmBooking}
         showBack

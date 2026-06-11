@@ -29,11 +29,12 @@ const BookingsContext = createContext<BookingsContextValue | null>(null);
 export function BookingsProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const refreshBookings = useCallback(async () => {
     if (user?.role !== 'athlete') {
       setBookings([]);
+      setIsLoading(false);
       return;
     }
     setIsLoading(true);

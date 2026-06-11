@@ -1,13 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useMemo } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { LOADING_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { useUserLocation } from '@/hooks/use-user-location';
 import {
@@ -43,7 +44,10 @@ export default function AthleteHomeScreen() {
   const nearbyTitle = geoEnabled && coords ? 'Cerca' : 'Próximas';
 
   return (
-    <Screen scroll>
+    <Screen
+      scroll
+      loading={isLoading && classes.length === 0}
+      loadingMessage={LOADING_LABELS.classes}>
       <View style={styles.top}>
         <View>
           <Text style={styles.greet}>Buenos días 👋</Text>
@@ -63,10 +67,6 @@ export default function AthleteHomeScreen() {
           onFocus={() => router.push('/(athlete)/(tabs)/search')}
         />
       </View>
-
-      {isLoading && classes.length === 0 ? (
-        <ActivityIndicator style={styles.loader} color={FitnexiaColors.primary} />
-      ) : null}
 
       {error && classes.length === 0 ? (
         <EmptyState
@@ -156,7 +156,6 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   searchInput: { flex: 1, fontSize: 16, color: FitnexiaColors.gray900 },
-  loader: { marginVertical: Spacing.xl },
   section: {
     fontSize: 18,
     fontWeight: '700',

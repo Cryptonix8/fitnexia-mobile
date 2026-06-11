@@ -17,7 +17,7 @@ import {
   Spacing,
   type ScheduleFilter,
 } from '@/constants/fitnexia';
-import { GEO_LABELS, MODALITY_LABELS } from '@/constants/labels';
+import { GEO_LABELS, LOADING_LABELS, MODALITY_LABELS } from '@/constants/labels';
 import { useAppTheme } from '@/contexts/theme-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useFeature } from '@/hooks/use-feature';
@@ -32,7 +32,7 @@ const NEAR_ME_VALUE = '__near_me__';
 
 export default function SearchScreen() {
   const { colors } = useAppTheme();
-  const { classes } = useClasses();
+  const { classes, isLoading } = useClasses();
   const geoEnabled = useFeature('geolocationMap');
   const { coords, loading: locationLoading, permissionDenied, requestLocation } = useUserLocation();
 
@@ -173,7 +173,11 @@ export default function SearchScreen() {
   };
 
   return (
-    <Screen scroll edges={['top']}>
+    <Screen
+      scroll
+      edges={['top']}
+      loading={isLoading && classes.length === 0}
+      loadingMessage={LOADING_LABELS.classes}>
       <Text style={[styles.title, { color: colors.text }]}>Buscar</Text>
       <View style={[styles.searchBox, { backgroundColor: colors.input, borderColor: colors.border }]}>
         <Ionicons name="search" size={20} color={colors.textMuted} />

@@ -8,6 +8,7 @@ import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { formatMoney } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { LOADING_LABELS } from '@/constants/labels';
 import { getLinkedInstitutionId } from '@/utils/institution';
 import {
   formatAttendanceRate,
@@ -24,7 +25,7 @@ function formatRevenueAxis(cents: number): string {
 export default function GymMetricsScreen() {
   const { user } = useAuth();
   const { colors } = useAppTheme();
-  const { classes } = useClasses();
+  const { classes, isLoading } = useClasses();
   const institutionId = getLinkedInstitutionId(user);
   const metrics = getGymMetrics(institutionId, classes);
 
@@ -44,7 +45,10 @@ export default function GymMetricsScreen() {
   }));
 
   return (
-    <Screen scroll>
+    <Screen
+      scroll
+      loading={isLoading && classes.length === 0}
+      loadingMessage={LOADING_LABELS.classes}>
       <Text style={[styles.title, { color: colors.text }]}>Métricas</Text>
       <Text style={[styles.period, { color: colors.textMuted }]}>Esta semana</Text>
 

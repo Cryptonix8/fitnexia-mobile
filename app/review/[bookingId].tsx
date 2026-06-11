@@ -10,6 +10,7 @@ import { Screen } from '@/components/ui/screen';
 import { useBookings } from '@/contexts/bookings-context';
 import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { LOADING_LABELS } from '@/constants/labels';
 import { fetchReviewEligibilityApi, submitReviewApi } from '@/services/api/bookings.api';
 import { getErrorMessage } from '@/services/api/errors';
 
@@ -64,9 +65,8 @@ export default function ReviewScreen() {
 
   if (checking) {
     return (
-      <Screen>
+      <Screen loading loadingMessage={LOADING_LABELS.review}>
         <Header title="Dejar una reseña" showBack />
-        <LoadingOverlay visible message="Verificando elegibilidad…" />
       </Screen>
     );
   }

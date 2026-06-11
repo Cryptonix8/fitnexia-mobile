@@ -15,7 +15,7 @@ import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
-import { MODALITY_LABELS } from '@/constants/labels';
+import { LOADING_LABELS, MODALITY_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { fetchLinkedInstructors, type StaffRosterEntry } from '@/services/api/institutions.api';
 import { getErrorMessage } from '@/services/api/errors';
@@ -37,9 +37,11 @@ export default function CreateClassScreen() {
     Pick<StaffRosterEntry, 'id' | 'displayName' | 'disciplines' | 'photoUrl'>[]
   >([]);
   const [publishing, setPublishing] = useState(false);
+  const [instructorsLoading, setInstructorsLoading] = useState(isGym);
 
   useEffect(() => {
     if (!isGym) return;
+    setInstructorsLoading(true);
     fetchLinkedInstructors()
       .then((data) =>
         setLinkedInstructors(
@@ -51,7 +53,8 @@ export default function CreateClassScreen() {
           })),
         ),
       )
-      .catch(() => setLinkedInstructors([]));
+      .catch(() => setLinkedInstructors([]))
+      .finally(() => setInstructorsLoading(false));
   }, [isGym]);
 
   const [title, setTitle] = useState('');
@@ -182,7 +185,10 @@ export default function CreateClassScreen() {
   minDate.setHours(0, 0, 0, 0);
 
   return (
-    <Screen scroll>
+    <Screen
+      scroll
+      loading={isGym && instructorsLoading}
+      loadingMessage={LOADING_LABELS.roster}>
       <Header title={isGym ? 'Nueva clase grupal' : 'Nueva clase'} showBack />
 
       {isGym ? (

@@ -21,6 +21,7 @@ import {
   BADGE_LABELS,
   BUTTON_LABELS,
   CLASS_DETAIL_LABELS,
+  LOADING_LABELS,
   SCREEN_TITLES,
   classFormatBadgeLabel,
   classFormatDescription,
@@ -32,7 +33,7 @@ import {
 export default function ClassDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
-  const { getClassById } = useClasses();
+  const { getClassById, isLoading } = useClasses();
   const waitlistEnabled = useFeature('waitlist');
   const liveStreaming = useFeature('liveStreaming');
   const cls = getClassById(id ?? '');
@@ -41,9 +42,11 @@ export default function ClassDetailScreen() {
 
   if (!cls) {
     return (
-      <Screen>
+      <Screen
+        loading={isLoading}
+        loadingMessage={LOADING_LABELS.classes}>
         <Header title={SCREEN_TITLES.class} showBack />
-        <Text>{SCREEN_TITLES.classNotFound}</Text>
+        {!isLoading ? <Text>{SCREEN_TITLES.classNotFound}</Text> : null}
       </Screen>
     );
   }

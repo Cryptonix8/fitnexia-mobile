@@ -9,18 +9,21 @@ import { useAuth } from '@/contexts/auth-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
-import { BUTTON_LABELS } from '@/constants/labels';
+import { BUTTON_LABELS, LOADING_LABELS } from '@/constants/labels';
 import { computeClassBooked, getGymClasses, resolveInstitutionId } from '@/utils/gym-classes';
 
 export default function GymClassesScreen() {
   const { user } = useAuth();
   const { colors } = useAppTheme();
-  const { classes } = useClasses();
+  const { classes, isLoading } = useClasses();
   const institutionId = resolveInstitutionId(user);
   const gymClasses = getGymClasses(institutionId, classes);
 
   return (
-    <Screen scroll>
+    <Screen
+      scroll
+      loading={isLoading && gymClasses.length === 0}
+      loadingMessage={LOADING_LABELS.classes}>
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>Clases grupales</Text>
         <Button title="Nueva" size="sm" onPress={() => router.push('/create-class')} />

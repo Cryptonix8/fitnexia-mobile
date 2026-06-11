@@ -10,7 +10,7 @@ import { Screen } from '@/components/ui/screen';
 import { getErrorMessage } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { PROFILE_MENU_LABELS } from '@/constants/labels';
+import { LOADING_LABELS, PROFILE_MENU_LABELS } from '@/constants/labels';
 import {
   cancelInviteApi,
   fetchStaffRoster,
@@ -66,13 +66,17 @@ function RosterSection({
 export default function GymManageInstructorsScreen() {
   const { colors } = useAppTheme();
   const [roster, setRoster] = useState<StaffRosterEntry[]>([]);
+  const [loading, setLoading] = useState(true);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const loadRoster = useCallback(async () => {
+    setLoading(true);
     try {
       setRoster(await fetchStaffRoster());
     } catch {
       setRoster([]);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -155,7 +159,10 @@ export default function GymManageInstructorsScreen() {
   };
 
   return (
-    <Screen scroll>
+    <Screen
+      scroll
+      loading={loading && roster.length === 0}
+      loadingMessage={LOADING_LABELS.roster}>
       <Header title={PROFILE_MENU_LABELS.instructors} showBack />
 
       <View style={styles.statsRow}>

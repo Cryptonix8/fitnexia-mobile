@@ -1,11 +1,15 @@
 import { Redirect } from 'expo-router';
 
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
+import { LOADING_LABELS } from '@/constants/labels';
 import { useAuth } from '@/contexts/auth-context';
 
 export default function Index() {
   const { user, hasSeenOnboarding, isLoading } = useAuth();
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return <LoadingOverlay visible message={LOADING_LABELS.session} />;
+  }
 
   if (!hasSeenOnboarding) {
     return <Redirect href="/(auth)/onboarding" />;

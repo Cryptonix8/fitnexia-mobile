@@ -10,6 +10,7 @@ import { useBookings } from '@/contexts/bookings-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { LOADING_LABELS } from '@/constants/labels';
 import { formatClassDate, formatMoney } from '@/data/mock';
 import { getErrorMessage } from '@/services/api/errors';
 import { openPaymentCheckout } from '@/utils/booking-payment';
@@ -39,8 +40,9 @@ function buildEntries(
 }
 
 export default function BookingsScreen() {
-  const { getClassById } = useClasses();
-  const { bookings, refreshBookings, cancelBooking } = useBookings();
+  const { getClassById, isLoading: classesLoading } = useClasses();
+  const { bookings, isLoading, refreshBookings, cancelBooking } = useBookings();
+  const pageLoading = (isLoading || classesLoading) && bookings.length === 0;
   const { colors } = useAppTheme();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
@@ -131,7 +133,10 @@ export default function BookingsScreen() {
   };
 
   return (
-    <Screen scroll>
+    <Screen
+      scroll
+      loading={pageLoading}
+      loadingMessage={LOADING_LABELS.bookings}>
       <Text style={[styles.title, { color: colors.text }]}>Mis reservas</Text>
       <View style={[styles.tabs, { backgroundColor: colors.surfaceMuted }]}>
         <Tab label="Próximas" active={tab === 'upcoming'} onPress={() => setTab('upcoming')} />

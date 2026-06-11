@@ -9,6 +9,7 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth, getErrorMessage } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
+import { LOADING_LABELS } from '@/constants/labels';
 import {
   cancelInviteApi,
   fetchStaffRoster,
@@ -21,14 +22,18 @@ export default function GymInstructorsScreen() {
   const { refreshUser } = useAuth();
   const { colors } = useAppTheme();
   const [roster, setRoster] = useState<StaffRosterEntry[]>([]);
+  const [loading, setLoading] = useState(true);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const loadRoster = useCallback(async () => {
+    setLoading(true);
     try {
       const [data] = await Promise.all([fetchStaffRoster(), refreshUser()]);
       setRoster(data);
     } catch {
       setRoster([]);
+    } finally {
+      setLoading(false);
     }
   }, [refreshUser]);
 
@@ -102,7 +107,10 @@ export default function GymInstructorsScreen() {
   const availableCount = roster.filter((i) => i.staffStatus === 'none').length;
 
   return (
-    <Screen scroll>
+    <Screen
+      scroll
+      loading={loading && roster.length === 0}
+      loadingMessage={LOADING_LABELS.roster}>
       <Text style={[styles.title, { color: colors.text }]}>Equipo</Text>
 
       <Text style={[styles.hint, { color: colors.textMuted }]}>
