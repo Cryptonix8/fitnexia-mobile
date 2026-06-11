@@ -16,10 +16,15 @@ export async function fetchBookingById(id: string) {
 export async function createBookingApi(
   classId: string,
   paymentModel = 'per_class',
+  periodType?: import('@/types/api').PassPeriodType,
 ): Promise<CreateBookingResponse> {
   return apiRequest<CreateBookingResponse>('/bookings', {
     method: 'POST',
-    body: { classId, paymentModel },
+    body: {
+      classId,
+      paymentModel,
+      ...(periodType ? { periodType } : {}),
+    },
   });
 }
 
@@ -31,6 +36,15 @@ export async function syncBookingPaymentApi(bookingId: string) {
 
 export async function cancelBookingApi(id: string) {
   return apiRequest<import('@/types/api').Booking>(`/bookings/${id}/cancel`, { method: 'POST' });
+}
+
+export async function fetchReviewEligibilityApi(bookingId: string) {
+  return apiRequest<{
+    eligible: boolean;
+    bookingId: string;
+    status: string;
+    alreadyReviewed: boolean;
+  }>(`/bookings/${bookingId}/review-eligibility`);
 }
 
 export async function submitReviewApi(bookingId: string, rating: number, comment?: string) {

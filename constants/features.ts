@@ -30,7 +30,7 @@ export const FEATURES = {
   waitlist: false,
   multipleCurrencies: false,
   digitalWallets: false,
-  subscriptionPaymentModels: false,
+  subscriptionPaymentModels: true,
   integratedPayments: true,
   loyaltyCredits: false,
   reviewResponses: false,

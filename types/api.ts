@@ -20,6 +20,7 @@ export type BookingStatus =
   | 'no_show';
 
 export type PaymentModel = 'per_class' | 'monthly_unlimited' | 'per_period';
+export type PassPeriodType = 'week' | 'month' | 'quarter';
 
 export type InstructorPlan = 'basic' | 'pro' | 'institutional';
 
@@ -159,8 +160,49 @@ export interface Class extends ClassListItem {
 export interface CreateBookingRequest {
   classId: string;
   paymentModel: PaymentModel;
+  periodType?: PassPeriodType;
   useCredits?: boolean;
   promoCode?: string | null;
+}
+
+export interface AthletePass {
+  id: string;
+  paymentModel: PaymentModel;
+  periodType?: PassPeriodType;
+  status: 'pending_payment' | 'active' | 'expired' | 'cancelled';
+  price: Money;
+  classCreditsTotal: number | null;
+  classCreditsUsed: number;
+  classCreditsRemaining: number | null;
+  startsAt?: string;
+  expiresAt?: string;
+  checkoutUrl?: string;
+  createdAt: string;
+}
+
+export interface PassProducts {
+  monthly_unlimited: {
+    id: string;
+    paymentModel: 'monthly_unlimited';
+    name: string;
+    priceCents: number;
+    periodDays: number;
+    unlimited: boolean;
+    currency: string;
+    price: Money;
+  };
+  per_period: Record<
+    PassPeriodType,
+    {
+      periodType: PassPeriodType;
+      name: string;
+      priceCents: number;
+      periodDays: number;
+      classCredits: number;
+      currency: string;
+      price: Money;
+    }
+  >;
 }
 
 export interface Booking {
@@ -181,6 +223,9 @@ export interface CreateBookingResponse {
     preferenceId: string;
     checkoutUrl: string;
     paymentId?: string;
+    passId?: string;
+    paymentModel?: PaymentModel;
+    periodType?: PassPeriodType;
   };
 }
 

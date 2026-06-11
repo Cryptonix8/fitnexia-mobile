@@ -44,6 +44,7 @@ function mapInstructorProfile(profile: Instructor): InstructorProfileData {
       defaultWeeklySchedule()) as WeeklySchedule,
     hourlyRate: profile.hourlyRate ? String(profile.hourlyRate.amount / 100) : '',
     verified: profile.verified ?? false,
+    plan: profile.plan ?? 'basic',
   };
 }
 
@@ -63,6 +64,7 @@ function mapInstitutionProfile(
     gallery: profile.gallery ?? [],
     instructorIds,
     pendingInvites,
+    plan: profile.plan ?? 'institutional',
   };
 }
 

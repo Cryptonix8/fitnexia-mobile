@@ -7,16 +7,21 @@ import React, {
   useState,
 } from 'react';
 
-import { createBookingApi, fetchMyBookings } from '@/services/api/bookings.api';
+import { cancelBookingApi, createBookingApi, fetchMyBookings } from '@/services/api/bookings.api';
 import { getErrorMessage } from '@/services/api/errors';
 import { useAuth } from '@/contexts/auth-context';
-import type { Booking, CreateBookingResponse } from '@/types/api';
+import type { Booking, CreateBookingResponse, PassPeriodType, PaymentModel } from '@/types/api';
 
 interface BookingsContextValue {
   bookings: Booking[];
   isLoading: boolean;
   refreshBookings: () => Promise<void>;
-  createBooking: (classId: string) => Promise<CreateBookingResponse>;
+  createBooking: (
+    classId: string,
+    paymentModel?: PaymentModel,
+    periodType?: PassPeriodType,
+  ) => Promise<CreateBookingResponse>;
+  cancelBooking: (bookingId: string) => Promise<Booking>;
 }
 
 const BookingsContext = createContext<BookingsContextValue | null>(null);
@@ -47,15 +52,24 @@ export function BookingsProvider({ children }: { children: React.ReactNode }) {
     refreshBookings();
   }, [refreshBookings]);
 
-  const createBooking = useCallback(async (classId: string) => {
-    const result = await createBookingApi(classId);
-    setBookings((prev) => [result.booking, ...prev.filter((b) => b.id !== result.booking.id)]);
-    return result;
+  const createBooking = useCallback(
+    async (classId: string, paymentModel?: PaymentModel, periodType?: PassPeriodType) => {
+      const result = await createBookingApi(classId, paymentModel, periodType);
+      setBookings((prev) => [result.booking, ...prev.filter((b) => b.id !== result.booking.id)]);
+      return result;
+    },
+    [],
+  );
+
+  const cancelBooking = useCallback(async (bookingId: string) => {
+    const updated = await cancelBookingApi(bookingId);
+    setBookings((prev) => prev.map((b) => (b.id === bookingId ? updated : b)));
+    return updated;
   }, []);
 
   const value = useMemo(
-    () => ({ bookings, isLoading, refreshBookings, createBooking }),
-    [bookings, isLoading, refreshBookings, createBooking],
+    () => ({ bookings, isLoading, refreshBookings, createBooking, cancelBooking }),
+    [bookings, isLoading, refreshBookings, createBooking, cancelBooking],
   );
 
   return <BookingsContext.Provider value={value}>{children}</BookingsContext.Provider>;

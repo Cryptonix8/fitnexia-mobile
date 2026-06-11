@@ -40,7 +40,7 @@ function buildEntries(
 
 export default function BookingsScreen() {
   const { getClassById } = useClasses();
-  const { bookings, refreshBookings } = useBookings();
+  const { bookings, refreshBookings, cancelBooking } = useBookings();
   const { colors } = useAppTheme();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
@@ -50,8 +50,12 @@ export default function BookingsScreen() {
     return today;
   });
 
-  const upcoming = bookings.filter((b) => b.status === 'confirmed' || b.status === 'pending_payment');
-  const past = bookings.filter((b) => b.status === 'completed');
+  const upcoming = bookings.filter(
+    (b) => b.status === 'confirmed' || b.status === 'pending_payment',
+  );
+  const past = bookings.filter((b) =>
+    ['completed', 'cancelled', 'refunded', 'no_show'].includes(b.status),
+  );
   const tabBookings = tab === 'upcoming' ? upcoming : past;
 
   const entries = useMemo(
@@ -77,6 +81,40 @@ export default function BookingsScreen() {
     month: 'long',
     day: 'numeric',
   });
+
+  const cancelReservation = (booking: Booking, cls: ClassListItem) => {
+    const hoursUntilClass = (new Date(cls.startAt).getTime() - Date.now()) / (1000 * 60 * 60);
+    const refundEligible = hoursUntilClass >= 24;
+
+    const message =
+      booking.status === 'pending_payment'
+        ? '¿Cancelar esta reserva pendiente de pago?'
+        : refundEligible
+          ? 'Cancelar con más de 24 horas de anticipación. Recibirás un reembolso completo.'
+          : 'Cancelar con menos de 24 horas de anticipación. No hay reembolso.';
+
+    Alert.alert('Cancelar reserva', message, [
+      { text: 'Volver', style: 'cancel' },
+      {
+        text: 'Cancelar reserva',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const updated = await cancelBooking(booking.id);
+            await refreshBookings();
+            Alert.alert(
+              updated.status === 'refunded' ? 'Reserva reembolsada' : 'Reserva cancelada',
+              updated.status === 'refunded'
+                ? 'Tu pago fue reembolsado.'
+                : 'La reserva fue cancelada.',
+            );
+          } catch (err) {
+            Alert.alert('No se pudo cancelar', getErrorMessage(err));
+          }
+        },
+      },
+    ]);
+  };
 
   const completePayment = async (booking: Booking) => {
     if (!booking.checkoutUrl) {
@@ -154,16 +192,28 @@ export default function BookingsScreen() {
                       ? 'Confirmada'
                       : booking.status === 'completed'
                         ? 'Completada'
-                        : booking.status}
+                        : booking.status === 'refunded'
+                          ? 'Reembolsada'
+                          : booking.status === 'cancelled'
+                            ? 'Cancelada'
+                            : booking.status}
                 </Text>
               </View>
             </View>
             {booking.status === 'pending_payment' ? (
-              <Button
-                title="Completar pago"
-                size="sm"
-                onPress={() => completePayment(booking)}
-              />
+              <View style={styles.actionStack}>
+                <Button
+                  title="Completar pago"
+                  size="sm"
+                  onPress={() => completePayment(booking)}
+                />
+                <Button
+                  title="Cancelar reserva"
+                  size="sm"
+                  variant="outline"
+                  onPress={() => cancelReservation(booking, cls)}
+                />
+              </View>
             ) : booking.status === 'completed' ? (
               <Button
                 title="Dejar una reseña"
@@ -171,6 +221,15 @@ export default function BookingsScreen() {
                 size="sm"
                 onPress={() => router.push(`/review/${booking.id}`)}
               />
+            ) : booking.status === 'confirmed' ? (
+              <View style={styles.actions}>
+                <Pressable onPress={() => router.push(`/class/${cls.id}`)}>
+                  <Text style={[styles.link, { color: colors.primary }]}>Ver clase</Text>
+                </Pressable>
+                <Pressable onPress={() => cancelReservation(booking, cls)}>
+                  <Text style={[styles.link, { color: colors.error }]}>Cancelar</Text>
+                </Pressable>
+              </View>
             ) : (
               <Pressable onPress={() => router.push(`/class/${cls.id}`)}>
                 <Text style={[styles.link, { color: colors.primary }]}>Ver clase</Text>
@@ -247,4 +306,10 @@ const styles = StyleSheet.create({
   },
   badgeText: { fontSize: 12, fontWeight: '600' },
   link: { fontWeight: '600' },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  actionStack: { gap: Spacing.sm },
 });

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Screen } from '@/components/ui/screen';
 import { useBookings } from '@/contexts/bookings-context';
 import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
-import { submitReviewApi } from '@/services/api/bookings.api';
+import { fetchReviewEligibilityApi, submitReviewApi } from '@/services/api/bookings.api';
 import { getErrorMessage } from '@/services/api/errors';
 
 export default function ReviewScreen() {
@@ -25,12 +25,70 @@ export default function ReviewScreen() {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [eligible, setEligible] = useState(false);
+  const [alreadyReviewed, setAlreadyReviewed] = useState(false);
+
+  useEffect(() => {
+    if (!bookingId) return;
+    let cancelled = false;
+    (async () => {
+      setChecking(true);
+      try {
+        const result = await fetchReviewEligibilityApi(bookingId);
+        if (!cancelled) {
+          setEligible(result.eligible);
+          setAlreadyReviewed(result.alreadyReviewed);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          Alert.alert('No se pudo verificar la reseña', getErrorMessage(err));
+        }
+      } finally {
+        if (!cancelled) setChecking(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [bookingId]);
 
   if (!booking || !cls) {
     return (
       <Screen>
         <Header title="Reseña" showBack />
         <Text>Reserva no encontrada</Text>
+      </Screen>
+    );
+  }
+
+  if (checking) {
+    return (
+      <Screen>
+        <Header title="Dejar una reseña" showBack />
+        <LoadingOverlay visible message="Verificando elegibilidad…" />
+      </Screen>
+    );
+  }
+
+  if (alreadyReviewed) {
+    return (
+      <Screen>
+        <Header title="Dejar una reseña" showBack />
+        <Text style={styles.className}>{cls.title}</Text>
+        <Text style={styles.hint}>Ya publicaste una reseña para esta clase. Las reseñas no se pueden editar.</Text>
+      </Screen>
+    );
+  }
+
+  if (!eligible) {
+    return (
+      <Screen>
+        <Header title="Dejar una reseña" showBack />
+        <Text style={styles.className}>{cls.title}</Text>
+        <Text style={styles.hint}>
+          Solo podés reseñar clases completadas. Esta reserva todavía no es elegible.
+        </Text>
       </Screen>
     );
   }
