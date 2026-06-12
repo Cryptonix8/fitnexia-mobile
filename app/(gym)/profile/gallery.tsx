@@ -24,6 +24,7 @@ import { updateMockInstitution } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS, PROFILE_MENU_LABELS } from '@/constants/labels';
 import { getLinkedInstitutionId } from '@/utils/institution';
+import { normalizeMediaUrl } from '@/services/api/media.api';
 
 export default function GymGalleryScreen() {
   const { user, updateProfile } = useAuth();
@@ -103,7 +104,11 @@ export default function GymGalleryScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.row}>
             {gallery.map((uri, index) => (
               <View key={`${uri}-${index}`} style={styles.thumbWrap}>
-                <Image source={{ uri }} style={styles.thumb} contentFit="cover" />
+                <Image
+                  source={{ uri: normalizeMediaUrl(uri) ?? uri }}
+                  style={styles.thumb}
+                  contentFit="cover"
+                />
                 <Pressable
                   style={[styles.removeBtn, { backgroundColor: colors.error }]}
                   onPress={() => removePhoto(index)}>

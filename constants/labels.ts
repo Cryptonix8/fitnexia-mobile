@@ -222,4 +222,5 @@ export const LOADING_LABELS = {
   review: 'Verificando elegibilidad…',
   session: 'Cargando sesión…',
   passes: 'Cargando opciones de pago…',
+  availability: 'Actualizando disponibilidad…',
 } as const;

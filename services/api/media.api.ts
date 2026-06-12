@@ -1,6 +1,28 @@
 import { Platform } from 'react-native';
 
 import { API_BASE_URL } from './config';
+
+/** Rewrite legacy/broken media URLs saved before production URL fix. */
+export function normalizeMediaUrl(uri: string | null | undefined): string | null | undefined {
+  if (!uri) return uri;
+
+  if (uri.startsWith('/v1/media/') || uri.startsWith('/media/')) {
+    const base = API_BASE_URL.replace(/\/v1$/, '');
+    return `${base}${uri.startsWith('/v1') ? uri : `/v1${uri}`}`;
+  }
+
+  try {
+    const parsed = new URL(uri);
+    if (parsed.pathname.startsWith('/v1/media/') && !parsed.pathname.startsWith('/fitnexia-api/')) {
+      const apiOrigin = API_BASE_URL.replace(/\/v1$/, '');
+      return `${apiOrigin}${parsed.pathname}`;
+    }
+  } catch {
+    // not a URL — return as-is
+  }
+
+  return uri;
+}
 import { safeFetch } from './fetch';
 import { parseJsonError, parseJsonResponse } from './parse-response';
 import { getAccessToken } from './token-storage';
@@ -69,7 +91,7 @@ export async function resolveMediaUrl(
   if (uri === undefined) return undefined;
   if (uri === null) return null;
   if (isLocalMediaUri(uri)) return uploadLocalImage(uri);
-  return uri;
+  return normalizeMediaUrl(uri) ?? uri;
 }
 
 export async function resolveMediaUrls(uris: string[]): Promise<string[]> {

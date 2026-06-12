@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { DarkModeToggle } from '@/components/profile/dark-mode-toggle';
@@ -12,7 +13,13 @@ import { Screen } from '@/components/ui/screen';
 import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
-import { BADGE_LABELS, BUTTON_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES } from '@/constants/labels';
+import {
+  BADGE_LABELS,
+  BUTTON_LABELS,
+  LOADING_LABELS,
+  PROFILE_MENU_LABELS,
+  SCREEN_TITLES,
+} from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { useSignOut } from '@/hooks/use-sign-out';
 import { formatWeeklyScheduleSummary, defaultWeeklySchedule } from '@/utils/schedule';
@@ -24,14 +31,20 @@ export default function InstructorProfileScreen() {
   const showSupport = useFeature('platformSupport');
   const showPayoutAccount = useFeature('marketplacePayouts') || useFeature('integratedPayments');
   const profile = user?.instructorProfile;
+  const [togglingAvailable, setTogglingAvailable] = useState(false);
 
-  const toggleAvailable = () => {
-    if (!profile) return;
-    void updateProfile({
-      instructorProfile: { availableNow: !profile.availableNow },
-    }).catch((err) => {
+  const toggleAvailable = async () => {
+    if (!profile || togglingAvailable) return;
+    setTogglingAvailable(true);
+    try {
+      await updateProfile({
+        instructorProfile: { availableNow: !profile.availableNow },
+      });
+    } catch (err) {
       Alert.alert('No se pudo actualizar disponibilidad', getErrorMessage(err));
-    });
+    } finally {
+      setTogglingAvailable(false);
+    }
   };
 
   if (!profile) {
@@ -78,7 +91,8 @@ export default function InstructorProfileScreen() {
           styles.availableBtn,
           { backgroundColor: profile.availableNow ? colors.successMuted : colors.surface },
         ]}
-        onPress={toggleAvailable}>
+        disabled={togglingAvailable}
+        onPress={() => void toggleAvailable()}>
         <Ionicons
           name={profile.availableNow ? 'radio-button-on' : 'radio-button-off'}
           size={22}
@@ -142,7 +156,10 @@ export default function InstructorProfileScreen() {
 
       <Button title={BUTTON_LABELS.signOut} variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
 
-      <LoadingOverlay visible={signingOut} message="Cerrando sesión…" />
+      <LoadingOverlay
+        visible={signingOut || togglingAvailable}
+        message={signingOut ? 'Cerrando sesión…' : LOADING_LABELS.availability}
+      />
     </Screen>
   );
 }

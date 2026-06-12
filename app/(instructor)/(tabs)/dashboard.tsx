@@ -36,6 +36,7 @@ export default function InstructorDashboard() {
   const todayStats = computeInstructorTodayStats(todayClasses);
   const [gymInvites, setGymInvites] = useState<GymStaffInvite[]>([]);
   const [acceptingInviteId, setAcceptingInviteId] = useState<string | null>(null);
+  const [togglingAvailable, setTogglingAvailable] = useState(false);
 
   const loadGymInvites = useCallback(async () => {
     try {
@@ -52,13 +53,18 @@ export default function InstructorDashboard() {
     }, [loadGymInvites]),
   );
 
-  const toggleAvailable = () => {
-    if (!profile) return;
-    void updateProfile({
-      instructorProfile: { availableNow: !profile.availableNow },
-    }).catch((err) => {
+  const toggleAvailable = async () => {
+    if (!profile || togglingAvailable) return;
+    setTogglingAvailable(true);
+    try {
+      await updateProfile({
+        instructorProfile: { availableNow: !profile.availableNow },
+      });
+    } catch (err) {
       Alert.alert('No se pudo actualizar disponibilidad', getErrorMessage(err));
-    });
+    } finally {
+      setTogglingAvailable(false);
+    }
   };
 
   const acceptInvite = async (invite: GymStaffInvite) => {
@@ -136,7 +142,8 @@ export default function InstructorDashboard() {
           styles.availableBtn,
           { backgroundColor: profile?.availableNow ? colors.successMuted : colors.surface },
         ]}
-        onPress={toggleAvailable}>
+        disabled={togglingAvailable}
+        onPress={() => void toggleAvailable()}>
         <Ionicons
           name={profile?.availableNow ? 'radio-button-on' : 'radio-button-off'}
           size={20}
@@ -163,7 +170,10 @@ export default function InstructorDashboard() {
         />
       )}
 
-      <LoadingOverlay visible={acceptingInviteId !== null} message="Aceptando invitación…" />
+      <LoadingOverlay
+        visible={acceptingInviteId !== null || togglingAvailable}
+        message={togglingAvailable ? LOADING_LABELS.availability : 'Aceptando invitación…'}
+      />
     </Screen>
   );
 }

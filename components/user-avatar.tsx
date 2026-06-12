@@ -3,6 +3,7 @@ import { Image } from 'expo-image';
 import { StyleSheet, View, type ViewStyle } from 'react-native';
 
 import { useAppTheme } from '@/contexts/theme-context';
+import { normalizeMediaUrl } from '@/services/api/media.api';
 
 export type AvatarKind = 'user' | 'instructor' | 'institution';
 
@@ -23,10 +24,11 @@ export function UserAvatar({ size = 48, kind = 'user', uri, style }: UserAvatarP
   const { colors } = useAppTheme();
   const iconSize = Math.round(size * 0.48);
 
-  if (uri) {
+  const imageUri = normalizeMediaUrl(uri);
+  if (imageUri) {
     return (
       <Image
-        source={{ uri }}
+        source={{ uri: imageUri }}
         style={[
           {
             width: size,

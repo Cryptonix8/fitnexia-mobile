@@ -17,6 +17,7 @@ import { Radius, Spacing } from '@/constants/fitnexia';
 import { BADGE_LABELS, BUTTON_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { useSignOut } from '@/hooks/use-sign-out';
+import { normalizeMediaUrl } from '@/services/api/media.api';
 
 export default function GymProfileScreen() {
   const { user } = useAuth();
@@ -87,7 +88,7 @@ export default function GymProfileScreen() {
           {gallery.map((uri, index) => (
             <Image
               key={`${uri}-${index}`}
-              source={{ uri }}
+              source={{ uri: normalizeMediaUrl(uri) ?? uri }}
               style={styles.galleryThumb}
               contentFit="cover"
             />
