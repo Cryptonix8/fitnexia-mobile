@@ -25,6 +25,10 @@ import {
 } from '@/services/api/auth.api';
 import { getAccessToken } from '@/services/api/token-storage';
 import { getErrorMessage } from '@/services/api/errors';
+import {
+  registerForPushNotifications,
+  unregisterPushNotifications,
+} from '@/services/push-notifications';
 import { resolveMediaUrl, resolveMediaUrls } from '@/services/api/media.api';
 import type { UserRole } from '@/types/api';
 import type { AuthUser, RegisterParams, UpdateProfileParams } from '@/types/auth-user';
@@ -77,7 +81,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const token = await getAccessToken();
         if (token) {
           const current = await loadCurrentUser();
-          if (active && current) setUser(current);
+          if (active && current) {
+            setUser(current);
+            registerForPushNotifications().catch(() => undefined);
+          }
         }
       } finally {
         if (active) setIsLoading(false);
@@ -95,16 +102,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const loggedIn = await loginApi(email, password);
     setUser(loggedIn);
+    registerForPushNotifications().catch((err) => {
+      console.warn('Push registration failed:', getErrorMessage(err));
+    });
   }, []);
 
   const loginWithGoogle = useCallback(async (params: GoogleSignInParams) => {
     const loggedIn = await googleSignInApi(params);
     setUser(loggedIn);
+    registerForPushNotifications().catch((err) => {
+      console.warn('Push registration failed:', getErrorMessage(err));
+    });
   }, []);
 
   const register = useCallback(async (params: RegisterParams) => {
     const registered = await registerApi(params);
     setUser(registered);
+    registerForPushNotifications().catch((err) => {
+      console.warn('Push registration failed:', getErrorMessage(err));
+    });
   }, []);
 
   const updateProfile = useCallback(
@@ -180,6 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const logout = useCallback(async () => {
+    await unregisterPushNotifications();
     await logoutApi();
     setUser(null);
   }, []);

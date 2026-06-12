@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { BookingsCalendar } from '@/components/bookings-calendar';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
@@ -15,9 +14,6 @@ import { formatClassDate, formatMoney } from '@/data/mock';
 import { getErrorMessage } from '@/services/api/errors';
 import { openPaymentCheckout } from '@/utils/booking-payment';
 import type { Booking, ClassListItem } from '@/types/api';
-import { startOfMonth, toDateKey } from '@/utils/calendar';
-import { APP_LOCALE } from '@/utils/locale';
-import { isSameCalendarDay } from '@/utils/schedule';
 
 type BookingEntry = {
   booking: Booking;
@@ -28,8 +24,9 @@ type BookingEntry = {
 function buildEntries(
   bookings: Booking[],
   getClassById: (id: string) => ClassListItem | undefined,
+  sortNewestFirst: boolean,
 ): BookingEntry[] {
-  return bookings
+  const entries = bookings
     .map((booking) => {
       const cls = getClassById(booking.classId);
       if (!cls) return null;
@@ -37,6 +34,8 @@ function buildEntries(
     })
     .filter((e): e is BookingEntry => e !== null)
     .sort((a, b) => a.startAt.getTime() - b.startAt.getTime());
+
+  return sortNewestFirst ? [...entries].reverse() : entries;
 }
 
 export default function BookingsScreen() {
@@ -45,12 +44,6 @@ export default function BookingsScreen() {
   const pageLoading = (isLoading || classesLoading) && bookings.length === 0;
   const { colors } = useAppTheme();
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
-  const [month, setMonth] = useState(() => startOfMonth(new Date()));
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today;
-  });
 
   const upcoming = bookings.filter(
     (b) => b.status === 'confirmed' || b.status === 'pending_payment',
@@ -61,28 +54,9 @@ export default function BookingsScreen() {
   const tabBookings = tab === 'upcoming' ? upcoming : past;
 
   const entries = useMemo(
-    () => buildEntries(tabBookings, getClassById),
-    [tabBookings, getClassById],
+    () => buildEntries(tabBookings, getClassById, tab === 'past'),
+    [tabBookings, getClassById, tab],
   );
-
-  const markedDateKeys = useMemo(() => {
-    const keys = new Set<string>();
-    for (const entry of entries) {
-      keys.add(toDateKey(entry.startAt));
-    }
-    return keys;
-  }, [entries]);
-
-  const dayEntries = useMemo(
-    () => entries.filter((e) => isSameCalendarDay(e.startAt, selectedDate)),
-    [entries, selectedDate],
-  );
-
-  const selectedLabel = selectedDate.toLocaleDateString(APP_LOCALE, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
 
   const cancelReservation = (booking: Booking, cls: ClassListItem) => {
     const hoursUntilClass = (new Date(cls.startAt).getTime() - Date.now()) / (1000 * 60 * 60);
@@ -143,16 +117,6 @@ export default function BookingsScreen() {
         <Tab label="Historial" active={tab === 'past'} onPress={() => setTab('past')} />
       </View>
 
-      <BookingsCalendar
-        month={month}
-        onMonthChange={setMonth}
-        selectedDate={selectedDate}
-        onSelectDate={setSelectedDate}
-        markedDateKeys={markedDateKeys}
-      />
-
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>{selectedLabel}</Text>
-
       {entries.length === 0 ? (
         <EmptyState
           icon="calendar-outline"
@@ -163,15 +127,8 @@ export default function BookingsScreen() {
               : 'Cuando completes clases, aparecerán acá tu historial.'
           }
         />
-      ) : dayEntries.length === 0 ? (
-        <EmptyState
-          compact
-          icon="today-outline"
-          title="Nada este día"
-          description="Seleccioná una fecha marcada en el calendario o cambiá de pestaña."
-        />
       ) : (
-        dayEntries.map(({ booking, cls }) => (
+        entries.map(({ booking, cls }) => (
           <View
             key={booking.id}
             style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -283,11 +240,6 @@ const styles = StyleSheet.create({
   },
   tab: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: Radius.sm },
   tabText: { fontWeight: '600' },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    marginBottom: Spacing.md,
-  },
   card: {
     borderRadius: Radius.lg,
     borderWidth: 1,

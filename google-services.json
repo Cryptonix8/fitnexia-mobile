@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1037870930377",
+    "project_id": "fitnexia-dcd75",
+    "storage_bucket": "fitnexia-dcd75.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1037870930377:android:cfe3a758e23e20e5c0b018",
+        "android_client_info": {
+          "package_name": "com.fitnexia.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwTOV_FJeST3GgShmorKg8aGEIKda8IBU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

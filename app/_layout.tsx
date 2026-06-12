@@ -9,6 +9,7 @@ import { InteractionManager, StyleSheet, View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { usePushNotificationRouting } from '@/hooks/use-push-notification-routing';
 import { AppSplash } from '@/components/app-splash';
 import { AuthProvider } from '@/contexts/auth-context';
 import { BookingsProvider } from '@/contexts/bookings-context';
@@ -59,6 +60,7 @@ function AppBootstrap() {
   const { colors } = useAppTheme();
   const navigationState = useRootNavigationState();
   const [showSplash, setShowSplash] = useState(true);
+  usePushNotificationRouting();
 
   useEffect(() => {
     if (!showSplash || !navigationState?.key) return;

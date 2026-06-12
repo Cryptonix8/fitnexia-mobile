@@ -102,6 +102,10 @@ export default function CreateClassScreen() {
     }
 
     const startAt = combineDateAndTime(startDate, startTime);
+    if (startAt.getTime() <= Date.now()) {
+      Alert.alert('Horario inválido', 'La clase debe empezar en el futuro. Elegí una fecha y hora posteriores.');
+      return;
+    }
     setPublishing(true);
 
     try {

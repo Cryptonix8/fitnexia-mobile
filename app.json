@@ -10,6 +10,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.fitnexia.app",
+      "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Fitnexia usa tu ubicación para mostrarte clases cerca tuyo en el mapa."
       }
@@ -19,6 +21,7 @@
         "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/images/simbolo.png"
       },
+      "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "permissions": [
@@ -26,7 +29,7 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],
-      "package": "com.antonia0527.Fitnexia"
+      "package": "com.fitnexia.app"
     },
     "web": {
       "output": "static",
@@ -79,7 +82,15 @@
           "iosUrlScheme": "com.googleusercontent.apps.635752178238-9r22776qjpgrnb6e6b5d460n49c1hog9"
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/simbolo.png",
+          "color": "#2563eb",
+          "defaultChannel": "fitnexia_default"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

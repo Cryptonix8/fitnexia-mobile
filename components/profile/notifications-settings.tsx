@@ -12,6 +12,7 @@ const ALL_ITEMS: { key: keyof NotificationPreferences; label: string; desc: stri
   { key: 'bookingConfirmed', label: 'Confirmaciones de reserva', desc: 'Cuando alguien reserva o cancela' },
   { key: 'classReminders', label: 'Recordatorios de clase', desc: '24 h y 1 h antes de tus clases' },
   { key: 'paymentUpdates', label: 'Actualizaciones de pago', desc: 'Cobros y recibos de transacciones' },
+  { key: 'reviewInvites', label: 'Invitaciones a reseñar', desc: 'Después de completar una clase' },
   { key: 'creditsExpiring', label: 'Alertas de cuenta', desc: 'Verificación y actualizaciones de políticas' },
   { key: 'marketing', label: 'Promociones', desc: 'Ofertas del plan Pro y novedades de la plataforma' },
 ];
