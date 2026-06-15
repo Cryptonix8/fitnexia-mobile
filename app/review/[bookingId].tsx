@@ -1,72 +1,86 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
-import { useBookings } from '@/contexts/bookings-context';
-import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
 import { LOADING_LABELS } from '@/constants/labels';
-import { fetchReviewEligibilityApi, submitReviewApi } from '@/services/api/bookings.api';
+import { fetchClassById } from '@/services/api/classes.api';
+import {
+  fetchBookingById,
+  fetchReviewEligibilityApi,
+  submitReviewApi,
+} from '@/services/api/bookings.api';
 import { getErrorMessage } from '@/services/api/errors';
+import type { Booking, ClassListItem } from '@/types/api';
 
 export default function ReviewScreen() {
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
-  const { getClassById } = useClasses();
-  const { bookings } = useBookings();
-  const booking = useMemo(
-    () => bookings.find((b) => b.id === bookingId),
-    [bookings, bookingId],
-  );
-  const cls = booking ? getClassById(booking.classId) : undefined;
+  const [booking, setBooking] = useState<Booking | null>(null);
+  const [cls, setCls] = useState<ClassListItem | null>(null);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [eligible, setEligible] = useState(false);
   const [alreadyReviewed, setAlreadyReviewed] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!bookingId) return;
     let cancelled = false;
+
     (async () => {
       setChecking(true);
+      setLoadError(null);
       try {
-        const result = await fetchReviewEligibilityApi(bookingId);
-        if (!cancelled) {
-          setEligible(result.eligible);
-          setAlreadyReviewed(result.alreadyReviewed);
+        const [bookingResult, eligibilityResult] = await Promise.all([
+          fetchBookingById(bookingId),
+          fetchReviewEligibilityApi(bookingId),
+        ]);
+        if (cancelled) return;
+
+        setBooking(bookingResult);
+        setEligible(eligibilityResult.eligible);
+        setAlreadyReviewed(eligibilityResult.alreadyReviewed);
+
+        if (bookingResult.class) {
+          setCls(bookingResult.class);
+        } else {
+          const classResult = await fetchClassById(bookingResult.classId);
+          if (!cancelled) setCls(classResult);
         }
       } catch (err) {
         if (!cancelled) {
-          Alert.alert('No se pudo verificar la reseña', getErrorMessage(err));
+          setLoadError(getErrorMessage(err));
         }
       } finally {
         if (!cancelled) setChecking(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
   }, [bookingId]);
 
-  if (!booking || !cls) {
-    return (
-      <Screen>
-        <Header title="Reseña" showBack />
-        <Text>Reserva no encontrada</Text>
-      </Screen>
-    );
-  }
-
   if (checking) {
     return (
       <Screen loading loadingMessage={LOADING_LABELS.review}>
         <Header title="Dejar una reseña" showBack />
+      </Screen>
+    );
+  }
+
+  if (loadError || !booking || !cls) {
+    return (
+      <Screen>
+        <Header title="Reseña" showBack />
+        <Text>{loadError || 'Reserva no encontrada'}</Text>
       </Screen>
     );
   }

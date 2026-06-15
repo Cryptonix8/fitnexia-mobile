@@ -6,8 +6,8 @@ Marketplace app connecting athletes, instructors, and gyms. Mobile client built 
 
 The backend API is shared by **web**, **mobile**, and the **admin panel**:
 
-- [API reference (Markdown)](./docs/API.md)
-- [OpenAPI 3 spec](./docs/openapi.yaml) — use with Swagger UI or client codegen
+- [API reference (Markdown)](../fitnexia-backend/docs/API.md)
+- [OpenAPI 3 spec](../fitnexia-backend/docs/openapi.yaml) — use with Swagger UI or client codegen
 - [TypeScript types](./types/api.ts) — shared client types
 
 Staging base URL: `https://api.staging.fitnexia.com/v1` (set `EXPO_PUBLIC_API_URL` in `.env` when integrating).

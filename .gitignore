@@ -44,4 +44,9 @@ app-example
 /ios
 /android
 
+
+.env
+.env.*
+!.env.example
+
 #backend

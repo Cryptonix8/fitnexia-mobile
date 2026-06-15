@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
@@ -28,7 +29,7 @@ function buildEntries(
 ): BookingEntry[] {
   const entries = bookings
     .map((booking) => {
-      const cls = getClassById(booking.classId);
+      const cls = booking.class ?? getClassById(booking.classId);
       if (!cls) return null;
       return { booking, cls, startAt: new Date(cls.startAt) };
     })
@@ -56,6 +57,12 @@ export default function BookingsScreen() {
   const entries = useMemo(
     () => buildEntries(tabBookings, getClassById, tab === 'past'),
     [tabBookings, getClassById, tab],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshBookings();
+    }, [refreshBookings]),
   );
 
   const cancelReservation = (booking: Booking, cls: ClassListItem) => {

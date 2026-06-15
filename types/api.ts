@@ -1,6 +1,6 @@
 /**
  * Shared API types for Fitnexia clients (mobile, web).
- * Keep in sync with docs/openapi.yaml and docs/API.md
+ * Keep in sync with fitnexia-backend/docs/openapi.yaml and fitnexia-backend/docs/API.md
  */
 
 export type UserRole = 'athlete' | 'instructor' | 'institution' | 'admin';
@@ -214,6 +214,8 @@ export interface Booking {
   createdAt: string;
   checkoutUrl?: string;
   paymentId?: string;
+  /** Present on /bookings/me and /bookings/:id — includes past classes no longer in search */
+  class?: ClassListItem;
 }
 
 export interface CreateBookingResponse {

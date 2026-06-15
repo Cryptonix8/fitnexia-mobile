@@ -24,10 +24,32 @@ function resolvePlatform(): 'ios' | 'android' {
   return Platform.OS === 'ios' ? 'ios' : 'android';
 }
 
+function isRunningInExpoGo(): boolean {
+  return Constants.appOwnership === 'expo';
+}
+
+function canRegisterForPush(): boolean {
+  if (Device.isDevice) return true;
+  // Android emulators with Google Play can receive FCM in a dev build.
+  if (__DEV__ && Platform.OS === 'android') return true;
+  return false;
+}
+
 export async function registerForPushNotifications(): Promise<string | null> {
-  if (!Device.isDevice) {
-    console.warn('[push] Push notifications require a physical device');
+  if (isRunningInExpoGo()) {
+    console.warn(
+      '[push] Push notifications are not supported in Expo Go. Run: npx expo run:android',
+    );
     return null;
+  }
+
+  if (!canRegisterForPush()) {
+    console.warn('[push] Push notifications require a physical device or Android emulator');
+    return null;
+  }
+
+  if (!Device.isDevice && __DEV__) {
+    console.log('[push] Android emulator — registering FCM token (Google Play image required)');
   }
 
   if (Platform.OS === 'android') {
@@ -72,6 +94,9 @@ export async function registerForPushNotifications(): Promise<string | null> {
 
   await registerDeviceTokenApi({ token, platform: resolvePlatform() });
   registeredToken = token;
+  if (__DEV__) {
+    console.log('[push] Registered device token:', token.slice(0, 12) + '…');
+  }
   return token;
 }
 
