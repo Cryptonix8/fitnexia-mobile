@@ -1,4 +1,4 @@
-import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 
@@ -13,17 +13,29 @@ function navigateFromNotification(data: PushNotificationData | undefined) {
 
 export function usePushNotificationRouting() {
   useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-      const data = response.notification.request.content.data as PushNotificationData;
-      navigateFromNotification(data);
+    if (Constants.appOwnership === 'expo') return;
+
+    let subscription: { remove: () => void } | undefined;
+    let cancelled = false;
+
+    void import('expo-notifications').then((Notifications) => {
+      if (cancelled) return;
+
+      subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+        const data = response.notification.request.content.data as PushNotificationData;
+        navigateFromNotification(data);
+      });
+
+      void Notifications.getLastNotificationResponseAsync().then((response) => {
+        if (!response) return;
+        const data = response.notification.request.content.data as PushNotificationData;
+        navigateFromNotification(data);
+      });
     });
 
-    Notifications.getLastNotificationResponseAsync().then((response) => {
-      if (!response) return;
-      const data = response.notification.request.content.data as PushNotificationData;
-      navigateFromNotification(data);
-    });
-
-    return () => subscription.remove();
+    return () => {
+      cancelled = true;
+      subscription?.remove();
+    };
   }, []);
 }

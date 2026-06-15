@@ -1,22 +1,36 @@
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { getFirebaseInstallationId } from '@/services/firebase-installations';
 import {
   registerDeviceTokenApi,
   unregisterDeviceTokenApi,
 } from '@/services/api/notifications.api';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+type NotificationsModule = typeof import('expo-notifications');
+
+let notificationsModule: NotificationsModule | null = null;
+let notificationHandlerConfigured = false;
+
+async function getNotifications(): Promise<NotificationsModule | null> {
+  if (isRunningInExpoGo()) return null;
+  if (!notificationsModule) {
+    notificationsModule = await import('expo-notifications');
+  }
+  if (!notificationHandlerConfigured) {
+    notificationsModule.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+    notificationHandlerConfigured = true;
+  }
+  return notificationsModule;
+}
 
 let registeredToken: string | null = null;
 
@@ -51,6 +65,9 @@ export async function registerForPushNotifications(): Promise<string | null> {
   if (!Device.isDevice && __DEV__) {
     console.log('[push] Android emulator — registering FCM token (Google Play image required)');
   }
+
+  const Notifications = await getNotifications();
+  if (!Notifications) return null;
 
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('fitnexia_default', {
@@ -96,6 +113,10 @@ export async function registerForPushNotifications(): Promise<string | null> {
   registeredToken = token;
   if (__DEV__) {
     console.log('[push] Registered device token:', token.slice(0, 12) + '…');
+    const installationId = await getFirebaseInstallationId();
+    if (installationId) {
+      console.log('[push] Firebase Installation ID:', installationId);
+    }
   }
   return token;
 }

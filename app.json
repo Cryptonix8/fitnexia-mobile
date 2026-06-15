@@ -36,6 +36,16 @@
       "favicon": "./assets/images/simbolo.png"
     },
     "plugins": [
+      "expo-dev-client",
+      "@react-native-firebase/app",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
       "expo-router",
       [
         "expo-image-picker",
