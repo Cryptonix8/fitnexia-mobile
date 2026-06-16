@@ -111,14 +111,25 @@ export const Radius = {
 };
 
 export const DISCIPLINES = [
+  'Musculación',
+  'Entrenamiento Funcional',
+  'Entrenamiento Personalizado',
+  'Entrenamiento para adultos mayores',
+  'Entrenamiento para embarazadas',
+  'Zumba/Ritmos',
+  'Indoor Cycling',
+  'Pilates Mat/Reformer',
+  'Tenis',
+  'Pádel',
+  'Hidrogimnasia',
+  'Natación',
+  'Fútbol',
+  'Basquetbol',
+  'Voleibol',
+  'Hockey',
   'Yoga',
-  'CrossFit',
-  'Tennis',
-  'Swimming',
-  'HIIT',
-  'Pilates',
-  'Boxing',
-  'Running',
+  'Crossfit',
+  'Otros',
 ] as const;
 
 export const ROLE_LABELS = {
@@ -135,11 +146,15 @@ export const MOCK_LOCATION_AREAS = [
   'En línea',
 ] as const;
 
+/** Price filter thresholds in minor units (centésimos de peso). */
+const UYU_800 = 80_000;
+const UYU_1500 = 150_000;
+
 export const PRICE_RANGES = [
   { id: 'any', label: 'Cualquier precio', min: 0, max: Infinity },
-  { id: 'budget', label: 'Menos de USD 20', min: 0, max: 2000 },
-  { id: 'mid', label: 'USD 20 – 35', min: 2000, max: 3500 },
-  { id: 'premium', label: 'USD 35+', min: 3500, max: Infinity },
+  { id: 'budget', label: 'Menos de 800 UYU', min: 0, max: UYU_800 - 1 },
+  { id: 'mid', label: 'Entre 800 y 1500 UYU', min: UYU_800, max: UYU_1500 },
+  { id: 'premium', label: 'Más de 1500 UYU', min: UYU_1500 + 1, max: Infinity },
 ] as const;
 
 export type ScheduleFilter =

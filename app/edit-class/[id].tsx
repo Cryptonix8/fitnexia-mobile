@@ -257,6 +257,18 @@ export default function EditClassScreen() {
         </>
       ) : null}
 
+      <Text style={[styles.label, { color: colors.textSecondary }]}>Disciplina</Text>
+      <View style={styles.row}>
+        {DISCIPLINES.map((d) => (
+          <FilterChip
+            key={d}
+            label={d}
+            active={discipline === d}
+            onPress={() => setDiscipline(d)}
+          />
+        ))}
+      </View>
+
       <Text style={[styles.label, { color: colors.textSecondary }]}>Modalidad</Text>
       <View style={styles.row}>
         <FilterChip

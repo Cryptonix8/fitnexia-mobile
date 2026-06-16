@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { useAuth, getErrorMessage } from '@/contexts/auth-context';
 import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { AUTH_LABELS, BUTTON_LABELS, SCREEN_TITLES, ALERT_LABELS, PROFILE_MENU_LABELS } from '@/constants/labels';
 import { validateInstructorProfileForm } from '@/utils/validation';
 
@@ -68,11 +69,11 @@ export default function InstructorEditProfileScreen() {
       <Input label={AUTH_LABELS.email} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
       <Input label="Bio" value={bio} onChangeText={setBio} multiline placeholder="Contales a los atletas sobre tu experiencia..." />
       <Input
-        label="Tarifa por hora (USD, opcional)"
+        label={`Tarifa por hora (${DEFAULT_CURRENCY}, opcional)`}
         value={hourlyRate}
         onChangeText={setHourlyRate}
         keyboardType="decimal-pad"
-        placeholder="ej. 50"
+        placeholder="ej. 1300"
       />
 
       <Text style={styles.label}>{PROFILE_MENU_LABELS.disciplines}</Text>

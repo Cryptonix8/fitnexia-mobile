@@ -29,6 +29,7 @@ import {
   registerForPushNotifications,
   unregisterPushNotifications,
 } from '@/services/push-notifications';
+import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { resolveMediaUrl, resolveMediaUrls } from '@/services/api/media.api';
 import type { UserRole } from '@/types/api';
 import type { AuthUser, RegisterParams, UpdateProfileParams } from '@/types/auth-user';
@@ -157,7 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (p?.hourlyRate !== undefined && p.hourlyRate !== '') {
           body.hourlyRate = {
             amount: Math.round(parseFloat(p.hourlyRate) * 100),
-            currency: 'USD',
+            currency: DEFAULT_CURRENCY,
           };
         }
         if (updates.avatarUri !== undefined) body.photoUrl = photoUrl;

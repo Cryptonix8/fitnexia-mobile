@@ -1,4 +1,5 @@
 import { MOCK_GYM_WEEKLY_METRICS } from '@/data/mock';
+import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { APP_LOCALE } from '@/utils/locale';
 import type { ClassListItem } from '@/types/api';
 
@@ -23,12 +24,16 @@ export function formatGymChange(pct: number): string {
 }
 
 export function formatRevenueCompact(cents: number): string {
-  if (cents >= 100000) {
-    return `$${(cents / 100000).toFixed(1)}k`;
+  if (cents >= 1_000_000) {
+    return `${new Intl.NumberFormat(APP_LOCALE, {
+      style: 'currency',
+      currency: DEFAULT_CURRENCY,
+      maximumFractionDigits: 0,
+    }).format(cents / 100_000)}k`;
   }
   return new Intl.NumberFormat(APP_LOCALE, {
     style: 'currency',
-    currency: 'USD',
+    currency: DEFAULT_CURRENCY,
     maximumFractionDigits: 0,
   }).format(cents / 100);
 }

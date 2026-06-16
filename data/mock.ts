@@ -5,6 +5,7 @@ import type {
   Instructor,
   Institution,
 } from '@/types/api';
+import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { APP_LOCALE } from '@/utils/locale';
 
 export const MOCK_INSTRUCTORS: Instructor[] = [
@@ -13,13 +14,13 @@ export const MOCK_INSTRUCTORS: Instructor[] = [
     userId: 'u-1',
     displayName: 'Carlos Ruiz',
     bio: 'Entrenador de tenis certificado PTR con más de 10 años de experiencia.',
-    disciplines: ['Tennis', 'Padel'],
+    disciplines: ['Tenis', 'Pádel'],
     verified: true,
     availableNow: true,
     averageRating: 4.9,
     reviewCount: 124,
     plan: 'pro',
-    hourlyRate: { amount: 5000, currency: 'USD' },
+    hourlyRate: { amount: 200_000, currency: DEFAULT_CURRENCY },
     certifications: [
       { name: 'PTR Certified', issuer: 'PTR', year: 2018 },
       { name: 'Sports Psychology', issuer: 'ITF', year: 2020 },
@@ -30,13 +31,13 @@ export const MOCK_INSTRUCTORS: Instructor[] = [
     userId: 'u-2',
     displayName: 'Mia Chen',
     bio: 'Instructora de yoga y mindfulness. RYT-500.',
-    disciplines: ['Yoga', 'Pilates'],
+    disciplines: ['Yoga', 'Pilates Mat/Reformer'],
     verified: true,
     availableNow: false,
     averageRating: 4.8,
     reviewCount: 89,
     plan: 'basic',
-    hourlyRate: { amount: 3500, currency: 'USD' },
+    hourlyRate: { amount: 150_000, currency: DEFAULT_CURRENCY },
     certifications: [{ name: 'RYT-500', issuer: 'Yoga Alliance', year: 2019 }],
   },
   {
@@ -44,7 +45,7 @@ export const MOCK_INSTRUCTORS: Instructor[] = [
     userId: 'u-3',
     displayName: 'James Okonkwo',
     bio: 'Especialista en HIIT y fuerza.',
-    disciplines: ['HIIT', 'CrossFit'],
+    disciplines: ['Entrenamiento Funcional', 'Crossfit'],
     verified: false,
     availableNow: false,
     averageRating: 4.6,
@@ -83,7 +84,7 @@ export const MOCK_CLASSES: ClassListItem[] = [
     modality: 'in_person',
     startAt: '2026-06-10T08:00:00Z',
     durationMinutes: 60,
-    price: { amount: 2500, currency: 'USD' },
+    price: { amount: 120_000, currency: DEFAULT_CURRENCY },
     capacity: 12,
     spotsLeft: 4,
     instructor: {
@@ -96,11 +97,11 @@ export const MOCK_CLASSES: ClassListItem[] = [
   {
     id: 'class-2',
     title: 'Fundamentos de Tenis',
-    discipline: 'Tennis',
+    discipline: 'Tenis',
     modality: 'in_person',
     startAt: '2026-06-11T10:00:00Z',
     durationMinutes: 90,
-    price: { amount: 4500, currency: 'USD' },
+    price: { amount: 180_000, currency: DEFAULT_CURRENCY },
     capacity: 4,
     spotsLeft: 1,
     instructor: {
@@ -113,11 +114,11 @@ export const MOCK_CLASSES: ClassListItem[] = [
   {
     id: 'class-3',
     title: 'HIIT Burn (En línea)',
-    discipline: 'HIIT',
+    discipline: 'Entrenamiento Funcional',
     modality: 'online',
     startAt: '2026-06-12T18:00:00Z',
     durationMinutes: 45,
-    price: { amount: 1500, currency: 'USD' },
+    price: { amount: 60_000, currency: DEFAULT_CURRENCY },
     capacity: 30,
     spotsLeft: 12,
     instructor: {
@@ -129,11 +130,11 @@ export const MOCK_CLASSES: ClassListItem[] = [
   {
     id: 'class-4',
     title: 'CrossFit Grupal',
-    discipline: 'CrossFit',
+    discipline: 'Crossfit',
     modality: 'in_person',
     startAt: '2026-06-13T07:00:00Z',
     durationMinutes: 55,
-    price: { amount: 2000, currency: 'USD' },
+    price: { amount: 90_000, currency: DEFAULT_CURRENCY },
     capacity: 20,
     spotsLeft: 0,
     instructor: {
@@ -147,11 +148,11 @@ export const MOCK_CLASSES: ClassListItem[] = [
   {
     id: 'class-5',
     title: 'Pilates Nocturno',
-    discipline: 'Pilates',
+    discipline: 'Pilates Mat/Reformer',
     modality: 'in_person',
     startAt: '2026-06-14T19:00:00Z',
     durationMinutes: 50,
-    price: { amount: 2800, currency: 'USD' },
+    price: { amount: 140_000, currency: DEFAULT_CURRENCY },
     capacity: 10,
     spotsLeft: 6,
     instructor: {
@@ -169,7 +170,7 @@ export const MOCK_BOOKINGS: Booking[] = [
     status: 'confirmed',
     classId: 'class-1',
     userId: 'me',
-    price: { amount: 2500, currency: 'USD' },
+    price: { amount: 120_000, currency: DEFAULT_CURRENCY },
     createdAt: '2026-05-28T10:00:00Z',
   },
   {
@@ -177,7 +178,7 @@ export const MOCK_BOOKINGS: Booking[] = [
     status: 'completed',
     classId: 'class-2',
     userId: 'me',
-    price: { amount: 4500, currency: 'USD' },
+    price: { amount: 180_000, currency: DEFAULT_CURRENCY },
     createdAt: '2026-05-01T10:00:00Z',
   },
 ];
@@ -188,7 +189,7 @@ export const MOCK_CREDITS: CreditBalance = {
   expiresAt: '2027-06-01T00:00:00Z',
   lastBookingAt: '2026-05-28T10:00:00Z',
   freeClassEligible: false,
-  maxFreeClassValue: { amount: 3000, currency: 'USD' },
+  maxFreeClassValue: { amount: 150_000, currency: DEFAULT_CURRENCY },
 };
 
 export type GymDayMetric = {

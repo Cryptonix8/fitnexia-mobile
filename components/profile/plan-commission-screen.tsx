@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useAppTheme } from '@/contexts/theme-context';
+import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { SCREEN_TITLES } from '@/constants/labels';
 import { fetchPlans, type PlanConfig } from '@/services/api/config.api';
@@ -12,7 +13,7 @@ import { getErrorMessage } from '@/services/api/errors';
 import type { InstructorPlan } from '@/types/api';
 import { APP_LOCALE } from '@/utils/locale';
 
-function formatMonthlyFee(cents: number, currency = 'USD') {
+function formatMonthlyFee(cents: number, currency = DEFAULT_CURRENCY) {
   if (cents === 0) return 'Gratis';
   try {
     return `${new Intl.NumberFormat(APP_LOCALE, {

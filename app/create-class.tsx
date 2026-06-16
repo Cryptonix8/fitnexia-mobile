@@ -275,7 +275,7 @@ export default function CreateClassScreen() {
 
       <Text style={[styles.label, { color: colors.textSecondary }]}>Disciplina</Text>
       <View style={styles.row}>
-        {DISCIPLINES.slice(0, 5).map((d) => (
+        {DISCIPLINES.map((d) => (
           <FilterChip
             key={d}
             label={d}
