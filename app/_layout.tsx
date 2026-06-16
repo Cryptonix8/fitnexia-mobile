@@ -10,6 +10,7 @@ import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { usePushNotificationRouting } from '@/hooks/use-push-notification-routing';
+import { useFirebaseInAppMessaging } from '@/hooks/use-firebase-in-app-messaging';
 import { AppSplash } from '@/components/app-splash';
 import { AuthProvider } from '@/contexts/auth-context';
 import { BookingsProvider } from '@/contexts/bookings-context';
@@ -61,6 +62,7 @@ function AppBootstrap() {
   const navigationState = useRootNavigationState();
   const [showSplash, setShowSplash] = useState(true);
   usePushNotificationRouting();
+  useFirebaseInAppMessaging(!showSplash && Boolean(navigationState?.key));
 
   useEffect(() => {
     if (!showSplash || !navigationState?.key) return;

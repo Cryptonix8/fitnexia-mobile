@@ -100,11 +100,19 @@
           "color": "#2563eb",
           "defaultChannel": "fitnexia_default"
         }
-      ]
+      ],
+      "@react-native-firebase/analytics"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e43c4a54-4440-477d-a032-1c6c87144ecf"
+      }
+    },
+    "owner": "antonia0527"
   }
 }
