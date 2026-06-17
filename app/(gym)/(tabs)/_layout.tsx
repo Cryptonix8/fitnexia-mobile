@@ -9,6 +9,7 @@ import { useFeature } from '@/hooks/use-feature';
 export default function GymTabs() {
   const tabBarOptions = useTabBarOptions();
   const showMetrics = useFeature('analyticsMetrics');
+  const showMembers = useFeature('clubMemberships');
 
   return (
     <Tabs
@@ -35,6 +36,14 @@ export default function GymTabs() {
         options={{
           title: TAB_LABELS.gym.classes,
           tabBarIcon: ({ color, size }) => <Ionicons name="barbell" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="members"
+        options={{
+          title: TAB_LABELS.gym.members,
+          href: showMembers ? undefined : null,
+          tabBarIcon: ({ color, size }) => <Ionicons name="id-card" size={size} color={color} />,
         }}
       />
       <Tabs.Screen

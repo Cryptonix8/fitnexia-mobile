@@ -48,6 +48,10 @@ function RootNavigator() {
         <Stack.Screen name="book/[classId]" options={{ headerShown: false }} />
         <Stack.Screen name="booking/complete" options={{ headerShown: false }} />
         <Stack.Screen name="review/[bookingId]" options={{ headerShown: false }} />
+        <Stack.Screen name="membership/index" options={{ headerShown: false }} />
+        <Stack.Screen name="membership/join" options={{ headerShown: false }} />
+        <Stack.Screen name="membership/[memberId]" options={{ headerShown: false }} />
+        <Stack.Screen name="membership/complete" options={{ headerShown: false }} />
         <Stack.Screen name="create-class" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="edit-class/[id]" options={{ presentation: 'modal', headerShown: false }} />
       </Stack>

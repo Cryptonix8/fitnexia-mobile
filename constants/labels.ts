@@ -79,6 +79,7 @@ export const TAB_LABELS = {
     dashboard: 'Panel',
     staff: 'Equipo',
     classes: 'Clases',
+    members: 'Socios',
     metrics: 'Métricas',
     profile: 'Gimnasio',
   },
@@ -97,7 +98,43 @@ export const PROFILE_MENU_LABELS = {
   scheduleAvailability: 'Horario y disponibilidad',
   photoGallery: 'Galería de fotos',
   instructors: 'Instructores',
+  clubMembership: 'Membresía del club',
+  membershipPlans: 'Planes de cuota',
 } as const;
+
+export const MEMBERSHIP_LABELS = {
+  feeUpToDate: 'Al día',
+  feePending: 'Pendiente',
+  feeOverdue: 'En mora',
+  feeInactive: 'Inactivo',
+  billingMonthly: 'Mensual',
+  billingQuarterly: 'Trimestral',
+  billingAnnual: 'Anual',
+  inviteCode: 'Código de invitación',
+  nextDue: 'Próximo vencimiento',
+  amountDue: 'Saldo pendiente',
+  payDebt: 'Pagar cuota',
+  authorizeDebit: 'Autorizar débito',
+  noMembers: 'Todavía no hay socios registrados',
+  noPlans: 'Creá un plan de cuota para empezar',
+} as const;
+
+export function membershipBillingLabel(frequency: string): string {
+  if (frequency === 'quarterly') return MEMBERSHIP_LABELS.billingQuarterly;
+  if (frequency === 'annual') return MEMBERSHIP_LABELS.billingAnnual;
+  return MEMBERSHIP_LABELS.billingMonthly;
+}
+
+export function membershipFeeStatusLabel(status: string): string {
+  if (status === 'up_to_date') return MEMBERSHIP_LABELS.feeUpToDate;
+  if (status === 'overdue') return MEMBERSHIP_LABELS.feeOverdue;
+  if (status === 'inactive') return MEMBERSHIP_LABELS.feeInactive;
+  return MEMBERSHIP_LABELS.feePending;
+}
+
+export function formatMoney(money: { amount: number; currency: string }): string {
+  return `${(money.amount / 100).toLocaleString('es-UY')} ${money.currency}`;
+}
 
 export const SCREEN_TITLES = {
   profile: 'Perfil',

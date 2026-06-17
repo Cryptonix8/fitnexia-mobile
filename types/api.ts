@@ -276,6 +276,113 @@ export interface HomeFeed {
   popular: ClassListItem[];
 }
 
+export type MembershipBillingFrequency = 'monthly' | 'quarterly' | 'annual';
+export type MembershipPlanType = 'individual' | 'family';
+export type ClubMemberFeeStatus = 'up_to_date' | 'pending' | 'overdue' | 'inactive';
+export type ClubMemberStatus =
+  | 'invited'
+  | 'pending_authorization'
+  | 'active'
+  | 'pending_payment'
+  | 'overdue'
+  | 'inactive';
+
+export interface MembershipPlan {
+  id: string;
+  institutionId: string;
+  name: string;
+  description: string;
+  price: Money;
+  priceCents: number;
+  priceCurrency: string;
+  billingFrequency: MembershipBillingFrequency;
+  planType: MembershipPlanType;
+  maxMembers?: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClubMember {
+  id: string;
+  institutionId: string;
+  userId?: string;
+  planId: string;
+  status: ClubMemberStatus;
+  feeStatus: ClubMemberFeeStatus;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  joinedAt?: string;
+  leftAt?: string;
+  planName?: string;
+  institutionName?: string;
+  nextBillingAt?: string;
+  subscriptionStatus?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MembershipInvite {
+  id: string;
+  institutionId: string;
+  planId: string;
+  code: string;
+  email?: string;
+  invitedName?: string;
+  invitedPhone?: string;
+  status: 'pending' | 'accepted' | 'expired' | 'cancelled';
+  expiresAt?: string;
+  bulkBatchId?: string;
+  planName?: string;
+  institutionName?: string;
+  createdAt: string;
+}
+
+export interface MembershipInvitePreview {
+  code: string;
+  institutionName: string;
+  institutionLogo?: string;
+  plan: Pick<MembershipPlan, 'id' | 'name' | 'description' | 'price' | 'billingFrequency' | 'planType'>;
+  invitedName?: string;
+  email?: string;
+  expiresAt?: string;
+}
+
+export interface MembershipPayment {
+  id: string;
+  subscriptionId: string;
+  clubMemberId: string;
+  status: 'pending' | 'approved' | 'rejected' | 'refunded';
+  amount: Money;
+  periodStart?: string;
+  periodEnd?: string;
+  isManual: boolean;
+  checkoutUrl?: string;
+  createdAt: string;
+}
+
+export interface MembershipStatement {
+  member: ClubMember;
+  plan: { name: string; price: Money; billingFrequency: MembershipBillingFrequency };
+  nextDueDate?: string;
+  amountDue: Money | null;
+  graceDays: number;
+  payments: MembershipPayment[];
+}
+
+export interface MembersSummary {
+  upToDate: number;
+  pending: number;
+  overdue: number;
+  total: number;
+}
+
+export interface MembershipSettings {
+  graceDays: number;
+  dueReminderDays: number;
+}
+
 /** Default API base — override per environment */
 export const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL ?? 'https://api.staging.fitnexia.com/v1';

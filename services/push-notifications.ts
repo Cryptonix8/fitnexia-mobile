@@ -141,6 +141,8 @@ export type PushNotificationData = {
   bookingId?: string;
   classId?: string;
   inviteId?: string;
+  memberId?: string;
+  inviteCode?: string;
   screen?: string;
 };
 
@@ -162,6 +164,15 @@ export function routeFromPushData(data: PushNotificationData | undefined) {
       return '/(instructor)/(tabs)/dashboard';
     case 'review_invite':
       return data.bookingId ? `/review/${data.bookingId}` : '/(athlete)/(tabs)/bookings';
+    case 'membership_invite':
+      return data.inviteCode ? `/membership/join?code=${data.inviteCode}` : '/membership/join';
+    case 'membership_due_reminder':
+    case 'membership_payment_confirmed':
+    case 'membership_payment_failed':
+    case 'membership_overdue':
+      return data.memberId ? `/membership/${data.memberId}` : '/membership';
+    case 'club_arrears_alert':
+      return '/(gym)/(tabs)/members';
     default:
       return null;
   }

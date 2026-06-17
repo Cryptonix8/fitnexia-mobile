@@ -17,6 +17,7 @@ export const FEATURES = {
   gymStaffManagement: true,
   gymStaffReviews: true,
   gymBasicDashboard: true,
+  clubMemberships: true,
   profileEditing: true,
   passwordRecovery: true,
   notificationPreferences: true,

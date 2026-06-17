@@ -80,6 +80,13 @@ export default function AthleteProfileScreen() {
         value={favoriteSportsLabel}
         onPress={() => router.push('/(athlete)/profile/favorite-sports')}
       />
+      {useFeature('clubMemberships') ? (
+        <ProfileMenuItem
+          icon="card-outline"
+          label={PROFILE_MENU_LABELS.clubMembership}
+          onPress={() => router.push('/membership/index')}
+        />
+      ) : null}
       <ProfileMenuItem
         icon="notifications-outline"
         label={PROFILE_MENU_LABELS.notifications}

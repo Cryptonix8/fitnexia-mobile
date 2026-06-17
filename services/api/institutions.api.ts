@@ -1,5 +1,12 @@
 import type { InstructorInvite } from '@/types/auth-user';
-import type { Instructor } from '@/types/api';
+import type {
+  ClubMember,
+  Instructor,
+  MembersSummary,
+  MembershipInvite,
+  MembershipPlan,
+  MembershipSettings,
+} from '@/types/api';
 
 import { apiRequest } from './client';
 
@@ -78,4 +85,114 @@ export async function fetchPendingInvites() {
 
 export async function cancelInviteApi(inviteId: string) {
   return apiRequest(`/institutions/me/instructors/invites/${inviteId}`, { method: 'DELETE' });
+}
+
+export async function fetchMembershipPlans() {
+  const result = await apiRequest<{ data: MembershipPlan[] }>('/institutions/me/membership-plans');
+  return result.data;
+}
+
+export async function createMembershipPlanApi(body: {
+  name: string;
+  description?: string;
+  priceCents: number;
+  priceCurrency?: string;
+  billingFrequency: string;
+  planType?: string;
+  maxMembers?: number;
+}) {
+  return apiRequest<MembershipPlan>('/institutions/me/membership-plans', {
+    method: 'POST',
+    body,
+  });
+}
+
+export async function updateMembershipPlanApi(
+  planId: string,
+  body: Partial<{
+    name: string;
+    description: string;
+    priceCents: number;
+    billingFrequency: string;
+    planType: string;
+    active: boolean;
+  }>,
+) {
+  return apiRequest<MembershipPlan>(`/institutions/me/membership-plans/${planId}`, {
+    method: 'PATCH',
+    body,
+  });
+}
+
+export async function deleteMembershipPlanApi(planId: string) {
+  return apiRequest(`/institutions/me/membership-plans/${planId}`, { method: 'DELETE' });
+}
+
+export async function fetchMembershipSettings() {
+  return apiRequest<MembershipSettings>('/institutions/me/membership-settings');
+}
+
+export async function updateMembershipSettingsApi(body: Partial<MembershipSettings>) {
+  return apiRequest<MembershipSettings>('/institutions/me/membership-settings', {
+    method: 'PATCH',
+    body,
+  });
+}
+
+export async function fetchClubMembers(status?: string) {
+  const query = status ? `?status=${encodeURIComponent(status)}` : '';
+  const result = await apiRequest<{ data: ClubMember[] }>(`/institutions/me/members${query}`);
+  return result.data;
+}
+
+export async function fetchMembersSummary() {
+  return apiRequest<MembersSummary>('/institutions/me/members/summary');
+}
+
+export async function addClubMemberApi(body: {
+  planId: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  userId?: string;
+}) {
+  return apiRequest<ClubMember>('/institutions/me/members', { method: 'POST', body });
+}
+
+export async function removeClubMemberApi(memberId: string) {
+  return apiRequest(`/institutions/me/members/${memberId}`, { method: 'DELETE' });
+}
+
+export async function fetchMembershipInvites() {
+  const result = await apiRequest<{ data: MembershipInvite[] }>('/institutions/me/membership-invites');
+  return result.data;
+}
+
+export async function createMembershipInviteApi(body: {
+  planId: string;
+  email?: string;
+  invitedName?: string;
+  invitedPhone?: string;
+  expiresInDays?: number;
+}) {
+  return apiRequest<MembershipInvite>('/institutions/me/membership-invites', {
+    method: 'POST',
+    body,
+  });
+}
+
+export async function bulkCreateMembershipInvitesApi(members: {
+  planId: string;
+  email?: string;
+  invitedName?: string;
+  invitedPhone?: string;
+}[]) {
+  return apiRequest<{ batchId: string; results: unknown[] }>(
+    '/institutions/me/membership-invites/bulk',
+    { method: 'POST', body: { members } },
+  );
+}
+
+export async function cancelMembershipInviteApi(inviteId: string) {
+  return apiRequest(`/institutions/me/membership-invites/${inviteId}`, { method: 'DELETE' });
 }
