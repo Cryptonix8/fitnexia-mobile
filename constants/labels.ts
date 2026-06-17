@@ -57,7 +57,8 @@ export function modalityBadgeLabel(modality: Modality): string {
 
 export function modalityLocationLabel(modality: Modality, locationLabel?: string): string {
   if (modality === 'online') return MODALITY_LABELS.online;
-  return locationLabel ?? MODALITY_LABELS.inPerson;
+  const translated = translateLocationLabel(locationLabel);
+  return translated || MODALITY_LABELS.inPerson;
 }
 
 export const TAB_LABELS = {
@@ -172,11 +173,70 @@ export const AUTH_LABELS = {
   gymSchoolPlaceholder: 'Nombre de tu instalación',
   firstName: 'Nombre',
   lastName: 'Apellido',
-  email: 'Email',
+  email: 'Correo electrónico',
   password: 'Contraseña',
   logoPhoto: 'Logo / foto',
   profilePhoto: 'Foto de perfil',
+  bio: 'Biografía',
 } as const;
+
+export const PLAN_LABELS = {
+  basic: 'Básico',
+  pro: 'Pro',
+  institutional: 'Institucional',
+} as const;
+
+export const PLAN_COMMISSION_PERCENT: Record<keyof typeof PLAN_LABELS, number> = {
+  basic: 15,
+  pro: 8,
+  institutional: 5,
+};
+
+export function formatPlanSummary(planId: keyof typeof PLAN_LABELS, commissionPercent: number): string {
+  return `${PLAN_LABELS[planId] ?? planId} · ${commissionPercent}%`;
+}
+
+export function formatUserPlanSummary(planId: keyof typeof PLAN_LABELS): string {
+  return formatPlanSummary(planId, PLAN_COMMISSION_PERCENT[planId] ?? 15);
+}
+
+/** Legacy English location labels from older catalog / staging data. */
+const LEGACY_LOCATION_LABELS: Record<string, string> = {
+  'Wellness Loft': 'Espacio Wellness',
+  'Central Courts': 'Canchas Centrales',
+  'FitHub Studio A': 'Sede FitHub — Sala A',
+  'FitHub Downtown': 'Sede FitHub',
+  FitHub: 'Sede FitHub',
+};
+
+export function translateLocationLabel(label?: string | null): string {
+  if (!label?.trim()) return '';
+  const trimmed = label.trim();
+  return LEGACY_LOCATION_LABELS[trimmed] ?? trimmed;
+}
+
+/** Legacy English discipline names from older catalog / API data. */
+const LEGACY_DISCIPLINE_LABELS: Record<string, string> = {
+  CrossFit: 'Entrenamiento cross',
+  Crossfit: 'Entrenamiento cross',
+  'Indoor Cycling': 'Ciclismo indoor',
+  'Pilates Mat/Reformer': 'Pilates suelo/reformer',
+  Tennis: 'Tenis',
+  Swimming: 'Natación',
+  HIIT: 'Entrenamiento Funcional',
+  Pilates: 'Pilates suelo/reformer',
+  Boxing: 'Otros',
+  Running: 'Otros',
+  Padel: 'Pádel',
+};
+
+export function translateDisciplineLabel(discipline: string): string {
+  return LEGACY_DISCIPLINE_LABELS[discipline] ?? discipline;
+}
+
+export function translateDisciplineLabels(disciplines: string[]): string[] {
+  return disciplines.map(translateDisciplineLabel);
+}
 
 export const ALERT_LABELS = {
   signOutTitle: 'Cerrar sesión',

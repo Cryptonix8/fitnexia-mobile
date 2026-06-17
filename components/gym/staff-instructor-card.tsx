@@ -7,6 +7,7 @@ import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
+import { translateDisciplineLabels } from '@/constants/labels';
 import type { StaffRosterEntry } from '@/services/api/institutions.api';
 
 type StaffInstructorCardProps = {
@@ -54,7 +55,7 @@ export function StaffInstructorCard({
             )}
           </View>
           <Text style={[styles.meta, { color: colors.textMuted }]} numberOfLines={1}>
-            {instructor.disciplines.join(', ') || 'Sin disciplinas'}
+            {translateDisciplineLabels(instructor.disciplines).join(', ') || 'Sin disciplinas'}
           </Text>
           <StarRating
             rating={instructor.averageRating}

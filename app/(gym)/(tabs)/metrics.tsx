@@ -19,8 +19,7 @@ import {
 } from '@/utils/gym-metrics';
 
 function formatRevenueAxis(cents: number): string {
-  if (cents >= 100000) return `$${(cents / 100000).toFixed(1)}k`;
-  return `$${Math.round(cents / 100)}`;
+  return formatRevenueCompact(cents);
 }
 
 export default function GymMetricsScreen() {

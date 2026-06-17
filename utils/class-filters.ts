@@ -1,5 +1,6 @@
 import type { ClassListItem } from '@/types/api';
 import type { ScheduleFilter } from '@/constants/fitnexia';
+import { translateDisciplineLabel, translateLocationLabel } from '@/constants/labels';
 import { isWithinRadius } from '@/utils/geo';
 
 export interface ClassSearchFilters {
@@ -54,9 +55,9 @@ function matchesLocation(item: ClassListItem, location: string): boolean {
   const q = location.toLowerCase().trim();
   if (q === 'online' && item.modality === 'online') return true;
   const parts = [
-    item.location?.label,
+    translateLocationLabel(item.location?.label),
     item.institution?.name,
-    item.modality === 'online' ? 'online' : null,
+    item.modality === 'online' ? 'en línea' : null,
   ].filter(Boolean) as string[];
   return parts.some((p) => p.toLowerCase().includes(q));
 }
@@ -66,7 +67,7 @@ export function filterClasses(
   filters: ClassSearchFilters,
 ): ClassListItem[] {
   return classes.filter((item) => {
-    if (filters.discipline && item.discipline !== filters.discipline) return false;
+    if (filters.discipline && translateDisciplineLabel(item.discipline) !== filters.discipline) return false;
     if (filters.modality && item.modality !== filters.modality) return false;
 
     if (filters.priceMin != null && item.price.amount < filters.priceMin) return false;

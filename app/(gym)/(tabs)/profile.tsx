@@ -14,7 +14,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { MOCK_INSTRUCTORS } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { BADGE_LABELS, BUTTON_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES } from '@/constants/labels';
+import { BADGE_LABELS, BUTTON_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, formatUserPlanSummary, translateDisciplineLabels } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { useSignOut } from '@/hooks/use-sign-out';
 import { normalizeMediaUrl } from '@/services/api/media.api';
@@ -121,7 +121,7 @@ export default function GymProfileScreen() {
             <View style={styles.instructorBody}>
               <Text style={[styles.instructorName, { color: colors.text }]}>{i.displayName}</Text>
               <Text style={[styles.instructorMeta, { color: colors.textMuted }]}>
-                {i.disciplines.join(' · ')}
+                {translateDisciplineLabels(i.disciplines).join(' · ')}
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
@@ -140,7 +140,7 @@ export default function GymProfileScreen() {
       <ProfileMenuItem
         icon="ribbon-outline"
         label={PROFILE_MENU_LABELS.planCommission}
-        value="Institutional · 5%"
+        value={formatUserPlanSummary(profile.plan ?? 'institutional')}
         onPress={() => router.push('/(gym)/profile/plan')}
       />
       <ProfileMenuItem

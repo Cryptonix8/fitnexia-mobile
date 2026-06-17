@@ -12,7 +12,28 @@
           "package_name": "com.fitnexia.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "635752178238-kcg6ciem5sod24828g12l8bnacrallc7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fitnexia.app",
+            "certificate_hash": "0cf0a4ad4c82d470a0e00998e0b2ae5bb729bd9b"
+          }
+        },
+        {
+          "client_id": "635752178238-kcg6ciem5sod24828g12l8bnacrallc7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fitnexia.app",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "635752178238-9r22776qjpgrnb6e6b5d460n49c1hog9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCwTOV_FJeST3GgShmorKg8aGEIKda8IBU"
@@ -20,7 +41,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "635752178238-9r22776qjpgrnb6e6b5d460n49c1hog9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

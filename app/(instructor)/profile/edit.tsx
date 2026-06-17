@@ -67,7 +67,7 @@ export default function InstructorEditProfileScreen() {
       <AvatarPicker uri={avatarUri} onChange={setAvatarUri} size={96} kind="instructor" />
       <Input label="Nombre público" value={displayName} onChangeText={setDisplayName} />
       <Input label={AUTH_LABELS.email} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
-      <Input label="Bio" value={bio} onChangeText={setBio} multiline placeholder="Contales a los atletas sobre tu experiencia..." />
+      <Input label={AUTH_LABELS.bio} value={bio} onChangeText={setBio} multiline placeholder="Contales a los atletas sobre tu experiencia..." />
       <Input
         label={`Tarifa por hora (${DEFAULT_CURRENCY}, opcional)`}
         value={hourlyRate}

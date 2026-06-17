@@ -76,8 +76,8 @@ export function getGymMetrics(institutionId: string, classes: ClassListItem[]): 
       topClasses.length > 0
         ? topClasses.sort((a, b) => b.attendancePct - a.attendancePct)
         : [
-            { title: 'CrossFit Grupal', attendancePct: 1, bookings: 20 },
-            { title: 'HIIT Matutino', attendancePct: 0.85, bookings: 17 },
+            { title: 'Cross training grupal', attendancePct: 1, bookings: 20 },
+            { title: 'HIIT matutino', attendancePct: 0.85, bookings: 17 },
           ],
   };
 }

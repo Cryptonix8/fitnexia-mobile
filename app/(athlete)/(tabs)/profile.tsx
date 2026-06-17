@@ -11,7 +11,7 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { BUTTON_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES } from '@/constants/labels';
+import { BUTTON_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, translateDisciplineLabels } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { useSignOut } from '@/hooks/use-sign-out';
 import { MOCK_CREDITS } from '@/data/mock';
@@ -26,7 +26,9 @@ export default function AthleteProfileScreen() {
   const credits = MOCK_CREDITS;
 
   const favoriteSportsLabel =
-    user?.favoriteSports.length ? user.favoriteSports.join(', ') : 'Ninguno seleccionado';
+    user?.favoriteSports.length
+      ? translateDisciplineLabels(user.favoriteSports).join(', ')
+      : 'Ninguno seleccionado';
 
   return (
     <Screen scroll>
@@ -65,7 +67,7 @@ export default function AthleteProfileScreen() {
             />
           </View>
           <Text style={[styles.creditsHint, { color: colors.textMuted }]}>
-            {credits.creditsUntilReward} más para una clase gratis (hasta $30)
+            {credits.creditsUntilReward} más para una clase gratis (hasta 1.500 UYU)
           </Text>
         </View>
       ) : null}

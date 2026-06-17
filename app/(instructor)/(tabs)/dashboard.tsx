@@ -72,7 +72,7 @@ export default function InstructorDashboard() {
     try {
       const result = await acceptGymInviteApi(invite.id);
       setGymInvites((prev) => prev.filter((item) => item.id !== invite.id));
-      Alert.alert('Invitación aceptada', `Te uniste a ${result.institutionName} como staff.`);
+      Alert.alert('Invitación aceptada', `Te uniste a ${result.institutionName} como instructor del equipo.`);
     } catch (err) {
       Alert.alert('No se pudo aceptar la invitación', getErrorMessage(err));
     } finally {

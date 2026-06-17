@@ -20,7 +20,7 @@ export default function ForgotPasswordScreen() {
   const submit = async () => {
     const validation = validateForgotPasswordForm(email);
     if (!validation.ok) {
-      Alert.alert('Email inválido', validation.message);
+      Alert.alert('Correo inválido', validation.message);
       return;
     }
 
@@ -28,7 +28,7 @@ export default function ForgotPasswordScreen() {
     try {
       await forgotPasswordApi(email.trim());
       Alert.alert(
-        'Email enviado',
+        'Correo enviado',
         'Si existe una cuenta con ese email, recibirás un enlace para restablecer tu contraseña. Revisá también la carpeta de spam o correo no deseado.',
         [{ text: 'OK', onPress: () => router.back() }],
       );

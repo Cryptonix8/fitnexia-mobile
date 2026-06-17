@@ -27,7 +27,9 @@ import {
   classFormatDescription,
   classSpotsLabel,
   modalityBadgeLabel,
+  modalityLocationLabel,
   resolveClassFormat,
+  translateDisciplineLabel,
 } from '@/constants/labels';
 
 export default function ClassDetailScreen() {
@@ -70,7 +72,7 @@ export default function ClassDetailScreen() {
       <View style={styles.hero}>
         <Text style={styles.title}>{cls.title}</Text>
         <View style={styles.tags}>
-          <Badge label={cls.discipline} />
+          <Badge label={translateDisciplineLabel(cls.discipline)} />
           <Badge label={classFormatBadgeLabel(cls.classFormat, {
             capacity: cls.capacity,
             hasInstitution: Boolean(cls.institution),
@@ -91,7 +93,7 @@ export default function ClassDetailScreen() {
           value={
             cls.modality === 'online'
               ? onlineLabel
-              : (cls.location?.label ?? CLASS_DETAIL_LABELS.locationTbd)
+              : modalityLocationLabel(cls.modality, cls.location?.label) || CLASS_DETAIL_LABELS.locationTbd
           }
         />
         <Row icon="cash-outline" label={CLASS_DETAIL_LABELS.price} value={formatMoney(cls.price)} />
@@ -122,8 +124,8 @@ export default function ClassDetailScreen() {
       <Text style={styles.section}>{CLASS_DETAIL_LABELS.about}</Text>
       <Text style={styles.desc}>
         {classFormat === 'individual'
-          ? `Reservá una sesión privada 1 a 1 de ${cls.discipline.toLowerCase()} con ${cls.instructor.displayName}.`
-          : `Unite a ${cls.instructor.displayName} en una sesión grupal de ${cls.discipline.toLowerCase()}.`}{' '}
+          ? `Reservá una sesión privada 1 a 1 de ${translateDisciplineLabel(cls.discipline).toLowerCase()} con ${cls.instructor.displayName}.`
+          : `Unite a ${cls.instructor.displayName} en una sesión grupal de ${translateDisciplineLabel(cls.discipline).toLowerCase()}.`}{' '}
         Apto para todos los niveles. Traé agua y ropa cómoda.
       </Text>
 

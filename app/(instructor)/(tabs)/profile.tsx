@@ -13,13 +13,7 @@ import { Screen } from '@/components/ui/screen';
 import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
-import {
-  BADGE_LABELS,
-  BUTTON_LABELS,
-  LOADING_LABELS,
-  PROFILE_MENU_LABELS,
-  SCREEN_TITLES,
-} from '@/constants/labels';
+import { BADGE_LABELS, BUTTON_LABELS, LOADING_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, formatUserPlanSummary, translateDisciplineLabels } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { useSignOut } from '@/hooks/use-sign-out';
 import { formatWeeklyScheduleSummary, defaultWeeklySchedule } from '@/utils/schedule';
@@ -56,7 +50,9 @@ export default function InstructorProfileScreen() {
   }
 
   const disciplinesLabel =
-    profile.disciplines.length > 0 ? profile.disciplines.join(', ') : 'Ninguna seleccionada';
+    profile.disciplines.length > 0
+      ? translateDisciplineLabels(profile.disciplines).join(', ')
+      : 'Ninguna seleccionada';
   const certificationsLabel =
     (profile.certifications?.length ?? 0) > 0
       ? `${profile.certifications!.length} agregadas`
@@ -130,7 +126,7 @@ export default function InstructorProfileScreen() {
       <ProfileMenuItem
         icon="ribbon-outline"
         label={PROFILE_MENU_LABELS.planCommission}
-        value="Pro · 8%"
+        value={formatUserPlanSummary(profile.plan)}
         onPress={() => router.push('/(instructor)/profile/plan')}
       />
       <ProfileMenuItem

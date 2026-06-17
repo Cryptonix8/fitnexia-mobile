@@ -117,8 +117,8 @@ export const DISCIPLINES = [
   'Entrenamiento para adultos mayores',
   'Entrenamiento para embarazadas',
   'Zumba/Ritmos',
-  'Indoor Cycling',
-  'Pilates Mat/Reformer',
+  'Ciclismo indoor',
+  'Pilates suelo/reformer',
   'Tenis',
   'Pádel',
   'Hidrogimnasia',
@@ -128,7 +128,7 @@ export const DISCIPLINES = [
   'Voleibol',
   'Hockey',
   'Yoga',
-  'Crossfit',
+  'Entrenamiento cross',
   'Otros',
 ] as const;
 
@@ -140,9 +140,9 @@ export const ROLE_LABELS = {
 
 export const MOCK_LOCATION_AREAS = [
   'Centro',
-  'FitHub',
-  'Wellness Loft',
-  'Central Courts',
+  'Sede FitHub',
+  'Espacio Wellness',
+  'Canchas Centrales',
   'En línea',
 ] as const;
 

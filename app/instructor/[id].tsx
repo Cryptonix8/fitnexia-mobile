@@ -14,7 +14,7 @@ import { useReviews } from '@/contexts/reviews-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { useClasses } from '@/contexts/classes-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { BADGE_LABELS, LOADING_LABELS, PROFILE_MENU_LABELS } from '@/constants/labels';
+import { BADGE_LABELS, LOADING_LABELS, PROFILE_MENU_LABELS, translateDisciplineLabel } from '@/constants/labels';
 import { fetchInstructorById } from '@/services/api/instructors.api';
 import type { Instructor } from '@/types/api';
 
@@ -86,7 +86,7 @@ export default function InstructorProfileScreen() {
           <View style={styles.chips}>
             {instructor.disciplines.map((d) => (
               <View key={d} style={[styles.chip, { backgroundColor: colors.surfaceMuted }]}>
-                <Text style={{ color: colors.textSecondary }}>{d}</Text>
+                <Text style={{ color: colors.textSecondary }}>{translateDisciplineLabel(d)}</Text>
               </View>
             ))}
           </View>

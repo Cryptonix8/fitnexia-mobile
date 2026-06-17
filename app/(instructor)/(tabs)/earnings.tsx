@@ -8,7 +8,7 @@ import { Screen } from '@/components/ui/screen';
 import { useAppTheme } from '@/contexts/theme-context';
 import { formatMoney } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { LOADING_LABELS } from '@/constants/labels';
+import { LOADING_LABELS, PLAN_LABELS } from '@/constants/labels';
 import { getErrorMessage } from '@/services/api/errors';
 import {
   fetchPayoutSummary,
@@ -20,7 +20,7 @@ import {
 import { APP_LOCALE } from '@/utils/locale';
 
 function formatPlanLabel(summary: PayoutSummary): string {
-  const planName = summary.plan.charAt(0).toUpperCase() + summary.plan.slice(1);
+  const planName = PLAN_LABELS[summary.plan as keyof typeof PLAN_LABELS] ?? summary.plan;
   const feePct = Math.round(summary.commissionRate * 100);
   return `Plan ${planName} · ${feePct}% comisión de plataforma`;
 }
@@ -90,10 +90,10 @@ export default function EarningsScreen() {
         <Text style={styles.summaryValue}>{netDisplay}</Text>
         <Text style={styles.plan}>{summary ? formatPlanLabel(summary) : ''}</Text>
         {summary?.marketplace?.enabled ? (
-          <Text style={styles.marketplaceHint}>Cobros automáticos vía Mercado Pago Marketplace</Text>
+          <Text style={styles.marketplaceHint}>Cobros automáticos vía Mercado Pago</Text>
         ) : (
           <Text style={styles.marketplaceHint}>
-            Estimado — transferencia manual hasta activar Marketplace
+            Estimado — transferencia manual hasta activar cobros automáticos
           </Text>
         )}
       </View>
