@@ -78,8 +78,8 @@ export default function RegisterScreen() {
         email: email.trim(),
         password,
         role,
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
+        firstName: role === 'institution' ? institutionName.trim() : firstName.trim(),
+        lastName: role === 'institution' ? '' : lastName.trim(),
         avatarUri,
         favoriteSports: role === 'athlete' ? favoriteSports : [],
         disciplines: role === 'instructor' ? disciplines : [],
@@ -142,9 +142,12 @@ export default function RegisterScreen() {
               onChangeText={setInstitutionName}
               placeholder={AUTH_LABELS.gymSchoolPlaceholder}
             />
-          ) : null}
-          <Input label={AUTH_LABELS.firstName} value={firstName} onChangeText={setFirstName} />
-          <Input label={AUTH_LABELS.lastName} value={lastName} onChangeText={setLastName} />
+          ) : (
+            <>
+              <Input label={AUTH_LABELS.firstName} value={firstName} onChangeText={setFirstName} />
+              <Input label={AUTH_LABELS.lastName} value={lastName} onChangeText={setLastName} />
+            </>
+          )}
           <Input
             label={AUTH_LABELS.email}
             value={email}

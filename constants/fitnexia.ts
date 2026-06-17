@@ -132,6 +132,12 @@ export const DISCIPLINES = [
   'Otros',
 ] as const;
 
+export type Discipline = (typeof DISCIPLINES)[number];
+
+export function isDiscipline(value: string): value is Discipline {
+  return (DISCIPLINES as readonly string[]).includes(value);
+}
+
 export const ROLE_LABELS = {
   athlete: 'Atleta',
   instructor: 'Instructor',
