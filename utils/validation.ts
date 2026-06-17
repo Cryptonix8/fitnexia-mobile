@@ -1,6 +1,6 @@
 import type { UserRole } from '@/types/api';
 
-import { isDiscipline } from '@/constants/fitnexia';
+import { DISCIPLINES } from '@/constants/fitnexia';
 
 export type ValidationError = { field: string; message: string };
 
@@ -121,7 +121,7 @@ export function validateHourlyRate(rate: string): ValidationError | null {
 }
 
 export function validateDisciplines(list: string[]): ValidationError | null {
-  const invalid = list.filter((item) => !isDiscipline(item));
+  const invalid = list.filter((item) => !DISCIPLINES.includes(item));
   if (invalid.length) return { field: 'disciplines', message: 'Disciplina seleccionada inválida' };
   return null;
 }
@@ -168,8 +168,12 @@ export function validateRegisterForm(params: {
   const errors = collect([
     () => validateEmail(params.email),
     () => validatePassword(params.password),
-    () => (params.role === 'institution' ? null : validateFirstName(params.firstName)),
-    () => (params.role === 'institution' ? null : validateLastName(params.lastName)),
+    ...(params.role === 'institution'
+      ? []
+      : [
+          () => validateFirstName(params.firstName),
+          () => validateLastName(params.lastName),
+        ]),
     () =>
       params.role === 'institution'
         ? validateInstitutionName(params.institutionName ?? '', true)

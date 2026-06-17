@@ -78,7 +78,7 @@ export default function RegisterScreen() {
         email: email.trim(),
         password,
         role,
-        firstName: role === 'institution' ? institutionName.trim() : firstName.trim(),
+        firstName: role === 'institution' ? '' : firstName.trim(),
         lastName: role === 'institution' ? '' : lastName.trim(),
         avatarUri,
         favoriteSports: role === 'athlete' ? favoriteSports : [],
