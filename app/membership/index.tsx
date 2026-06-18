@@ -1,12 +1,13 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
+import { getErrorMessage } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import {
@@ -32,8 +33,9 @@ export default function AthleteMembershipsScreen() {
     setLoading(true);
     try {
       setMemberships(await fetchMyMemberships());
-    } catch {
+    } catch (err) {
       setMemberships([]);
+      Alert.alert('Error', getErrorMessage(err));
     } finally {
       setLoading(false);
     }
