@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { GEO_LABELS } from '@/constants/labels';
@@ -46,7 +46,11 @@ export function ClassesMap({ classes, userLocation }: ClassesMapProps) {
 
   return (
     <View style={styles.wrap}>
-      <MapView style={styles.map} initialRegion={region} showsUserLocation={Boolean(userLocation)}>
+      <MapView
+        style={styles.map}
+        provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+        initialRegion={region}
+        showsUserLocation={Boolean(userLocation)}>
         {mappable.map((item) => (
           <Marker
             key={item.id}
