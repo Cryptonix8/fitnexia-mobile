@@ -119,8 +119,22 @@ export const MEMBERSHIP_LABELS = {
   noPlans: 'Creá un plan de cuota para empezar',
   addMember: 'Agregar socio',
   editMember: 'Editar socio',
+  editPlan: 'Editar plan',
   contactPhone: 'Teléfono',
+  planIndividual: 'Individual',
+  planFamily: 'Familiar',
+  maxMembers: 'Máx. integrantes',
+  description: 'Descripción',
+  activePlans: 'Planes activos',
+  inactivePlans: 'Planes inactivos',
+  reactivate: 'Reactivar',
+  deactivate: 'Desactivar',
 } as const;
+
+export function membershipPlanTypeLabel(planType: string): string {
+  if (planType === 'family') return MEMBERSHIP_LABELS.planFamily;
+  return MEMBERSHIP_LABELS.planIndividual;
+}
 
 export function membershipBillingLabel(frequency: string): string {
   if (frequency === 'quarterly') return MEMBERSHIP_LABELS.billingQuarterly;

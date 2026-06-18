@@ -92,6 +92,10 @@ export async function fetchMembershipPlans() {
   return result.data;
 }
 
+export async function fetchMembershipPlanById(planId: string) {
+  return apiRequest<MembershipPlan>(`/institutions/me/membership-plans/${planId}`);
+}
+
 export async function createMembershipPlanApi(body: {
   name: string;
   description?: string;
@@ -113,8 +117,10 @@ export async function updateMembershipPlanApi(
     name: string;
     description: string;
     priceCents: number;
+    priceCurrency: string;
     billingFrequency: string;
     planType: string;
+    maxMembers: number;
     active: boolean;
   }>,
 ) {

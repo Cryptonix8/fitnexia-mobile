@@ -13,6 +13,7 @@ export default function GymLayout() {
       <Stack.Screen name="profile/plan" />
       <Stack.Screen name="review-instructor/[id]" />
       <Stack.Screen name="membership/plans" />
+      <Stack.Screen name="membership/edit-plan/[id]" />
       <Stack.Screen name="membership/invites" />
       <Stack.Screen name="membership/add-member" />
       <Stack.Screen name="membership/edit-member/[id]" />

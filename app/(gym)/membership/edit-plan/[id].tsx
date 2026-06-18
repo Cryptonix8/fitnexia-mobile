@@ -1,6 +1,5 @@
-import { useFocusEffect } from '@react-navigation/native';
-import { router } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Header } from '@/components/ui/header';
@@ -13,11 +12,14 @@ import {
   MEMBERSHIP_LABELS,
   membershipBillingLabel,
   membershipPlanTypeLabel,
-  formatMoney,
   PROFILE_MENU_LABELS,
 } from '@/constants/labels';
-import { createMembershipPlanApi, fetchMembershipPlans } from '@/services/api/institutions.api';
-import type { MembershipBillingFrequency, MembershipPlan, MembershipPlanType } from '@/types/api';
+import {
+  deleteMembershipPlanApi,
+  fetchMembershipPlanById,
+  updateMembershipPlanApi,
+} from '@/services/api/institutions.api';
+import type { MembershipBillingFrequency, MembershipPlanType } from '@/types/api';
 
 const FREQUENCIES = [
   { value: 'monthly', label: MEMBERSHIP_LABELS.billingMonthly },
@@ -30,36 +32,45 @@ const PLAN_TYPES = [
   { value: 'family', label: MEMBERSHIP_LABELS.planFamily },
 ] as const;
 
-export default function GymMembershipPlansScreen() {
+export default function EditMembershipPlanScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useAppTheme();
-  const [plans, setPlans] = useState<MembershipPlan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [active, setActive] = useState(true);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [frequency, setFrequency] = useState<MembershipBillingFrequency>('monthly');
   const [planType, setPlanType] = useState<MembershipPlanType>('individual');
   const [maxMembers, setMaxMembers] = useState('');
-  const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
+    if (!id) return;
     setLoading(true);
     try {
-      setPlans(await fetchMembershipPlans());
-    } catch {
-      setPlans([]);
+      const plan = await fetchMembershipPlanById(id);
+      setActive(plan.active);
+      setName(plan.name);
+      setDescription(plan.description ?? '');
+      setPrice(String(plan.price.amount / 100));
+      setFrequency(plan.billingFrequency);
+      setPlanType(plan.planType);
+      setMaxMembers(plan.maxMembers ? String(plan.maxMembers) : '');
+    } catch (err) {
+      Alert.alert('Error', getErrorMessage(err));
+      router.back();
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [id]);
 
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [load]),
-  );
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const createPlan = async () => {
+  const save = async () => {
+    if (!id) return;
     const priceCents = Math.round(parseFloat(price.replace(',', '.')) * 100);
     if (!name.trim() || !Number.isFinite(priceCents) || priceCents < 0) {
       Alert.alert('Datos incompletos', 'Ingresá nombre y precio válido.');
@@ -74,20 +85,16 @@ export default function GymMembershipPlansScreen() {
     }
     setSaving(true);
     try {
-      await createMembershipPlanApi({
+      await updateMembershipPlanApi(id, {
         name: name.trim(),
-        description: description.trim() || undefined,
+        description: description.trim(),
         priceCents,
         billingFrequency: frequency,
         planType,
         maxMembers: planType === 'family' ? parseInt(maxMembers, 10) : undefined,
       });
-      setName('');
-      setDescription('');
-      setPrice('');
-      setPlanType('individual');
-      setMaxMembers('');
-      await load();
+      Alert.alert('Guardado', 'El plan fue actualizado.');
+      router.back();
     } catch (err) {
       Alert.alert('Error', getErrorMessage(err));
     } finally {
@@ -95,38 +102,46 @@ export default function GymMembershipPlansScreen() {
     }
   };
 
-  const openPlan = (plan: MembershipPlan) => {
-    router.push(`/(gym)/membership/edit-plan/${plan.id}`);
+  const toggleActive = () => {
+    if (!id) return;
+    if (active) {
+      Alert.alert('Desactivar plan', `¿Desactivar "${name}"?`, [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: MEMBERSHIP_LABELS.deactivate,
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteMembershipPlanApi(id);
+              router.back();
+            } catch (err) {
+              Alert.alert('Error', getErrorMessage(err));
+            }
+          },
+        },
+      ]);
+    } else {
+      Alert.alert('Reactivar plan', `¿Reactivar "${name}"?`, [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: MEMBERSHIP_LABELS.reactivate,
+          onPress: async () => {
+            try {
+              await updateMembershipPlanApi(id, { active: true });
+              router.back();
+            } catch (err) {
+              Alert.alert('Error', getErrorMessage(err));
+            }
+          },
+        },
+      ]);
+    }
   };
-
-  const renderPlanCard = (plan: MembershipPlan, muted = false) => (
-    <Pressable
-      key={plan.id}
-      onPress={() => openPlan(plan)}
-      style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, opacity: muted ? 0.85 : 1 }]}>
-      <Text style={[styles.planName, { color: colors.text }]}>{plan.name}</Text>
-      {plan.description ? (
-        <Text style={{ color: colors.textMuted, marginBottom: 4 }} numberOfLines={2}>
-          {plan.description}
-        </Text>
-      ) : null}
-      <Text style={{ color: colors.textMuted }}>
-        {formatMoney(plan.price)} · {membershipBillingLabel(plan.billingFrequency)} ·{' '}
-        {membershipPlanTypeLabel(plan.planType)}
-        {plan.planType === 'family' && plan.maxMembers ? ` (${plan.maxMembers})` : ''}
-      </Text>
-      <Text style={{ color: colors.primary, fontWeight: '600', marginTop: Spacing.sm }}>Editar</Text>
-    </Pressable>
-  );
-
-  const activePlans = plans.filter((p) => p.active);
-  const inactivePlans = plans.filter((p) => !p.active);
 
   return (
     <Screen scroll loading={loading}>
-      <Header title={PROFILE_MENU_LABELS.membershipPlans} showBack />
+      <Header title={MEMBERSHIP_LABELS.editPlan} showBack />
 
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>Nuevo plan</Text>
       <TextInput
         style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface }]}
         placeholder="Nombre del plan"
@@ -201,32 +216,23 @@ export default function GymMembershipPlansScreen() {
           </Pressable>
         ))}
       </View>
-      <Button title="Crear plan" onPress={createPlan} disabled={saving} />
 
-      <Text style={[styles.sectionTitle, { color: colors.text, marginTop: Spacing.lg }]}>
-        {MEMBERSHIP_LABELS.activePlans}
+      <Text style={{ color: colors.textMuted, marginBottom: Spacing.md }}>
+        {membershipPlanTypeLabel(planType)} · {membershipBillingLabel(frequency)}
       </Text>
-      {activePlans.length === 0 ? (
-        <Text style={{ color: colors.textMuted }}>{MEMBERSHIP_LABELS.noPlans}</Text>
-      ) : (
-        activePlans.map((plan) => renderPlanCard(plan))
-      )}
 
-      {inactivePlans.length > 0 ? (
-        <>
-          <Text style={[styles.sectionTitle, { color: colors.text, marginTop: Spacing.lg }]}>
-            {MEMBERSHIP_LABELS.inactivePlans}
-          </Text>
-          {inactivePlans.map((plan) => renderPlanCard(plan, true))}
-        </>
-      ) : null}
+      <Button title="Guardar cambios" onPress={save} disabled={saving} />
+
+      <Pressable onPress={toggleActive} style={{ marginTop: Spacing.lg }}>
+        <Text style={{ color: active ? colors.warning : colors.primary, fontWeight: '600', textAlign: 'center' }}>
+          {active ? MEMBERSHIP_LABELS.deactivate : MEMBERSHIP_LABELS.reactivate}
+        </Text>
+      </Pressable>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionTitle: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.sm },
-  label: { fontSize: 14, fontWeight: '600', marginBottom: Spacing.xs },
   input: {
     borderWidth: 1,
     borderRadius: Radius.md,
@@ -234,6 +240,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     fontSize: 16,
   },
+  label: { fontSize: 14, fontWeight: '600', marginBottom: Spacing.xs },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.md },
   chip: {
     paddingHorizontal: Spacing.md,
@@ -241,11 +248,4 @@ const styles = StyleSheet.create({
     borderRadius: Radius.full,
     borderWidth: 1,
   },
-  card: {
-    borderWidth: 1,
-    borderRadius: Radius.md,
-    padding: Spacing.md,
-    marginBottom: Spacing.sm,
-  },
-  planName: { fontSize: 16, fontWeight: '700', marginBottom: 4 },
 });
