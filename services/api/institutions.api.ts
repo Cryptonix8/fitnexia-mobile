@@ -159,6 +159,25 @@ export async function addClubMemberApi(body: {
   return apiRequest<ClubMember>('/institutions/me/members', { method: 'POST', body });
 }
 
+export async function fetchClubMemberById(memberId: string) {
+  return apiRequest<ClubMember>(`/institutions/me/members/${memberId}`);
+}
+
+export async function updateClubMemberApi(
+  memberId: string,
+  body: Partial<{
+    planId: string;
+    contactName: string;
+    contactEmail: string;
+    contactPhone: string;
+  }>,
+) {
+  return apiRequest<ClubMember>(`/institutions/me/members/${memberId}`, {
+    method: 'PATCH',
+    body,
+  });
+}
+
 export async function removeClubMemberApi(memberId: string) {
   return apiRequest(`/institutions/me/members/${memberId}`, { method: 'DELETE' });
 }

@@ -1,14 +1,12 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
-import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Screen } from '@/components/ui/screen';
-import { getErrorMessage } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import {
@@ -19,7 +17,6 @@ import {
 import {
   fetchClubMembers,
   fetchMembersSummary,
-  removeClubMemberApi,
 } from '@/services/api/institutions.api';
 import type { ClubMember } from '@/types/api';
 
@@ -36,7 +33,6 @@ export default function GymMembersScreen() {
   const [summary, setSummary] = useState({ upToDate: 0, pending: 0, overdue: 0, total: 0 });
   const [filter, setFilter] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
-  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -57,28 +53,6 @@ export default function GymMembersScreen() {
     }, [load]),
   );
 
-  const removeMember = (member: ClubMember) => {
-    const name = member.contactName || member.contactEmail || 'este socio';
-    Alert.alert('Dar de baja', `¿Dar de baja a ${name}?`, [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Dar de baja',
-        style: 'destructive',
-        onPress: async () => {
-          setLoadingId(member.id);
-          try {
-            await removeClubMemberApi(member.id);
-            await load();
-          } catch (err) {
-            Alert.alert('Error', getErrorMessage(err));
-          } finally {
-            setLoadingId(null);
-          }
-        },
-      },
-    ]);
-  };
-
   const filters: { key: string | undefined; label: string; count?: number }[] = [
     { key: undefined, label: 'Todos', count: summary.total },
     { key: 'up_to_date', label: MEMBERSHIP_LABELS.feeUpToDate, count: summary.upToDate },
@@ -94,11 +68,32 @@ export default function GymMembersScreen() {
       </Text>
 
       <View style={styles.actions}>
-        <Button title="Planes de cuota" variant="outline" onPress={() => router.push('/(gym)/membership/plans')} />
-        <Button title="Invitar socios" onPress={() => router.push('/(gym)/membership/invites')} />
+        <Button
+          title={MEMBERSHIP_LABELS.addMember}
+          onPress={() => router.push('/(gym)/membership/add-member')}
+          style={styles.actionBtn}
+        />
+        <View style={styles.actionRow}>
+          <Button
+            title="Planes"
+            variant="outline"
+            onPress={() => router.push('/(gym)/membership/plans')}
+            style={styles.actionBtnHalf}
+          />
+          <Button
+            title="Invitar"
+            variant="outline"
+            onPress={() => router.push('/(gym)/membership/invites')}
+            style={styles.actionBtnHalf}
+          />
+        </View>
       </View>
 
-      <View style={styles.filterRow}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filterRow}
+        style={styles.filterScroll}>
         {filters.map((f) => (
           <Pressable
             key={f.key ?? 'all'}
@@ -116,7 +111,7 @@ export default function GymMembersScreen() {
             </Text>
           </Pressable>
         ))}
-      </View>
+      </ScrollView>
 
       {members.length === 0 && !loading ? (
         <EmptyState
@@ -126,8 +121,14 @@ export default function GymMembersScreen() {
         />
       ) : (
         members.map((member) => (
-          <View
+          <Pressable
             key={member.id}
+            onPress={() =>
+              router.push({
+                pathname: '/(gym)/membership/edit-member/[id]',
+                params: { id: member.id },
+              })
+            }
             style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.cardHeader}>
               <View style={{ flex: 1 }}>
@@ -136,6 +137,9 @@ export default function GymMembersScreen() {
                 </Text>
                 {member.contactEmail ? (
                   <Text style={[styles.meta, { color: colors.textMuted }]}>{member.contactEmail}</Text>
+                ) : null}
+                {member.contactPhone ? (
+                  <Text style={[styles.meta, { color: colors.textMuted }]}>{member.contactPhone}</Text>
                 ) : null}
                 {member.planName ? (
                   <Text style={[styles.meta, { color: colors.textMuted }]}>
@@ -148,16 +152,10 @@ export default function GymMembersScreen() {
               </View>
               <Badge label={membershipFeeStatusLabel(member.feeStatus)} variant={feeBadgeVariant(member.feeStatus)} />
             </View>
-            {member.status !== 'inactive' ? (
-              <Pressable onPress={() => removeMember(member)} style={styles.removeBtn}>
-                <Text style={{ color: colors.warning, fontSize: 14, fontWeight: '600' }}>Dar de baja</Text>
-              </Pressable>
-            ) : null}
-          </View>
+          </Pressable>
         ))
       )}
 
-      <LoadingOverlay visible={Boolean(loadingId)} message={LOADING_LABELS.default} />
     </Screen>
   );
 }
@@ -165,8 +163,12 @@ export default function GymMembersScreen() {
 const styles = StyleSheet.create({
   title: { fontSize: 26, fontWeight: '800', marginBottom: Spacing.xs },
   hint: { fontSize: 14, lineHeight: 20, marginBottom: Spacing.md },
-  actions: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
-  filterRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.md },
+  actions: { gap: Spacing.sm, marginBottom: Spacing.md },
+  actionBtn: { alignSelf: 'stretch' },
+  actionRow: { flexDirection: 'row', gap: Spacing.sm },
+  actionBtnHalf: { flex: 1 },
+  filterScroll: { marginBottom: Spacing.md, flexGrow: 0 },
+  filterRow: { flexDirection: 'row', gap: Spacing.sm, paddingRight: Spacing.md },
   filterChip: {
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
@@ -182,5 +184,4 @@ const styles = StyleSheet.create({
   cardHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.sm },
   name: { fontSize: 16, fontWeight: '700' },
   meta: { fontSize: 13, marginTop: 2 },
-  removeBtn: { marginTop: Spacing.sm, alignSelf: 'flex-start' },
 });

@@ -117,6 +117,9 @@ export const MEMBERSHIP_LABELS = {
   authorizeDebit: 'Autorizar débito',
   noMembers: 'Todavía no hay socios registrados',
   noPlans: 'Creá un plan de cuota para empezar',
+  addMember: 'Agregar socio',
+  editMember: 'Editar socio',
+  contactPhone: 'Teléfono',
 } as const;
 
 export function membershipBillingLabel(frequency: string): string {
