@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Header } from '@/components/ui/header';
@@ -12,26 +12,40 @@ import { MEMBERSHIP_LABELS, membershipBillingLabel, formatMoney } from '@/consta
 import { acceptMembershipInvite, fetchInvitePreview } from '@/services/api/memberships.api';
 import { openMembershipAuthorization } from '@/utils/membership-payment';
 
+function normalizeCode(value: string | string[] | undefined) {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return (raw ?? '').trim().toUpperCase();
+}
+
 export default function MembershipJoinScreen() {
   const { colors } = useAppTheme();
-  const params = useLocalSearchParams<{ code?: string }>();
-  const [code, setCode] = useState((params.code ?? '').toUpperCase());
+  const params = useLocalSearchParams<{ code?: string | string[] }>();
+  const initialCode = useMemo(() => normalizeCode(params.code), [params.code]);
+  const [code, setCode] = useState(initialCode);
   const [preview, setPreview] = useState<Awaited<ReturnType<typeof fetchInvitePreview>> | null>(null);
   const [loading, setLoading] = useState(false);
   const [joining, setJoining] = useState(false);
 
-  const lookup = async () => {
-    if (!code.trim()) return;
+  const lookup = useCallback(async (value?: string) => {
+    const nextCode = (value ?? code).trim();
+    if (!nextCode) return;
     setLoading(true);
     try {
-      setPreview(await fetchInvitePreview(code.trim()));
+      setPreview(await fetchInvitePreview(nextCode));
     } catch (err) {
       setPreview(null);
       Alert.alert('Código inválido', getErrorMessage(err));
     } finally {
       setLoading(false);
     }
-  };
+  }, [code]);
+
+  useEffect(() => {
+    if (initialCode) {
+      setCode(initialCode);
+      lookup(initialCode);
+    }
+  }, [initialCode, lookup]);
 
   const join = async () => {
     setJoining(true);
@@ -64,7 +78,7 @@ export default function MembershipJoinScreen() {
           setPreview(null);
         }}
       />
-      <Button title="Verificar código" variant="outline" onPress={lookup} disabled={loading} />
+      <Button title="Verificar código" variant="outline" onPress={() => lookup()} disabled={loading} />
 
       {preview ? (
         <View style={[styles.preview, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -73,6 +87,9 @@ export default function MembershipJoinScreen() {
           <Text style={{ color: colors.text, marginTop: Spacing.sm, fontWeight: '600' }}>
             {formatMoney(preview.plan.price)} · {membershipBillingLabel(preview.plan.billingFrequency)}
           </Text>
+          {preview.invitedName ? (
+            <Text style={{ color: colors.textMuted, marginTop: 4 }}>Invitación para {preview.invitedName}</Text>
+          ) : null}
           <Button title="Aceptar y autorizar débito" onPress={join} disabled={joining} style={{ marginTop: Spacing.md }} />
         </View>
       ) : null}

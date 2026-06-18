@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Header } from '@/components/ui/header';
 import { Button } from '@/components/ui/button';
@@ -10,12 +10,19 @@ import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { MEMBERSHIP_LABELS } from '@/constants/labels';
 import {
+  bulkCreateMembershipInvitesApi,
   cancelMembershipInviteApi,
   createMembershipInviteApi,
   fetchMembershipInvites,
   fetchMembershipPlans,
 } from '@/services/api/institutions.api';
 import type { MembershipInvite, MembershipPlan } from '@/types/api';
+import { parseMembershipInviteCsv } from '@/utils/membership-invite-csv';
+
+function inviteShareMessage(invite: MembershipInvite) {
+  const link = invite.joinUrl ?? `fitnexia://membership/join?code=${invite.code}`;
+  return `${invite.institutionName ?? 'Tu club'} te invitó como socio.\nCódigo: ${invite.code}\n${link}`;
+}
 
 export default function GymMembershipInvitesScreen() {
   const { colors } = useAppTheme();
@@ -24,23 +31,27 @@ export default function GymMembershipInvitesScreen() {
   const [planId, setPlanId] = useState('');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [bulkText, setBulkText] = useState('');
+  const [showBulk, setShowBulk] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const [p, i] = await Promise.all([fetchMembershipPlans(), fetchMembershipInvites()]);
-      setPlans(p.filter((x) => x.active));
+      const activePlans = p.filter((x) => x.active);
+      setPlans(activePlans);
       setInvites(i);
-      if (!planId && p.length) setPlanId(p.find((x) => x.active)?.id ?? '');
+      setPlanId((current) => current || activePlans[0]?.id || '');
     } catch {
       setPlans([]);
       setInvites([]);
     } finally {
       setLoading(false);
     }
-  }, [planId]);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -71,6 +82,50 @@ export default function GymMembershipInvitesScreen() {
     }
   };
 
+  const sendBulkInvites = async () => {
+    if (!planId) {
+      Alert.alert('Seleccioná un plan', 'Creá un plan de cuota antes de invitar.');
+      return;
+    }
+    const rows = parseMembershipInviteCsv(bulkText);
+    if (!rows.length) {
+      Alert.alert('Sin datos', 'Pegá al menos una fila con email o nombre.');
+      return;
+    }
+    setBulkSaving(true);
+    try {
+      const result = await bulkCreateMembershipInvitesApi(
+        rows.map((row) => ({
+          planId,
+          email: row.email,
+          invitedName: row.invitedName,
+          invitedPhone: row.invitedPhone,
+        })),
+      );
+      const ok = result.results.filter((r) => (r as { ok?: boolean }).ok).length;
+      const failed = result.results.length - ok;
+      Alert.alert(
+        'Carga masiva',
+        `${ok} ${MEMBERSHIP_LABELS.bulkInviteResult}${failed ? `, ${failed} ${MEMBERSHIP_LABELS.bulkInviteFailed}` : ''}.`,
+      );
+      setBulkText('');
+      setShowBulk(false);
+      await load();
+    } catch (err) {
+      Alert.alert('Error', getErrorMessage(err));
+    } finally {
+      setBulkSaving(false);
+    }
+  };
+
+  const shareInvite = async (invite: MembershipInvite) => {
+    try {
+      await Share.share({ message: inviteShareMessage(invite) });
+    } catch {
+      // User dismissed share sheet.
+    }
+  };
+
   const cancelInvite = (invite: MembershipInvite) => {
     Alert.alert('Cancelar invitación', `¿Cancelar código ${invite.code}?`, [
       { text: 'No', style: 'cancel' },
@@ -90,7 +145,7 @@ export default function GymMembershipInvitesScreen() {
   };
 
   return (
-    <Screen scroll loading={loading}>
+    <Screen scroll loading={loading && invites.length === 0}>
       <Header title="Invitar socios" showBack />
 
       <Text style={[styles.label, { color: colors.textMuted }]}>Plan</Text>
@@ -129,6 +184,37 @@ export default function GymMembershipInvitesScreen() {
       />
       <Button title="Generar invitación" onPress={sendInvite} disabled={saving} />
 
+      <Pressable onPress={() => setShowBulk((v) => !v)} style={{ marginTop: Spacing.md }}>
+        <Text style={{ color: colors.primary, fontWeight: '700' }}>
+          {showBulk ? 'Ocultar carga masiva' : MEMBERSHIP_LABELS.bulkInviteTitle}
+        </Text>
+      </Pressable>
+
+      {showBulk ? (
+        <View style={{ marginTop: Spacing.sm }}>
+          <Text style={{ color: colors.textMuted, marginBottom: Spacing.xs, lineHeight: 18 }}>
+            {MEMBERSHIP_LABELS.bulkInviteHint}
+          </Text>
+          <TextInput
+            style={[
+              styles.bulkInput,
+              { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface },
+            ]}
+            placeholder={MEMBERSHIP_LABELS.bulkInvitePlaceholder}
+            placeholderTextColor={colors.textMuted}
+            multiline
+            value={bulkText}
+            onChangeText={setBulkText}
+          />
+          <Button
+            title={MEMBERSHIP_LABELS.bulkInviteSubmit}
+            variant="outline"
+            onPress={sendBulkInvites}
+            disabled={bulkSaving}
+          />
+        </View>
+      ) : null}
+
       <Text style={[styles.sectionTitle, { color: colors.text }]}>Invitaciones</Text>
       {invites.map((invite) => (
         <View
@@ -140,9 +226,16 @@ export default function GymMembershipInvitesScreen() {
             {invite.email ? ` · ${invite.email}` : ''}
           </Text>
           {invite.status === 'pending' ? (
-            <Pressable onPress={() => cancelInvite(invite)} style={{ marginTop: Spacing.sm }}>
-              <Text style={{ color: colors.warning, fontWeight: '600' }}>Cancelar</Text>
-            </Pressable>
+            <View style={styles.cardActions}>
+              <Pressable onPress={() => shareInvite(invite)}>
+                <Text style={{ color: colors.primary, fontWeight: '600' }}>
+                  {MEMBERSHIP_LABELS.shareInvite}
+                </Text>
+              </Pressable>
+              <Pressable onPress={() => cancelInvite(invite)}>
+                <Text style={{ color: colors.warning, fontWeight: '600' }}>Cancelar</Text>
+              </Pressable>
+            </View>
           ) : null}
         </View>
       ))}
@@ -166,7 +259,21 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     fontSize: 16,
   },
+  bulkInput: {
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+    fontSize: 14,
+    minHeight: 120,
+    textAlignVertical: 'top',
+  },
   sectionTitle: { fontSize: 18, fontWeight: '700', marginTop: Spacing.lg, marginBottom: Spacing.sm },
   card: { borderWidth: 1, borderRadius: Radius.md, padding: Spacing.md, marginBottom: Spacing.sm },
   code: { fontSize: 20, fontWeight: '800', letterSpacing: 2 },
+  cardActions: {
+    flexDirection: 'row',
+    gap: Spacing.lg,
+    marginTop: Spacing.sm,
+  },
 });

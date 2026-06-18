@@ -336,6 +336,7 @@ export interface MembershipInvite {
   bulkBatchId?: string;
   planName?: string;
   institutionName?: string;
+  joinUrl?: string;
   createdAt: string;
 }
 
