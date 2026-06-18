@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { Header } from '@/components/ui/header';
@@ -25,8 +25,20 @@ import {
 import type { MembershipStatement } from '@/types/api';
 import { openMembershipAuthorization, openMembershipCheckout } from '@/utils/membership-payment';
 
+function normalizeRouteId(value: string | string[] | undefined) {
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
+
+function feeBadgeVariant(status: string): 'verified' | 'warning' | 'default' {
+  if (status === 'up_to_date') return 'verified';
+  if (status === 'overdue') return 'warning';
+  return 'default';
+}
+
 export default function MembershipStatementScreen() {
-  const { memberId } = useLocalSearchParams<{ memberId: string }>();
+  const params = useLocalSearchParams<{ memberId: string | string[] }>();
+  const memberId = useMemo(() => normalizeRouteId(params.memberId), [params.memberId]);
   const { colors } = useAppTheme();
   const { user } = useAuth();
   const [statement, setStatement] = useState<MembershipStatement | null>(null);
@@ -89,6 +101,8 @@ export default function MembershipStatementScreen() {
     }
   };
 
+  const showBlockingLoader = loading && !statement;
+
   if (!statement && !loading) {
     return (
       <Screen scroll>
@@ -129,7 +143,7 @@ export default function MembershipStatementScreen() {
   const hasDebt = Boolean(statement?.amountDue);
 
   return (
-    <Screen scroll loading={loading}>
+    <Screen scroll loading={showBlockingLoader}>
       <Header title="Estado de cuenta" showBack />
 
       {member ? (
@@ -137,7 +151,10 @@ export default function MembershipStatementScreen() {
           <Text style={[styles.club, { color: colors.text }]}>{member.institutionName}</Text>
           <Text style={{ color: colors.textMuted }}>{statement?.plan.name}</Text>
           <View style={{ marginTop: Spacing.sm }}>
-            <Badge label={membershipFeeStatusLabel(member.feeStatus)} variant="verified" />
+            <Badge
+              label={membershipFeeStatusLabel(member.feeStatus)}
+              variant={feeBadgeVariant(member.feeStatus)}
+            />
           </View>
           {statement?.plan ? (
             <Text style={{ color: colors.text, marginTop: Spacing.sm }}>
@@ -149,7 +166,15 @@ export default function MembershipStatementScreen() {
             <Text style={{ color: colors.textMuted, marginTop: 4 }}>
               {MEMBERSHIP_LABELS.nextDue}: {new Date(statement.nextDueDate).toLocaleDateString('es-UY')}
             </Text>
-          ) : null}
+          ) : needsAuth ? (
+            <Text style={{ color: colors.primary, marginTop: Spacing.sm, lineHeight: 20 }}>
+              Autorizá el débito automático para activar la membresía y ver el próximo vencimiento.
+            </Text>
+          ) : (
+            <Text style={{ color: colors.textMuted, marginTop: 4 }}>
+              {MEMBERSHIP_LABELS.nextDue}: {MEMBERSHIP_LABELS.pendingActivation}
+            </Text>
+          )}
           {statement?.amountDue ? (
             <Text style={{ color: colors.warning, marginTop: Spacing.sm, fontWeight: '700' }}>
               {MEMBERSHIP_LABELS.amountDue}: {formatMoney(statement.amountDue)}
@@ -177,17 +202,26 @@ export default function MembershipStatementScreen() {
 
       <Text style={[styles.section, { color: colors.text }]}>Historial de pagos</Text>
       {(statement?.payments ?? []).length === 0 ? (
-        <Text style={{ color: colors.textMuted }}>Sin pagos registrados.</Text>
+        <Text style={{ color: colors.textMuted, lineHeight: 20 }}>
+          {needsAuth
+            ? MEMBERSHIP_LABELS.noPaymentsUntilAuth
+            : MEMBERSHIP_LABELS.noPaymentsRecorded}
+        </Text>
       ) : (
         statement?.payments.map((p) => (
           <View
             key={p.id}
             style={[styles.paymentRow, { borderColor: colors.border }]}>
-            <Text style={{ color: colors.text }}>{formatMoney(p.amount)}</Text>
+            <Text style={{ color: colors.text, fontWeight: '600' }}>{formatMoney(p.amount)}</Text>
             <Text style={{ color: colors.textMuted, fontSize: 13 }}>
               {new Date(p.createdAt).toLocaleDateString('es-UY')} ·{' '}
               {membershipPaymentStatusLabel(p.status)}
             </Text>
+            {p.periodEnd ? (
+              <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 2 }}>
+                Cubre hasta {new Date(p.periodEnd).toLocaleDateString('es-UY')}
+              </Text>
+            ) : null}
           </View>
         ))
       )}

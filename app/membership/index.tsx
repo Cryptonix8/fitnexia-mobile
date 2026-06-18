@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Header } from '@/components/ui/header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -49,8 +50,8 @@ export default function AthleteMembershipsScreen() {
   );
 
   return (
-    <Screen scroll loading={loading}>
-      <Text style={[styles.title, { color: colors.text }]}>{PROFILE_MENU_LABELS.clubMembership}</Text>
+    <Screen scroll loading={loading && memberships.length === 0}>
+      <Header title={PROFILE_MENU_LABELS.clubMembership} showBack />
 
       <Button
         title="Unirme con código"
@@ -97,6 +98,10 @@ export default function AthleteMembershipsScreen() {
                     {MEMBERSHIP_LABELS.nextDue}:{' '}
                     {new Date(m.nextBillingAt).toLocaleDateString('es-UY')}
                   </Text>
+                ) : m.status === 'pending_authorization' ? (
+                  <Text style={{ color: colors.textMuted, fontSize: 13, marginTop: 4 }}>
+                    {MEMBERSHIP_LABELS.nextDue}: {MEMBERSHIP_LABELS.pendingActivation}
+                  </Text>
                 ) : null}
                 {m.status === 'pending_authorization' ? (
                   <Text style={{ color: colors.primary, fontSize: 13, marginTop: 6, fontWeight: '600' }}>
@@ -117,7 +122,6 @@ export default function AthleteMembershipsScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: 26, fontWeight: '800', marginBottom: Spacing.md },
   card: {
     borderWidth: 1,
     borderRadius: Radius.md,

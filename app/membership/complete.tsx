@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Text, View } from 'react-native';
 
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
@@ -9,7 +9,15 @@ import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
 
 export default function MembershipCompleteScreen() {
-  const { memberId, status } = useLocalSearchParams<{ memberId?: string; status?: string }>();
+  const params = useLocalSearchParams<{ memberId?: string | string[]; status?: string | string[] }>();
+  const memberId = useMemo(
+    () => (Array.isArray(params.memberId) ? params.memberId[0] : params.memberId),
+    [params.memberId],
+  );
+  const status = useMemo(
+    () => (Array.isArray(params.status) ? params.status[0] : params.status),
+    [params.status],
+  );
   const { colors } = useAppTheme();
 
   useEffect(() => {
