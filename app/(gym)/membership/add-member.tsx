@@ -109,6 +109,7 @@ export default function AddClubMemberScreen() {
         value={contactEmail}
         onChangeText={setContactEmail}
       />
+      <Text style={[styles.hint, { color: colors.textMuted }]}>{MEMBERSHIP_LABELS.addMemberEmailHint}</Text>
       <TextInput
         style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface }]}
         placeholder={MEMBERSHIP_LABELS.contactPhone}
@@ -139,4 +140,5 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     fontSize: 16,
   },
+  hint: { fontSize: 12, lineHeight: 17, marginBottom: Spacing.md, marginTop: -4 },
 });

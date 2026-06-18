@@ -17,7 +17,7 @@ export default function MembershipCompleteScreen() {
       if (memberId && status !== 'failure') {
         router.replace({ pathname: '/membership/[memberId]', params: { memberId } });
       } else {
-        router.replace('/membership/index');
+        router.replace('/membership');
       }
     }, 1200);
     return () => clearTimeout(timer);

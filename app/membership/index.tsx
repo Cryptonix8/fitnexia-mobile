@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
-import { getErrorMessage } from '@/contexts/auth-context';
+import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import {
@@ -26,6 +26,7 @@ function feeBadgeVariant(status: string): 'verified' | 'warning' | 'default' {
 
 export default function AthleteMembershipsScreen() {
   const { colors } = useAppTheme();
+  const { user } = useAuth();
   const [memberships, setMemberships] = useState<ClubMember[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -59,11 +60,26 @@ export default function AthleteMembershipsScreen() {
       />
 
       {memberships.length === 0 && !loading ? (
-        <EmptyState
-          icon="card-outline"
-          title="Sin membresías"
-          description="Si tu club te invitó, ingresá el código de invitación."
-        />
+        <View>
+          <EmptyState
+            icon="card-outline"
+            title={MEMBERSHIP_LABELS.noMembershipsTitle}
+            description={MEMBERSHIP_LABELS.noMembershipsHint}
+          />
+          {user?.email ? (
+            <View
+              style={[
+                styles.emailBox,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}>
+              <Text style={[styles.emailLabel, { color: colors.textMuted }]}>Tu sesión actual</Text>
+              <Text style={[styles.emailValue, { color: colors.text }]}>{user.email}</Text>
+              <Text style={[styles.emailHint, { color: colors.textMuted }]}>
+                El gimnasio debe registrar este mismo email en el socio.
+              </Text>
+            </View>
+          ) : null}
+        </View>
       ) : (
         memberships.map((m) => (
           <Pressable
@@ -80,6 +96,11 @@ export default function AthleteMembershipsScreen() {
                   <Text style={{ color: colors.textMuted, fontSize: 13, marginTop: 4 }}>
                     {MEMBERSHIP_LABELS.nextDue}:{' '}
                     {new Date(m.nextBillingAt).toLocaleDateString('es-UY')}
+                  </Text>
+                ) : null}
+                {m.status === 'pending_authorization' ? (
+                  <Text style={{ color: colors.primary, fontSize: 13, marginTop: 6, fontWeight: '600' }}>
+                    Tocá para autorizar el débito automático
                   </Text>
                 ) : null}
               </View>
@@ -105,4 +126,13 @@ const styles = StyleSheet.create({
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   club: { fontSize: 17, fontWeight: '700' },
+  emailBox: {
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    marginTop: Spacing.md,
+  },
+  emailLabel: { fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+  emailValue: { fontSize: 16, fontWeight: '700', marginTop: 4 },
+  emailHint: { fontSize: 13, marginTop: Spacing.sm, lineHeight: 18 },
 });

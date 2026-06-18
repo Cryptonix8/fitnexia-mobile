@@ -84,7 +84,7 @@ export default function AthleteProfileScreen() {
         <ProfileMenuItem
           icon="card-outline"
           label={PROFILE_MENU_LABELS.clubMembership}
-          onPress={() => router.push('/membership/index')}
+          onPress={() => router.push('/membership')}
         />
       ) : null}
       <ProfileMenuItem

@@ -1,5 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
@@ -7,7 +7,7 @@ import { Header } from '@/components/ui/header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
-import { getErrorMessage } from '@/contexts/auth-context';
+import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import {
@@ -27,17 +27,21 @@ import { openMembershipAuthorization, openMembershipCheckout } from '@/utils/mem
 export default function MembershipStatementScreen() {
   const { memberId } = useLocalSearchParams<{ memberId: string }>();
   const { colors } = useAppTheme();
+  const { user } = useAuth();
   const [statement, setStatement] = useState<MembershipStatement | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
 
   const load = useCallback(async () => {
     if (!memberId) return;
     setLoading(true);
+    setLoadError(null);
     try {
       setStatement(await fetchMembershipStatement(memberId));
-    } catch {
+    } catch (err) {
       setStatement(null);
+      setLoadError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -83,9 +87,35 @@ export default function MembershipStatementScreen() {
 
   if (!statement && !loading) {
     return (
-      <Screen>
+      <Screen scroll>
         <Header title="Estado de cuenta" showBack />
-        <Text style={{ color: colors.textMuted }}>Membresía no encontrada.</Text>
+        <View
+          style={[
+            styles.notFoundBox,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}>
+          <Text style={[styles.notFoundTitle, { color: colors.text }]}>
+            {MEMBERSHIP_LABELS.membershipNotFoundTitle}
+          </Text>
+          <Text style={{ color: colors.textMuted, lineHeight: 20 }}>
+            {MEMBERSHIP_LABELS.membershipNotFoundHint}
+          </Text>
+          {user?.email ? (
+            <Text style={{ color: colors.text, marginTop: Spacing.md, fontWeight: '600' }}>
+              Tu sesión: {user.email}
+            </Text>
+          ) : null}
+          {loadError ? (
+            <Text style={{ color: colors.warning, marginTop: Spacing.sm, fontSize: 13 }}>{loadError}</Text>
+          ) : null}
+        </View>
+        <Button title="Reintentar" onPress={load} style={{ marginTop: Spacing.md }} />
+        <Button
+          title="Volver a membresías"
+          variant="outline"
+          onPress={() => router.replace('/membership')}
+          style={{ marginTop: Spacing.sm }}
+        />
       </Screen>
     );
   }
@@ -169,4 +199,10 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     marginBottom: Spacing.xs,
   },
+  notFoundBox: {
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+  },
+  notFoundTitle: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.sm },
 });

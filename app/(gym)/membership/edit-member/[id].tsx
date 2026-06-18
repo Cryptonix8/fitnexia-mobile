@@ -8,7 +8,7 @@ import { Screen } from '@/components/ui/screen';
 import { getErrorMessage } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { MEMBERSHIP_LABELS, membershipFeeStatusLabel } from '@/constants/labels';
+import { MEMBERSHIP_LABELS, memberAppLinkLabel, membershipFeeStatusLabel } from '@/constants/labels';
 import {
   fetchClubMemberById,
   fetchMembershipPlans,
@@ -26,6 +26,8 @@ export default function EditClubMemberScreen() {
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [feeStatus, setFeeStatus] = useState('');
+  const [memberStatus, setMemberStatus] = useState('');
+  const [linkedUserId, setLinkedUserId] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -43,6 +45,8 @@ export default function EditClubMemberScreen() {
       setContactEmail(member.contactEmail ?? '');
       setContactPhone(member.contactPhone ?? '');
       setFeeStatus(member.feeStatus);
+      setMemberStatus(member.status);
+      setLinkedUserId(member.userId);
     } catch (err) {
       Alert.alert('Error', getErrorMessage(err));
       router.back();
@@ -105,6 +109,28 @@ export default function EditClubMemberScreen() {
           Estado de cuota: {membershipFeeStatusLabel(feeStatus)}
         </Text>
       ) : null}
+      <View
+        style={[
+          styles.linkBox,
+          {
+            backgroundColor: linkedUserId ? colors.surface : `${colors.warning}18`,
+            borderColor: linkedUserId ? colors.border : colors.warning,
+          },
+        ]}>
+        <Text
+          style={{
+            color: linkedUserId ? colors.primary : colors.warning,
+            fontWeight: '700',
+            fontSize: 14,
+          }}>
+          {memberAppLinkLabel({ userId: linkedUserId, status: memberStatus })}
+        </Text>
+        <Text style={{ color: colors.textMuted, fontSize: 13, marginTop: 4, lineHeight: 18 }}>
+          {linkedUserId
+            ? 'El socio puede ver esta membresía en Membresía del club.'
+            : MEMBERSHIP_LABELS.addMemberEmailHint}
+        </Text>
+      </View>
 
       <Text style={[styles.label, { color: colors.textMuted }]}>Plan de cuota</Text>
       <View style={styles.planRow}>
@@ -165,6 +191,12 @@ export default function EditClubMemberScreen() {
 
 const styles = StyleSheet.create({
   status: { fontSize: 14, marginBottom: Spacing.md },
+  linkBox: {
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+  },
   label: { fontSize: 13, marginBottom: Spacing.xs },
   planRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.md },
   planChip: {

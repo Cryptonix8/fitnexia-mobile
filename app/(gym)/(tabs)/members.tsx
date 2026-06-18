@@ -12,6 +12,7 @@ import { Radius, Spacing } from '@/constants/fitnexia';
 import {
   LOADING_LABELS,
   MEMBERSHIP_LABELS,
+  memberAppLinkLabel,
   membershipFeeStatusLabel,
 } from '@/constants/labels';
 import {
@@ -149,6 +150,13 @@ export default function GymMembersScreen() {
                       : ''}
                   </Text>
                 ) : null}
+                <Text
+                  style={[
+                    styles.linkMeta,
+                    { color: member.userId ? colors.primary : colors.warning },
+                  ]}>
+                  {memberAppLinkLabel(member)}
+                </Text>
               </View>
               <Badge label={membershipFeeStatusLabel(member.feeStatus)} variant={feeBadgeVariant(member.feeStatus)} />
             </View>
@@ -184,4 +192,5 @@ const styles = StyleSheet.create({
   cardHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.sm },
   name: { fontSize: 16, fontWeight: '700' },
   meta: { fontSize: 13, marginTop: 2 },
+  linkMeta: { fontSize: 12, marginTop: 6, fontWeight: '600' },
 });

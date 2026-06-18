@@ -129,7 +129,31 @@ export const MEMBERSHIP_LABELS = {
   inactivePlans: 'Planes inactivos',
   reactivate: 'Reactivar',
   deactivate: 'Desactivar',
+  linkedToApp: 'Vinculado a la app',
+  notLinkedToApp: 'Sin vincular a la app',
+  linkedPendingAuth: 'Vinculado · falta autorizar débito',
+  noMembershipsTitle: 'Sin membresías',
+  noMembershipsHint:
+    'Si tu club te registró como socio, el email debe coincidir con el de tu cuenta Fitnexia. Pedile al gimnasio que lo verifique o unite con un código de invitación.',
+  membershipNotFoundTitle: 'Membresía no encontrada',
+  membershipNotFoundHint:
+    'No pudimos cargar esta membresía. Iniciá sesión con el mismo email que registró tu club o volvé a la lista.',
+  addMemberEmailHint:
+    'Usá el mismo email con el que el socio tiene cuenta en Fitnexia para que vea la membresía en la app.',
 } as const;
+
+export function memberAppLinkLabel(member: {
+  userId?: string;
+  status?: string;
+}): string {
+  if (member.userId) {
+    if (member.status === 'pending_authorization') {
+      return MEMBERSHIP_LABELS.linkedPendingAuth;
+    }
+    return MEMBERSHIP_LABELS.linkedToApp;
+  }
+  return MEMBERSHIP_LABELS.notLinkedToApp;
+}
 
 export function membershipPlanTypeLabel(planType: string): string {
   if (planType === 'family') return MEMBERSHIP_LABELS.planFamily;
