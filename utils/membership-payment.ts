@@ -1,12 +1,18 @@
 import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
 
+import { waitForMembershipPayment } from '@/services/api/memberships.api';
+
 WebBrowser.maybeCompleteAuthSession();
 
-export async function openMembershipCheckout(checkoutUrl: string, memberId: string) {
+export async function openMembershipCheckout(
+  checkoutUrl: string,
+  memberId: string,
+  paymentId: string,
+) {
   if (Platform.OS === 'web') {
     window.open(checkoutUrl, '_blank', 'noopener,noreferrer');
-    return;
+    return waitForMembershipPayment(memberId, paymentId);
   }
 
   const result = await WebBrowser.openAuthSessionAsync(
@@ -22,7 +28,7 @@ export async function openMembershipCheckout(checkoutUrl: string, memberId: stri
     }
   }
 
-  return memberId;
+  return waitForMembershipPayment(memberId, paymentId);
 }
 
 export async function openMembershipAuthorization(authorizationUrl: string, memberId: string) {

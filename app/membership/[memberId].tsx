@@ -14,6 +14,7 @@ import {
   MEMBERSHIP_LABELS,
   membershipFeeStatusLabel,
   membershipBillingLabel,
+  membershipPaymentStatusLabel,
   formatMoney,
 } from '@/constants/labels';
 import {
@@ -75,11 +76,14 @@ export default function MembershipStatementScreen() {
     try {
       const result = await payMembershipDebt(memberId);
       if (result.checkoutUrl) {
-        await openMembershipCheckout(result.checkoutUrl, memberId);
+        const updated = await openMembershipCheckout(result.checkoutUrl, memberId, result.paymentId);
+        setStatement(updated);
+      } else {
+        await load();
       }
-      await load();
     } catch (err) {
       Alert.alert('Error', getErrorMessage(err));
+      await load();
     } finally {
       setPaying(false);
     }
@@ -151,6 +155,11 @@ export default function MembershipStatementScreen() {
               {MEMBERSHIP_LABELS.amountDue}: {formatMoney(statement.amountDue)}
             </Text>
           ) : null}
+          {statement?.graceDays && statement.graceDays > 0 && member?.feeStatus === 'overdue' ? (
+            <Text style={{ color: colors.textMuted, marginTop: 4, fontSize: 13 }}>
+              {MEMBERSHIP_LABELS.graceDaysHint}: {statement.graceDays}
+            </Text>
+          ) : null}
         </View>
       ) : null}
 
@@ -176,7 +185,8 @@ export default function MembershipStatementScreen() {
             style={[styles.paymentRow, { borderColor: colors.border }]}>
             <Text style={{ color: colors.text }}>{formatMoney(p.amount)}</Text>
             <Text style={{ color: colors.textMuted, fontSize: 13 }}>
-              {new Date(p.createdAt).toLocaleDateString('es-UY')} · {p.status}
+              {new Date(p.createdAt).toLocaleDateString('es-UY')} ·{' '}
+              {membershipPaymentStatusLabel(p.status)}
             </Text>
           </View>
         ))

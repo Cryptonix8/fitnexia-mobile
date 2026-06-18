@@ -115,6 +115,11 @@ export const MEMBERSHIP_LABELS = {
   amountDue: 'Saldo pendiente',
   payDebt: 'Pagar cuota',
   authorizeDebit: 'Autorizar débito',
+  paymentApproved: 'Aprobado',
+  paymentPending: 'Pendiente',
+  paymentRejected: 'Rechazado',
+  paymentRefunded: 'Reembolsado',
+  graceDaysHint: 'Días de gracia del club',
   noMembers: 'Todavía no hay socios registrados',
   noPlans: 'Creá un plan de cuota para empezar',
   addMember: 'Agregar socio',
@@ -171,6 +176,13 @@ export function membershipFeeStatusLabel(status: string): string {
   if (status === 'overdue') return MEMBERSHIP_LABELS.feeOverdue;
   if (status === 'inactive') return MEMBERSHIP_LABELS.feeInactive;
   return MEMBERSHIP_LABELS.feePending;
+}
+
+export function membershipPaymentStatusLabel(status: string): string {
+  if (status === 'approved') return MEMBERSHIP_LABELS.paymentApproved;
+  if (status === 'rejected') return MEMBERSHIP_LABELS.paymentRejected;
+  if (status === 'refunded') return MEMBERSHIP_LABELS.paymentRefunded;
+  return MEMBERSHIP_LABELS.paymentPending;
 }
 
 export function formatMoney(money: { amount: number; currency: string }): string {
