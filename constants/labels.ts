@@ -287,7 +287,7 @@ export const PLAN_LABELS = {
 } as const;
 
 export const PLAN_COMMISSION_PERCENT: Record<keyof typeof PLAN_LABELS, number> = {
-  basic: 15,
+  basic: 10,
   pro: 8,
   institutional: 5,
 };
@@ -297,7 +297,7 @@ export function formatPlanSummary(planId: keyof typeof PLAN_LABELS, commissionPe
 }
 
 export function formatUserPlanSummary(planId: keyof typeof PLAN_LABELS): string {
-  return formatPlanSummary(planId, PLAN_COMMISSION_PERCENT[planId] ?? 15);
+  return formatPlanSummary(planId, PLAN_COMMISSION_PERCENT[planId] ?? 10);
 }
 
 /** Legacy English location labels from older catalog / staging data. */
