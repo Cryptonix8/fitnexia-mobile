@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
 import {
+  GOOGLE_IOS_CLIENT_ID,
   GOOGLE_WEB_CLIENT_ID,
   isGoogleSignInConfigured,
   isRunningInExpoGo,
@@ -33,6 +34,7 @@ export function configureGoogleSignIn() {
 
   mod.GoogleSignin.configure({
     webClientId: GOOGLE_WEB_CLIENT_ID,
+    ...(GOOGLE_IOS_CLIENT_ID ? { iosClientId: GOOGLE_IOS_CLIENT_ID } : {}),
     offlineAccess: false,
   });
   configured = true;
@@ -61,7 +63,9 @@ export function useGoogleSignIn() {
     configureGoogleSignIn();
     setPending(true);
     try {
-      await mod.GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      if (Platform.OS === 'android') {
+        await mod.GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      }
       const response = await mod.GoogleSignin.signIn();
       if (response.type === 'cancelled') {
         return null;
@@ -72,7 +76,9 @@ export function useGoogleSignIn() {
 
       const { idToken } = await mod.GoogleSignin.getTokens();
       if (!idToken) {
-        throw new Error('Google did not return an ID token. Check your Web client ID and SHA-1 setup.');
+        throw new Error(
+          'Google did not return an ID token. Check your Web/iOS client IDs and native app setup.',
+        );
       }
       return idToken;
     } catch (err) {
