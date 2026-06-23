@@ -14,7 +14,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { MOCK_INSTRUCTORS } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { BADGE_LABELS, BUTTON_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, formatUserPlanSummary, translateDisciplineLabels } from '@/constants/labels';
+import { BADGE_LABELS, BUTTON_LABELS, GYM_TIER_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, translateDisciplineLabels } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { useSignOut } from '@/hooks/use-sign-out';
 import { normalizeMediaUrl } from '@/services/api/media.api';
@@ -139,9 +139,19 @@ export default function GymProfileScreen() {
       />
       <ProfileMenuItem
         icon="ribbon-outline"
-        label={PROFILE_MENU_LABELS.planCommission}
-        value={formatUserPlanSummary(profile.plan ?? 'institutional')}
-        onPress={() => router.push('/(gym)/profile/plan')}
+        label={PROFILE_MENU_LABELS.gymSubscription}
+        value={GYM_TIER_LABELS[profile.saasTier ?? 'basic'] ?? 'Basic'}
+        onPress={() => router.push('/(gym)/profile/subscription')}
+      />
+      <ProfileMenuItem
+        icon="briefcase-outline"
+        label={PROFILE_MENU_LABELS.jobPostings}
+        onPress={() => router.push('/(gym)/jobs')}
+      />
+      <ProfileMenuItem
+        icon="settings-outline"
+        label={PROFILE_MENU_LABELS.membershipSettings}
+        onPress={() => router.push('/(gym)/membership/settings')}
       />
       <ProfileMenuItem
         icon="notifications-outline"

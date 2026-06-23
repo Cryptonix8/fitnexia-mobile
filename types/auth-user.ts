@@ -48,6 +48,11 @@ export interface InstitutionProfileData {
   instructorIds: string[];
   pendingInvites: InstructorInvite[];
   plan: InstructorPlan;
+  saasTier?: import('@/types/api').GymSaasTier;
+  contactPhone?: string;
+  contactEmail?: string;
+  website?: string;
+  openingHours?: import('@/types/api').OpeningHours;
 }
 
 export interface AuthUser {

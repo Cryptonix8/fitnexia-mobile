@@ -12,6 +12,8 @@ import { MEMBERSHIP_LABELS, memberAppLinkLabel, membershipFeeStatusLabel } from 
 import {
   fetchClubMemberById,
   fetchMembershipPlans,
+  markMemberPaidApi,
+  markMemberPendingApi,
   removeClubMemberApi,
   updateClubMemberApi,
 } from '@/services/api/institutions.api';
@@ -71,6 +73,34 @@ export default function EditClubMemberScreen() {
       });
       Alert.alert('Guardado', 'Los datos del socio fueron actualizados.');
       router.back();
+    } catch (err) {
+      Alert.alert('Error', getErrorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const markPaid = async () => {
+    if (!id) return;
+    setSaving(true);
+    try {
+      await markMemberPaidApi(id);
+      await load();
+      Alert.alert('Registrado', 'Cuota marcada como pagada.');
+    } catch (err) {
+      Alert.alert('Error', getErrorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const markPending = async () => {
+    if (!id) return;
+    setSaving(true);
+    try {
+      await markMemberPendingApi(id);
+      await load();
+      Alert.alert('Actualizado', 'Cuota marcada como pendiente.');
     } catch (err) {
       Alert.alert('Error', getErrorMessage(err));
     } finally {
@@ -177,6 +207,17 @@ export default function EditClubMemberScreen() {
         onChangeText={setContactPhone}
       />
 
+      <View style={styles.paymentActions}>
+        <Button title="Marcar pagada" onPress={markPaid} disabled={saving} style={styles.paymentBtn} />
+        <Button
+          title="Marcar pendiente"
+          variant="outline"
+          onPress={markPending}
+          disabled={saving}
+          style={styles.paymentBtn}
+        />
+      </View>
+
       <Button title="Guardar cambios" onPress={save} disabled={saving} />
       <Button
         title="Dar de baja"
@@ -212,4 +253,6 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     fontSize: 16,
   },
+  paymentActions: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
+  paymentBtn: { flex: 1 },
 });

@@ -221,3 +221,70 @@ export async function bulkCreateMembershipInvitesApi(members: {
 export async function cancelMembershipInviteApi(inviteId: string) {
   return apiRequest(`/institutions/me/membership-invites/${inviteId}`, { method: 'DELETE' });
 }
+
+export async function fetchGymSubscription() {
+  return apiRequest<import('@/types/api').GymSubscription>('/institutions/me/subscription');
+}
+
+export async function updateGymSubscriptionApi(tier: string) {
+  return apiRequest<import('@/types/api').GymSubscription>('/institutions/me/subscription', {
+    method: 'PATCH',
+    body: { tier },
+  });
+}
+
+export async function markMemberPaidApi(memberId: string) {
+  return apiRequest<ClubMember>(`/institutions/me/members/${memberId}/mark-paid`, {
+    method: 'POST',
+  });
+}
+
+export async function markMemberPendingApi(memberId: string) {
+  return apiRequest<ClubMember>(`/institutions/me/members/${memberId}/mark-pending`, {
+    method: 'POST',
+  });
+}
+
+export async function fetchInstitutionById(institutionId: string) {
+  return apiRequest<import('@/types/api').Institution>(`/institutions/${institutionId}`);
+}
+
+export async function fetchGymJobs() {
+  const result = await apiRequest<{ data: import('@/types/api').JobPosting[] }>(
+    '/institutions/me/jobs',
+  );
+  return result.data;
+}
+
+export async function createGymJobApi(body: {
+  title: string;
+  roleType?: string;
+  description?: string;
+  disciplines?: string[];
+  status?: string;
+}) {
+  return apiRequest<import('@/types/api').JobPosting>('/institutions/me/jobs', {
+    method: 'POST',
+    body,
+  });
+}
+
+export async function updateGymJobApi(
+  jobId: string,
+  body: Partial<{
+    title: string;
+    roleType: string;
+    description: string;
+    disciplines: string[];
+    status: string;
+  }>,
+) {
+  return apiRequest<import('@/types/api').JobPosting>(`/institutions/me/jobs/${jobId}`, {
+    method: 'PATCH',
+    body,
+  });
+}
+
+export async function deleteGymJobApi(jobId: string) {
+  return apiRequest(`/institutions/me/jobs/${jobId}`, { method: 'DELETE' });
+}

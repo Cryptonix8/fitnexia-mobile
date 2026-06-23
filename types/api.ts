@@ -24,6 +24,14 @@ export type PassPeriodType = 'week' | 'month' | 'quarter';
 
 export type InstructorPlan = 'basic' | 'pro' | 'institutional';
 
+export type GymSaasTier = 'basic' | 'professional' | 'premium' | 'enterprise';
+
+export type OpeningHoursDay = { open?: string; close?: string; closed?: boolean };
+
+export type OpeningHours = Partial<
+  Record<'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun', OpeningHoursDay>
+>;
+
 export type ClientPlatform = 'web' | 'ios' | 'android';
 
 export interface Money {
@@ -112,7 +120,62 @@ export interface Institution {
   gallery?: string[];
   verified: boolean;
   plan?: InstructorPlan;
+  saasTier?: GymSaasTier;
+  contactPhone?: string;
+  contactEmail?: string;
+  website?: string;
+  openingHours?: OpeningHours;
   instructors?: Pick<Instructor, 'id' | 'displayName'>[];
+}
+
+export interface GymSubscription {
+  tier: GymSaasTier;
+  tierName: string;
+  monthlyFeeCents: number;
+  memberCount: number;
+  memberLimit: number | null;
+  membersRemaining: number | null;
+  atLimit: boolean;
+  billingStatus: string;
+  entitlements: Record<string, boolean>;
+}
+
+export interface GymTierConfig {
+  id: GymSaasTier;
+  name: string;
+  monthlyFeeCents: number;
+  memberLimit: number | null;
+  entitlements: Record<string, boolean>;
+}
+
+export interface JobPosting {
+  id: string;
+  institutionId: string;
+  institutionName?: string;
+  institutionLogoUrl?: string;
+  title: string;
+  roleType: string;
+  description: string;
+  disciplines: string[];
+  status: 'draft' | 'open' | 'closed';
+  expiresAt?: string;
+  applicationCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface JobApplication {
+  id: string;
+  jobId: string;
+  instructorId: string;
+  instructorName?: string;
+  instructorPhotoUrl?: string;
+  message: string;
+  status: string;
+  createdAt: string;
+  jobTitle?: string;
+  jobStatus?: string;
+  institutionName?: string;
 }
 
 export interface ClassRecurrence {

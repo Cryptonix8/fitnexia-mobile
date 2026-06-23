@@ -21,6 +21,9 @@ export default function GymEditProfileScreen() {
   const [address, setAddress] = useState(profile?.address ?? '');
   const [city, setCity] = useState(profile?.city ?? '');
   const [country, setCountry] = useState(profile?.country ?? '');
+  const [contactPhone, setContactPhone] = useState(profile?.contactPhone ?? '');
+  const [contactEmail, setContactEmail] = useState(profile?.contactEmail ?? '');
+  const [website, setWebsite] = useState(profile?.website ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
   const [avatarUri, setAvatarUri] = useState<string | null>(user?.avatarUri ?? null);
 
@@ -48,6 +51,9 @@ export default function GymEditProfileScreen() {
           address: address.trim(),
           city: city.trim(),
           country: country.trim().toUpperCase(),
+          contactPhone: contactPhone.trim(),
+          contactEmail: contactEmail.trim(),
+          website: website.trim(),
         },
       });
       Alert.alert(ALERT_LABELS.savedTitle, 'El perfil de la institución fue actualizado.', [
@@ -80,6 +86,20 @@ export default function GymEditProfileScreen() {
       <Input label="Dirección" value={address} onChangeText={setAddress} placeholder="Calle y número" />
       <Input label="Ciudad" value={city} onChangeText={setCity} />
       <Input label="País" value={country} onChangeText={setCountry} placeholder="ej. AR" />
+      <Input
+        label="Teléfono del club"
+        value={contactPhone}
+        onChangeText={setContactPhone}
+        keyboardType="phone-pad"
+      />
+      <Input
+        label="Email de contacto del club"
+        value={contactEmail}
+        onChangeText={setContactEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
+      <Input label="Sitio web" value={website} onChangeText={setWebsite} autoCapitalize="none" />
       <Button title={BUTTON_LABELS.saveChanges} onPress={save} style={{ marginTop: Spacing.md }} />
     </Screen>
   );

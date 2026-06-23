@@ -124,6 +124,11 @@ export default function InstructorProfileScreen() {
         onPress={() => router.push('/(instructor)/profile/edit')}
       />
       <ProfileMenuItem
+        icon="briefcase-outline"
+        label="Bolsa de trabajo"
+        onPress={() => router.push('/(instructor)/jobs')}
+      />
+      <ProfileMenuItem
         icon="ribbon-outline"
         label={PROFILE_MENU_LABELS.planCommission}
         value={formatUserPlanSummary(profile.plan)}

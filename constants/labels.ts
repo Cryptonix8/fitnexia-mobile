@@ -100,6 +100,9 @@ export const PROFILE_MENU_LABELS = {
   instructors: 'Instructores',
   clubMembership: 'Membresía del club',
   membershipPlans: 'Planes de cuota',
+  gymSubscription: 'Plan Fitnexia',
+  membershipSettings: 'Ajustes de cuotas',
+  jobPostings: 'Ofertas de trabajo',
 } as const;
 
 export const MEMBERSHIP_LABELS = {
@@ -285,6 +288,19 @@ export const PLAN_LABELS = {
   pro: 'Pro',
   institutional: 'Institucional',
 } as const;
+
+export const GYM_TIER_LABELS: Record<string, string> = {
+  basic: 'Basic',
+  professional: 'Professional',
+  premium: 'Premium',
+  enterprise: 'Enterprise',
+};
+
+export function formatGymTierSummary(tier: string, memberCount: number, memberLimit: number | null) {
+  const name = GYM_TIER_LABELS[tier] ?? tier;
+  if (memberLimit == null) return `${name} · ${memberCount} socios`;
+  return `${name} · ${memberCount}/${memberLimit} socios`;
+}
 
 export const PLAN_COMMISSION_PERCENT: Record<keyof typeof PLAN_LABELS, number> = {
   basic: 10,

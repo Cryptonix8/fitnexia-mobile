@@ -11,6 +11,8 @@ export default function InstructorLayout() {
       <Stack.Screen name="profile/payment-methods" />
       <Stack.Screen name="profile/support" />
       <Stack.Screen name="profile/plan" />
+      <Stack.Screen name="jobs/index" />
+      <Stack.Screen name="jobs/[id]" />
     </Stack>
   );
 }

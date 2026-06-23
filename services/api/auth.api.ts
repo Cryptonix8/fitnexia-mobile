@@ -65,6 +65,11 @@ function mapInstitutionProfile(
     instructorIds,
     pendingInvites,
     plan: profile.plan ?? 'institutional',
+    saasTier: profile.saasTier ?? 'basic',
+    contactPhone: profile.contactPhone,
+    contactEmail: profile.contactEmail,
+    website: profile.website,
+    openingHours: profile.openingHours ?? {},
   };
 }
 

@@ -184,6 +184,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             country: p.country ?? user.institutionProfile?.country ?? '',
           };
         }
+        if (p?.contactPhone !== undefined) body.contactPhone = p.contactPhone;
+        if (p?.contactEmail !== undefined) body.contactEmail = p.contactEmail;
+        if (p?.website !== undefined) body.website = p.website;
+        if (p?.openingHours !== undefined) body.openingHours = p.openingHours;
         if (Object.keys(body).length) await updateInstitutionProfileApi(body);
       }
 

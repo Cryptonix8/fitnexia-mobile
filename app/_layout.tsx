@@ -45,6 +45,7 @@ function RootNavigator() {
         <Stack.Screen name="(gym)" />
         <Stack.Screen name="class/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="instructor/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="institution/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="book/[classId]" options={{ headerShown: false }} />
         <Stack.Screen name="booking/complete" options={{ headerShown: false }} />
         <Stack.Screen name="review/[bookingId]" options={{ headerShown: false }} />
