@@ -11,7 +11,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "google:android-config": "cd android && gradlew :app:signingReport"
+    "google:android-config": "cd android && gradlew :app:signingReport",
+    "google:verify": "node ./scripts/verify-google-config.mjs"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

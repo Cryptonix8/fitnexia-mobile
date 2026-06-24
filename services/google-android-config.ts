@@ -4,6 +4,9 @@ import Constants from 'expo-constants';
 export const GOOGLE_ANDROID_PACKAGE =
   Constants.expoConfig?.android?.package ?? 'com.fitnexia.app';
 
+/** GCP project number embedded in OAuth client IDs (635752178238-...). */
+export const GOOGLE_OAUTH_PROJECT_NUMBER = '635752178238';
+
 /**
  * SHA-1 for the local debug keystore (npx expo run:android).
  * Re-run `npm run google:android-config` after changing signing keys.
@@ -35,20 +38,23 @@ export function getGoogleDeveloperErrorHelp(): string {
   return [
     'DEVELOPER_ERROR = las credenciales de Google Cloud no coinciden con esta app.',
     '',
-    'En Google Cloud Console → Credentials, creá o editá un cliente OAuth de tipo Android (no Web):',
+    `Proyecto OAuth (donde registrás SHA-1): ${GOOGLE_OAUTH_PROJECT_NUMBER}`,
+    '(Es distinto del proyecto Firebase fitnexia-dcd75 — registrá SHA-1 en Credentials, no solo en Firebase.)',
+    '',
+    'Google Cloud Console → Credentials → cliente OAuth Android (no Web):',
     `  Nombre del paquete: ${GOOGLE_ANDROID_PACKAGE}`,
     ...formatSha1Lines(),
     '',
-    'Mantené tu Web client ID en EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID.',
-    'NO uses el Android client ID como webClientId — solo el Web client ID.',
+    `Web client ID en .env (webClientId): ${process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ? 'configurado' : 'FALTA'}`,
+    'NO uses el Android client ID como webClientId.',
     '',
-    'También revisá OAuth consent screen → agregá tu Gmail como usuario de prueba (modo Testing).',
+    'OAuth consent screen → agregá tu Gmail como usuario de prueba (modo Testing).',
     '',
-    'Los cambios en Google Cloud pueden tardar unos minutos.',
-    'Si actualizaste google-services.json: reconstruí el APK (eas build -p android --profile preview).',
-    'Si solo cambiaste Google Cloud: probá de nuevo sin rebuild.',
+    'Build local (expo run:android): SHA-1 debug arriba — no hace falta rebuild al cambiar GCP.',
+    'APK EAS/preview: SHA-1 EAS arriba — rebuild: eas build -p android --profile preview',
     '',
-    'Verificá el SHA-1 debug: npm run google:android-config',
-    'Verificá el SHA-1 EAS: eas credentials',
+    'Verificá: npm run google:verify',
+    'SHA-1 debug: npm run google:android-config',
+    'SHA-1 EAS: eas credentials',
   ].join('\n');
 }

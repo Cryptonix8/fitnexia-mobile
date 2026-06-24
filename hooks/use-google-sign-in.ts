@@ -28,6 +28,13 @@ function getGoogleSignInModule(): GoogleSignInModule | null {
   }
 }
 
+function isDeveloperError(err: unknown, mod: GoogleSignInModule): boolean {
+  if (!mod.isErrorWithCode(err)) return false;
+  const code = String(err.code);
+  const message = err.message ?? '';
+  return code === '10' || message.includes('DEVELOPER_ERROR');
+}
+
 export function configureGoogleSignIn() {
   const mod = getGoogleSignInModule();
   if (!mod || !isGoogleSignInConfigured() || configured) return;
@@ -74,10 +81,14 @@ export function useGoogleSignIn() {
         throw new Error('Google Sign-In was not completed.');
       }
 
+      if (response.data.idToken) {
+        return response.data.idToken;
+      }
+
       const { idToken } = await mod.GoogleSignin.getTokens();
       if (!idToken) {
         throw new Error(
-          'Google did not return an ID token. Check your Web/iOS client IDs and native app setup.',
+          'Google no devolvió idToken. Revisá Web/iOS client ID y SHA-1 + paquete com.fitnexia.app en Google Cloud.',
         );
       }
       return idToken;
@@ -90,6 +101,9 @@ export function useGoogleSignIn() {
         if (err.code === mod.statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
           throw new Error('Google Play Services is not available on this device.');
         }
+      }
+      if (isDeveloperError(err, mod)) {
+        throw new Error(getGoogleDeveloperErrorHelp());
       }
       if (err instanceof Error && err.message.includes('DEVELOPER_ERROR')) {
         throw new Error(getGoogleDeveloperErrorHelp());
@@ -104,6 +118,7 @@ export function useGoogleSignIn() {
     signIn,
     pending,
     ready: isGoogleSignInConfigured() && canUseNativeGoogleSignIn(),
+    packageName: Constants.expoConfig?.android?.package ?? 'com.fitnexia.app',
   };
 }
 
