@@ -15,7 +15,7 @@ import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
-import { LOADING_LABELS, MODALITY_LABELS } from '@/constants/labels';
+import { LOADING_LABELS, MODALITY_LABELS, VERIFICATION_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { fetchLinkedInstructors, type StaffRosterEntry } from '@/services/api/institutions.api';
 import { getErrorMessage } from '@/services/api/errors';
@@ -68,6 +68,7 @@ export default function CreateClassScreen() {
   const [price, setPrice] = useState('25');
   const [capacity, setCapacity] = useState('12');
   const [recurring, setRecurring] = useState(false);
+  const [location, setLocation] = useState('');
   const [selectedInstructorId, setSelectedInstructorId] = useState<string | null>(
     linkedInstructors[0]?.id ?? null,
   );
@@ -83,6 +84,12 @@ export default function CreateClassScreen() {
       setCapacity('1');
     }
   }, [classFormat, isGym]);
+
+  useEffect(() => {
+    if (isGym) {
+      setLocation((prev) => prev || gymLocationLabel(institutionProfile, institutionId));
+    }
+  }, [isGym, institutionProfile, institutionId]);
 
   const publish = async () => {
     if (!title.trim()) {
@@ -143,7 +150,7 @@ export default function CreateClassScreen() {
               ? {
                   lat: -34.6037,
                   lng: -58.3816,
-                  label: gymLocationLabel(institutionProfile, institutionId),
+                  label: location.trim() || gymLocationLabel(institutionProfile, institutionId),
                 }
               : undefined,
         });
@@ -171,6 +178,14 @@ export default function CreateClassScreen() {
             id: getLinkedInstructorId(user),
             displayName: user?.instructorProfile?.displayName ?? 'Instructor',
           },
+          location:
+            modality === 'in_person' && location.trim()
+              ? {
+                  lat: -34.6,
+                  lng: -58.38,
+                  label: location.trim(),
+                }
+              : undefined,
         });
       }
 
@@ -194,6 +209,17 @@ export default function CreateClassScreen() {
       loading={isGym && instructorsLoading}
       loadingMessage={LOADING_LABELS.roster}>
       <Header title={isGym ? 'Nueva clase grupal' : 'Nueva clase'} showBack />
+
+      {(user?.role === 'instructor' &&
+        user.instructorProfile?.verificationStatus !== 'verified' &&
+        !user.instructorProfile?.verified) ||
+      (user?.role === 'institution' &&
+        user.institutionProfile?.verificationStatus !== 'verified' &&
+        !user.institutionProfile?.verified) ? (
+        <Text style={[styles.unverifiedWarn, { color: colors.warning }]}>
+          {VERIFICATION_LABELS.unverifiedPublishHint}
+        </Text>
+      ) : null}
 
       {isGym ? (
         <Text style={[styles.gymHint, { color: colors.textMuted }]}>
@@ -299,6 +325,15 @@ export default function CreateClassScreen() {
         />
       </View>
 
+      {modality === 'in_person' ? (
+        <Input
+          label="Ubicación"
+          value={location}
+          onChangeText={setLocation}
+          placeholder={isGym ? 'Dirección del gimnasio' : 'Sede, barrio o dirección'}
+        />
+      ) : null}
+
       <Input label={`Precio (${DEFAULT_CURRENCY})`} value={price} onChangeText={setPrice} keyboardType="decimal-pad" />
 
       {!isGym && classFormat === 'individual' ? (
@@ -350,6 +385,7 @@ export default function CreateClassScreen() {
 
 const styles = StyleSheet.create({
   gymHint: { fontSize: 14, lineHeight: 20, marginBottom: Spacing.md },
+  unverifiedWarn: { fontSize: 13, lineHeight: 18, marginBottom: Spacing.md, fontWeight: '600' },
   label: { fontSize: 14, fontWeight: '600', marginBottom: Spacing.sm },
   helper: { fontSize: 13, lineHeight: 20, marginBottom: Spacing.md },
   row: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: Spacing.sm },

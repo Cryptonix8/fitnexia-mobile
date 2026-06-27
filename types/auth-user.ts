@@ -1,4 +1,4 @@
-import type { Certification, InstructorPlan, UserRole, WeeklySchedule } from '@/types/api';
+import type { Certification, InstructorPlan, ProfileVerificationStatus, UserRole, WeeklySchedule } from '@/types/api';
 import { defaultWeeklySchedule } from '@/utils/schedule';
 
 export interface NotificationPreferences {
@@ -27,6 +27,7 @@ export interface InstructorProfileData {
   weeklySchedule: WeeklySchedule;
   hourlyRate: string;
   verified: boolean;
+  verificationStatus: ProfileVerificationStatus;
   plan: InstructorPlan;
 }
 
@@ -44,6 +45,7 @@ export interface InstitutionProfileData {
   city: string;
   country: string;
   verified: boolean;
+  verificationStatus: ProfileVerificationStatus;
   gallery: string[];
   instructorIds: string[];
   pendingInvites: InstructorInvite[];
@@ -94,6 +96,7 @@ export function defaultInstructorProfile(
     weeklySchedule: defaultWeeklySchedule(),
     hourlyRate: '',
     verified: false,
+    verificationStatus: 'unverified',
     plan: 'basic',
   };
 }
@@ -106,6 +109,7 @@ export function defaultInstitutionProfile(name: string): InstitutionProfileData 
     city: '',
     country: '',
     verified: false,
+    verificationStatus: 'unverified',
     gallery: [],
     instructorIds: [],
     pendingInvites: [],

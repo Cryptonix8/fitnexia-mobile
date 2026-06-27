@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
+import { VerificationBanner } from '@/components/profile/verification-banner';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
@@ -85,6 +86,12 @@ export default function InstructorDashboard() {
       scroll
       loading={isLoading && allClasses.length === 0}
       loadingMessage={LOADING_LABELS.classes}>
+      {profile ? (
+        <VerificationBanner
+          verificationStatus={profile.verificationStatus}
+          profileRoute="/(instructor)/profile/verify"
+        />
+      ) : null}
       <Text style={[styles.greet, { color: colors.textMuted }]}>Hola, {user?.firstName} 👋</Text>
       <Text style={[styles.title, { color: colors.text }]}>Resumen de hoy</Text>
 

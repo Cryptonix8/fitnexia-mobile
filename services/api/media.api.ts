@@ -1,6 +1,9 @@
 import { Platform } from 'react-native';
 
 import { API_BASE_URL } from './config';
+import { safeFetch } from './fetch';
+import { parseJsonError, parseJsonResponse } from './parse-response';
+import { getAccessToken } from './token-storage';
 
 /** Rewrite legacy/broken media URLs saved before production URL fix. */
 export function normalizeMediaUrl(uri: string | null | undefined): string | null | undefined {
@@ -23,11 +26,8 @@ export function normalizeMediaUrl(uri: string | null | undefined): string | null
 
   return uri;
 }
-import { safeFetch } from './fetch';
-import { parseJsonError, parseJsonResponse } from './parse-response';
-import { getAccessToken } from './token-storage';
 
-const LOCAL_URI_PREFIXES = ['file://', 'content://', 'ph://', 'assets-library://'];
+const LOCAL_URI_PREFIXES = ['file://', 'content://', 'ph://', 'assets-library://', 'blob:'];
 
 export function isLocalMediaUri(uri: string | null | undefined): boolean {
   if (!uri) return false;

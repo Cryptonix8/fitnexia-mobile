@@ -62,9 +62,14 @@ export function ClassCard({
           {translateDisciplineLabel(item.discipline)} · {formatLabel} · {formatClassDate(item.startAt)}
         </Text>
         <View style={styles.footer}>
-          <Text style={[styles.instructor, { color: colors.textSecondary }]}>
-            {item.instructor.displayName}
-          </Text>
+          <View style={styles.instructorRow}>
+            <Text style={[styles.instructor, { color: colors.textSecondary }]}>
+              {item.instructor.displayName}
+            </Text>
+            {item.instructor.verified ? (
+              <Badge label={BADGE_LABELS.verified} variant="verified" />
+            ) : null}
+          </View>
           <Text style={[styles.price, { color: colors.primary }]}>{formatMoney(item.price)}</Text>
         </View>
         <View style={styles.tags}>
@@ -110,8 +115,10 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: Spacing.sm,
   },
+  instructorRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs, flex: 1 },
   instructor: { fontSize: 13, fontWeight: '500' },
   price: { fontSize: 15, fontWeight: '700' },
   tags: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.sm, gap: Spacing.md },

@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
+import { VerificationBanner } from '@/components/profile/verification-banner';
 import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -32,6 +33,12 @@ export default function GymDashboardScreen() {
       scroll
       loading={isLoading && stats.gymClasses.length === 0}
       loadingMessage={LOADING_LABELS.classes}>
+      {profile ? (
+        <VerificationBanner
+          verificationStatus={profile.verificationStatus}
+          profileRoute="/(gym)/profile/verify"
+        />
+      ) : null}
       <Text style={[styles.greet, { color: colors.textMuted }]}>
         {profile?.name ?? 'Gimnasio'}
       </Text>

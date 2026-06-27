@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 
 import { AvatarPicker } from '@/components/avatar-picker';
@@ -18,6 +18,10 @@ export default function EditProfileScreen() {
   const [lastName, setLastName] = useState(user?.lastName ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
   const [avatarUri, setAvatarUri] = useState<string | null>(user?.avatarUri ?? null);
+
+  useEffect(() => {
+    setAvatarUri(user?.avatarUri ?? null);
+  }, [user?.avatarUri]);
 
   const save = async () => {
     const validation = validateAthleteProfileForm({ firstName, lastName, email });

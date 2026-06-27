@@ -17,7 +17,7 @@ import {
   Spacing,
   type ScheduleFilter,
 } from '@/constants/fitnexia';
-import { GEO_LABELS, LOADING_LABELS, MODALITY_LABELS } from '@/constants/labels';
+import { GEO_LABELS, LOADING_LABELS, MODALITY_LABELS, VERIFICATION_LABELS } from '@/constants/labels';
 import { useAppTheme } from '@/contexts/theme-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useFeature } from '@/hooks/use-feature';
@@ -44,6 +44,7 @@ export default function SearchScreen() {
   const [schedule, setSchedule] = useState<ScheduleFilter>('any');
   const [priceRangeId, setPriceRangeId] = useState<string>('any');
   const [nearMe, setNearMe] = useState(false);
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   const location = nearMe
@@ -129,6 +130,7 @@ export default function SearchScreen() {
       userLat: coords?.lat ?? null,
       userLng: coords?.lng ?? null,
       radiusKm: DEFAULT_RADIUS_KM,
+      verifiedOnly,
     });
     if (geoEnabled && nearMe && coords) {
       return sortClassesByDistance(filtered, coords);
@@ -145,6 +147,7 @@ export default function SearchScreen() {
     geoEnabled,
     nearMe,
     coords,
+    verifiedOnly,
   ]);
 
   const activeFilterCount = [
@@ -153,6 +156,7 @@ export default function SearchScreen() {
     nearMe || location.trim(),
     schedule !== 'any' ? schedule : null,
     priceRangeId !== 'any' ? priceRangeId : null,
+    verifiedOnly ? 'verified' : null,
   ].filter(Boolean).length;
 
   const clearFilters = () => {
@@ -162,6 +166,7 @@ export default function SearchScreen() {
     setLocationText('');
     setSchedule('any');
     setPriceRangeId('any');
+    setVerifiedOnly(false);
     setNearMe(false);
   };
 
@@ -261,6 +266,14 @@ export default function SearchScreen() {
           style={styles.fullWidth}
         />
 
+        <View style={styles.chipsRow}>
+          <FilterChip
+            label={VERIFICATION_LABELS.verifiedOnly}
+            active={verifiedOnly}
+            onPress={() => setVerifiedOnly((v) => !v)}
+          />
+        </View>
+
         <TextInput
           style={[
             styles.locationInput,
@@ -336,6 +349,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     marginBottom: Spacing.md,
   },
+  chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginTop: Spacing.sm },
   filtersPanel: {
     borderRadius: Radius.lg,
     borderWidth: 1,

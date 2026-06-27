@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AvatarPicker } from '@/components/avatar-picker';
@@ -23,6 +23,10 @@ export default function InstructorEditProfileScreen() {
   const [disciplines, setDisciplines] = useState<string[]>(profile?.disciplines ?? []);
   const [avatarUri, setAvatarUri] = useState<string | null>(user?.avatarUri ?? null);
   const [email, setEmail] = useState(user?.email ?? '');
+
+  useEffect(() => {
+    setAvatarUri(user?.avatarUri ?? null);
+  }, [user?.avatarUri]);
 
   const toggleDiscipline = (sport: string) => {
     setDisciplines((prev) =>

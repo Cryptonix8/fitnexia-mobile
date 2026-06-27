@@ -14,7 +14,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { MOCK_INSTRUCTORS } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { BADGE_LABELS, BUTTON_LABELS, GYM_TIER_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, translateDisciplineLabels } from '@/constants/labels';
+import { BADGE_LABELS, BUTTON_LABELS, GYM_TIER_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, VERIFICATION_LABELS, translateDisciplineLabels } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { useSignOut } from '@/hooks/use-sign-out';
 import { normalizeMediaUrl } from '@/services/api/media.api';
@@ -56,11 +56,14 @@ export default function GymProfileScreen() {
         <View style={styles.headerText}>
           <Text style={[styles.name, { color: colors.text }]}>{profile.name}</Text>
           <Text style={[styles.email, { color: colors.textMuted }]}>{user.email}</Text>
-          {profile.verified ? (
-            <View style={styles.badgeWrap}>
+          <View style={styles.badgeWrap}>
+            {profile.verificationStatus === 'verified' || profile.verified ? (
               <Badge label={BADGE_LABELS.verified} variant="verified" />
-            </View>
-          ) : null}
+            ) : null}
+            {profile.verificationStatus === 'pending' ? (
+              <Badge label={VERIFICATION_LABELS.pendingBadge} variant="warning" />
+            ) : null}
+          </View>
         </View>
       </View>
 
@@ -130,6 +133,19 @@ export default function GymProfileScreen() {
       )}
 
       <DarkModeToggle />
+
+      <ProfileMenuItem
+        icon="shield-checkmark-outline"
+        label={VERIFICATION_LABELS.screenTitle}
+        value={
+          profile.verificationStatus === 'verified'
+            ? BADGE_LABELS.verified
+            : profile.verificationStatus === 'pending'
+              ? VERIFICATION_LABELS.pendingBadge
+              : VERIFICATION_LABELS.cta
+        }
+        onPress={() => router.push('/(gym)/profile/verify')}
+      />
 
       <ProfileMenuItem
         icon="location-outline"

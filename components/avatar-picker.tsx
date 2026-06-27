@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -52,14 +51,7 @@ export function AvatarPicker({
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
       <Pressable onPress={pickImage} style={styles.avatarBtn}>
-        {uri ? (
-          <Image
-            source={{ uri }}
-            style={{ width: size, height: size, borderRadius: size / 2 }}
-          />
-        ) : (
-          <UserAvatar size={size} kind={kind} />
-        )}
+        <UserAvatar size={size} kind={kind} uri={uri} />
         <View style={styles.badge}>
           <Ionicons name="camera" size={16} color={FitnexiaColors.white} />
         </View>

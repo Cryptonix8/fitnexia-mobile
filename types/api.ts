@@ -26,6 +26,8 @@ export type InstructorPlan = 'basic' | 'pro' | 'institutional';
 
 export type GymSaasTier = 'basic' | 'professional' | 'premium' | 'enterprise';
 
+export type ProfileVerificationStatus = 'unverified' | 'pending' | 'verified' | 'rejected';
+
 export type OpeningHoursDay = { open?: string; close?: string; closed?: boolean };
 
 export type OpeningHours = Partial<
@@ -97,6 +99,7 @@ export interface Instructor {
   certifications?: Certification[];
   hourlyRate?: Money;
   verified: boolean;
+  verificationStatus?: ProfileVerificationStatus;
   availableNow: boolean;
   averageRating: number;
   reviewCount: number;
@@ -119,6 +122,7 @@ export interface Institution {
   location?: InstitutionLocation;
   gallery?: string[];
   verified: boolean;
+  verificationStatus?: ProfileVerificationStatus;
   plan?: InstructorPlan;
   saasTier?: GymSaasTier;
   contactPhone?: string;
@@ -205,8 +209,8 @@ export interface ClassListItem {
   price: Money;
   capacity?: number;
   spotsLeft?: number;
-  instructor: Pick<Instructor, 'id' | 'displayName' | 'photoUrl'>;
-  institution?: Pick<Institution, 'id' | 'name' | 'logoUrl'> | null;
+  instructor: Pick<Instructor, 'id' | 'displayName' | 'photoUrl' | 'verified'>;
+  institution?: Pick<Institution, 'id' | 'name' | 'logoUrl' | 'verified'> | null;
   location?: { lat: number; lng: number; label: string };
   averageRating?: number;
   classFormat?: ClassFormat;

@@ -13,7 +13,7 @@ import { Screen } from '@/components/ui/screen';
 import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
-import { BADGE_LABELS, BUTTON_LABELS, LOADING_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, formatUserPlanSummary, translateDisciplineLabels } from '@/constants/labels';
+import { BADGE_LABELS, BUTTON_LABELS, LOADING_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, VERIFICATION_LABELS, formatUserPlanSummary, translateDisciplineLabels } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { useSignOut } from '@/hooks/use-sign-out';
 import { formatWeeklyScheduleSummary, defaultWeeklySchedule } from '@/utils/schedule';
@@ -76,7 +76,12 @@ export default function InstructorProfileScreen() {
           <Text style={[styles.name, { color: colors.text }]}>{profile.displayName}</Text>
           <Text style={[styles.email, { color: colors.textMuted }]}>{user.email}</Text>
           <View style={styles.badges}>
-            {profile.verified ? <Badge label={BADGE_LABELS.verified} variant="verified" /> : null}
+            {profile.verificationStatus === 'verified' || profile.verified ? (
+              <Badge label={BADGE_LABELS.verified} variant="verified" />
+            ) : null}
+            {profile.verificationStatus === 'pending' ? (
+              <Badge label={VERIFICATION_LABELS.pendingBadge} variant="warning" />
+            ) : null}
             {profile.availableNow ? <Badge label={BADGE_LABELS.availableNow} variant="success" /> : null}
           </View>
         </View>
@@ -127,6 +132,18 @@ export default function InstructorProfileScreen() {
         icon="briefcase-outline"
         label="Bolsa de trabajo"
         onPress={() => router.push('/(instructor)/jobs')}
+      />
+      <ProfileMenuItem
+        icon="shield-checkmark-outline"
+        label={VERIFICATION_LABELS.screenTitle}
+        value={
+          profile.verificationStatus === 'verified'
+            ? BADGE_LABELS.verified
+            : profile.verificationStatus === 'pending'
+              ? VERIFICATION_LABELS.pendingBadge
+              : VERIFICATION_LABELS.cta
+        }
+        onPress={() => router.push('/(instructor)/profile/verify')}
       />
       <ProfileMenuItem
         icon="ribbon-outline"

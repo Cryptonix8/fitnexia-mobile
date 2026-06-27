@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { Header } from '@/components/ui/header';
 import { Button } from '@/components/ui/button';
@@ -21,24 +22,29 @@ export default function AddClubMemberScreen() {
   const [contactPhone, setContactPhone] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const loadPlans = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const data = await fetchMembershipPlans();
       const active = data.filter((p) => p.active);
       setPlans(active);
       if (active.length) setPlanId((current) => current || active[0].id);
-    } catch {
+    } catch (err) {
       setPlans([]);
+      setLoadError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    loadPlans();
-  }, [loadPlans]);
+  useFocusEffect(
+    useCallback(() => {
+      loadPlans();
+    }, [loadPlans]),
+  );
 
   const save = async () => {
     if (!planId) {
@@ -89,8 +95,22 @@ export default function AddClubMemberScreen() {
           </Pressable>
         ))}
       </View>
-      {plans.length === 0 ? (
-        <Text style={{ color: colors.textMuted, marginBottom: Spacing.md }}>{MEMBERSHIP_LABELS.noPlans}</Text>
+      {plans.length === 0 && !loading ? (
+        <View style={[styles.emptyPlans, { backgroundColor: colors.surfaceMuted, borderColor: colors.border }]}>
+          <Text style={{ color: colors.textSecondary, lineHeight: 20 }}>
+            {loadError ?? MEMBERSHIP_LABELS.noPlans}
+          </Text>
+          <Text style={{ color: colors.textMuted, fontSize: 13, marginTop: Spacing.xs, lineHeight: 18 }}>
+            Cada socio debe estar asignado a un plan (precio y frecuencia de cobro).
+          </Text>
+          <Button
+            title="Crear plan de cuota"
+            variant="outline"
+            size="sm"
+            onPress={() => router.push('/(gym)/membership/plans')}
+            style={{ marginTop: Spacing.md, alignSelf: 'flex-start' }}
+          />
+        </View>
       ) : null}
 
       <TextInput
@@ -141,4 +161,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   hint: { fontSize: 12, lineHeight: 17, marginBottom: Spacing.md, marginTop: -4 },
+  emptyPlans: {
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+  },
 });

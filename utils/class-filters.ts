@@ -16,6 +16,7 @@ export interface ClassSearchFilters {
   userLat?: number | null;
   userLng?: number | null;
   radiusKm?: number;
+  verifiedOnly?: boolean;
 }
 
 function classHour(iso: string): number {
@@ -88,6 +89,8 @@ export function filterClasses(
     ) {
       return false;
     }
+
+    if (filters.verifiedOnly && !item.instructor.verified) return false;
 
     if (filters.query.trim()) {
       const q = filters.query.toLowerCase();

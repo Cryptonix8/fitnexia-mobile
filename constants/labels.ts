@@ -9,6 +9,34 @@ export const BADGE_LABELS = {
   full: 'Completo',
 } as const;
 
+export const VERIFICATION_LABELS = {
+  bannerTitle: 'Verificá tu perfil',
+  bannerBody: 'Generá más confianza y destacá en los resultados con la insignia Fitnexia.',
+  pendingTitle: 'Verificación en revisión',
+  pendingBody: 'Recibimos tus documentos. Te avisaremos por email cuando haya novedades.',
+  rejectedTitle: 'Verificación no aprobada',
+  rejectedBody: 'Podés enviar una nueva solicitud con documentos actualizados.',
+  pendingBadge: 'En revisión',
+  rejectedBadge: 'No verificado',
+  cta: 'Verificar',
+  screenTitle: 'Verificar perfil',
+  screenIntro:
+    'Subí tu documento de identidad (frente y dorso) y un título o certificación profesional. Los documentos son privados y solo los ve el equipo Fitnexia.',
+  dniFront: 'Documento de identidad — frente',
+  dniBack: 'Documento de identidad — dorso',
+  certification: 'Título o certificación profesional',
+  uploadDoc: 'Subir archivo',
+  changeDoc: 'Cambiar archivo',
+  submit: 'Enviar solicitud',
+  submittedTitle: 'Solicitud enviada',
+  submittedBody: 'Recibimos tu solicitud. Te notificaremos por email cuando la revisemos.',
+  missingDocs: 'Subí los tres documentos requeridos.',
+  lastReason: 'Último motivo',
+  verifiedOnly: 'Solo verificados',
+  unverifiedPublishHint:
+    'Tu perfil aún no está verificado. Podés publicar clases, pero no mostrarás la insignia Fitnexia.',
+} as const;
+
 export const CLASS_FORMAT_LABELS = {
   individual: '1 a 1',
   group: 'Grupal',

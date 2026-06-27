@@ -44,6 +44,7 @@ function mapInstructorProfile(profile: Instructor): InstructorProfileData {
       defaultWeeklySchedule()) as WeeklySchedule,
     hourlyRate: profile.hourlyRate ? String(profile.hourlyRate.amount / 100) : '',
     verified: profile.verified ?? false,
+    verificationStatus: profile.verificationStatus ?? (profile.verified ? 'verified' : 'unverified'),
     plan: profile.plan ?? 'basic',
   };
 }
@@ -61,6 +62,7 @@ function mapInstitutionProfile(
     city: loc?.city ?? '',
     country: loc?.country ?? '',
     verified: profile.verified ?? false,
+    verificationStatus: profile.verificationStatus ?? (profile.verified ? 'verified' : 'unverified'),
     gallery: profile.gallery ?? [],
     instructorIds,
     pendingInvites,
