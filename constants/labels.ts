@@ -28,6 +28,7 @@ export const VERIFICATION_LABELS = {
   uploadDoc: 'Subir archivo',
   changeDoc: 'Cambiar archivo',
   submit: 'Enviar solicitud',
+  submittingOverlay: 'Enviando solicitud…',
   submittedTitle: 'Solicitud enviada',
   submittedBody: 'Recibimos tu solicitud. Te notificaremos por email cuando la revisemos.',
   missingDocs: 'Subí los tres documentos requeridos.',
