@@ -61,8 +61,7 @@ export default function GymMembershipSettingsScreen() {
   };
 
   return (
-    <Screen scroll loading={loading} loadingMessage="Cargando ajustes…">
-      <Header title="Ajustes de cuotas" showBack />
+    <Screen scroll loading={loading} loadingMessage="Cargando ajustes…" header={<Header title="Ajustes de cuotas" showBack />}>
       <Text style={[styles.hint, { color: colors.textMuted }]}>
         Configurá recordatorios automáticos y días de gracia antes de marcar mora.
       </Text>

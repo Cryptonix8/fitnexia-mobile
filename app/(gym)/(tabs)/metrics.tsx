@@ -48,9 +48,13 @@ export default function GymMetricsScreen() {
     <Screen
       scroll
       loading={isLoading && classes.length === 0}
-      loadingMessage={LOADING_LABELS.classes}>
-      <Text style={[styles.title, { color: colors.text }]}>Métricas</Text>
-      <Text style={[styles.period, { color: colors.textMuted }]}>Esta semana</Text>
+      loadingMessage={LOADING_LABELS.classes}
+      header={
+        <>
+          <Text style={[styles.title, { color: colors.text }]}>Métricas</Text>
+          <Text style={[styles.period, { color: colors.textMuted }]}>Esta semana</Text>
+        </>
+      }>
 
       <View style={styles.statsRow}>
         <StatCard

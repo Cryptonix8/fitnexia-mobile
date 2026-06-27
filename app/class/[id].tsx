@@ -67,8 +67,7 @@ export default function ClassDetailScreen() {
     : CLASS_DETAIL_LABELS.onlineSessionLink;
 
   return (
-    <Screen scroll>
-      <Header title={SCREEN_TITLES.classDetails} showBack />
+    <Screen scroll header={<Header title={SCREEN_TITLES.classDetails} showBack />}>
       <View style={styles.hero}>
         <Text style={styles.title}>{cls.title}</Text>
         <View style={styles.tags}>

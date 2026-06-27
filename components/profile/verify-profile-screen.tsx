@@ -124,8 +124,7 @@ export function VerifyProfileScreen() {
   const canSubmit = status === 'unverified' || status === 'rejected';
 
   return (
-    <Screen scroll loading={loading} loadingMessage="Cargando…">
-      <Header title={VERIFICATION_LABELS.screenTitle} showBack />
+    <Screen scroll loading={loading} loadingMessage="Cargando…" header={<Header title={VERIFICATION_LABELS.screenTitle} showBack />}>
 
       <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <Text style={[styles.heading, { color: colors.text }]}>{VERIFICATION_LABELS.screenIntro}</Text>

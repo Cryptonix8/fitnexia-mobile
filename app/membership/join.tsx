@@ -63,8 +63,7 @@ export default function MembershipJoinScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title="Unirme al club" showBack />
+    <Screen scroll header={<Header title="Unirme al club" showBack />}>
 
       <Text style={[styles.label, { color: colors.textMuted }]}>{MEMBERSHIP_LABELS.inviteCode}</Text>
       <TextInput

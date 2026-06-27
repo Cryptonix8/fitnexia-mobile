@@ -23,11 +23,13 @@ export default function GymClassesScreen() {
     <Screen
       scroll
       loading={isLoading && gymClasses.length === 0}
-      loadingMessage={LOADING_LABELS.classes}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Clases grupales</Text>
-        <Button title="Nueva" size="sm" onPress={() => router.push('/create-class')} />
-      </View>
+      loadingMessage={LOADING_LABELS.classes}
+      header={
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: colors.text }]}>Clases grupales</Text>
+          <Button title="Nueva" size="sm" onPress={() => router.push('/create-class')} />
+        </View>
+      }>
 
       {gymClasses.length === 0 ? (
         <EmptyState

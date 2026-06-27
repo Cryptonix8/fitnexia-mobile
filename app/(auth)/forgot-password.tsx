@@ -40,8 +40,7 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title="Restablecer contraseña" showBack />
+    <Screen scroll header={<Header title="Restablecer contraseña" showBack />}>
       <Text style={styles.body}>
         Ingresá tu email y te enviaremos un enlace para restablecer tu contraseña. Si no lo ves en unos
         minutos, revisá la carpeta de spam.

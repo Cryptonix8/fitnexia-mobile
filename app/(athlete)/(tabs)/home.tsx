@@ -45,16 +45,18 @@ export default function AthleteHomeScreen() {
     <Screen
       scroll
       loading={isLoading && classes.length === 0}
-      loadingMessage={LOADING_LABELS.classes}>
-      <View style={styles.top}>
-        <View>
-          <Text style={styles.greet}>Buenos días 👋</Text>
-          <Text style={styles.headline}>Encontrá tu próxima clase</Text>
+      loadingMessage={LOADING_LABELS.classes}
+      header={
+        <View style={styles.top}>
+          <View>
+            <Text style={styles.greet}>Buenos días 👋</Text>
+            <Text style={styles.headline}>Encontrá tu próxima clase</Text>
+          </View>
+          <View style={styles.bell}>
+            <Ionicons name="notifications-outline" size={24} color={FitnexiaColors.gray900} />
+          </View>
         </View>
-        <View style={styles.bell}>
-          <Ionicons name="notifications-outline" size={24} color={FitnexiaColors.gray900} />
-        </View>
-      </View>
+      }>
 
       <View style={styles.searchBox}>
         <Ionicons name="search" size={20} color={FitnexiaColors.gray400} />

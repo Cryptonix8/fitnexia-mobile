@@ -53,8 +53,7 @@ export default function InstructorJobDetailScreen() {
   }
 
   return (
-    <Screen scroll loading={loading}>
-      <Header title="Oferta" showBack />
+    <Screen scroll loading={loading} header={<Header title="Oferta" showBack />}>
       {job ? (
         <>
           <Text style={[styles.club, { color: colors.textMuted }]}>{job.institutionName}</Text>

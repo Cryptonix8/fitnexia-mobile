@@ -5,8 +5,7 @@ import { Screen } from '@/components/ui/screen';
 
 export default function InstructorSupportScreen() {
   return (
-    <Screen scroll>
-      <Header title={SCREEN_TITLES.helpSupport} showBack />
+    <Screen scroll header={<Header title={SCREEN_TITLES.helpSupport} showBack />}>
       <SupportSettings />
     </Screen>
   );

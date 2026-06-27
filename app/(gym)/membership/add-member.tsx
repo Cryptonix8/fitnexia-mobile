@@ -73,8 +73,7 @@ export default function AddClubMemberScreen() {
   };
 
   return (
-    <Screen scroll loading={loading}>
-      <Header title={MEMBERSHIP_LABELS.addMember} showBack />
+    <Screen scroll loading={loading} header={<Header title={MEMBERSHIP_LABELS.addMember} showBack />}>
 
       <Text style={[styles.label, { color: colors.textMuted }]}>Plan de cuota</Text>
       <View style={styles.planRow}>

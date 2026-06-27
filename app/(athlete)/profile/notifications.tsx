@@ -37,8 +37,7 @@ export default function NotificationsScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title={SCREEN_TITLES.notifications} showBack />
+    <Screen scroll header={<Header title={SCREEN_TITLES.notifications} showBack />}>
       <Text style={styles.hint}>Elegí qué querés recibir por push y email.</Text>
       {ALL_ITEMS.filter((item) => isNotificationPrefVisible(item.key)).map((item) => (
         <View key={item.key} style={styles.row}>

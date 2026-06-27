@@ -110,8 +110,8 @@ export default function GymInstructorsScreen() {
     <Screen
       scroll
       loading={loading && roster.length === 0}
-      loadingMessage={LOADING_LABELS.roster}>
-      <Text style={[styles.title, { color: colors.text }]}>Equipo</Text>
+      loadingMessage={LOADING_LABELS.roster}
+      header={<Text style={[styles.title, { color: colors.text }]}>Equipo</Text>}>
 
       <Text style={[styles.hint, { color: colors.textMuted }]}>
         Todos los instructores registrados. Invitalos para que acepten y puedan dictar clases

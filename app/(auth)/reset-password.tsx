@@ -23,8 +23,7 @@ export default function ResetPasswordScreen() {
 
   if (!resetToken) {
     return (
-      <Screen scroll>
-        <Header title="Nueva contraseña" showBack />
+      <Screen scroll header={<Header title="Nueva contraseña" showBack />}>
         <Text style={styles.body}>
           El enlace de restablecimiento no es válido. Pedí uno nuevo desde la pantalla de inicio de
           sesión.
@@ -55,8 +54,7 @@ export default function ResetPasswordScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title="Nueva contraseña" showBack />
+    <Screen scroll header={<Header title="Nueva contraseña" showBack />}>
       <Text style={styles.body}>Elegí una contraseña nueva para tu cuenta.</Text>
       <Input
         label={AUTH_LABELS.password}

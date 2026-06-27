@@ -131,8 +131,7 @@ export default function EditClubMemberScreen() {
   };
 
   return (
-    <Screen scroll loading={loading}>
-      <Header title={MEMBERSHIP_LABELS.editMember} showBack />
+    <Screen scroll loading={loading} header={<Header title={MEMBERSHIP_LABELS.editMember} showBack />}>
 
       {feeStatus ? (
         <Text style={[styles.status, { color: colors.textMuted }]}>

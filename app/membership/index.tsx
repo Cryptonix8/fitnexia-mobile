@@ -50,8 +50,7 @@ export default function AthleteMembershipsScreen() {
   );
 
   return (
-    <Screen scroll loading={loading && memberships.length === 0}>
-      <Header title={PROFILE_MENU_LABELS.clubMembership} showBack />
+    <Screen scroll loading={loading && memberships.length === 0} header={<Header title={PROFILE_MENU_LABELS.clubMembership} showBack />}>
 
       <Button
         title="Unirme con código"

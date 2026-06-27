@@ -105,8 +105,7 @@ export default function MembershipStatementScreen() {
 
   if (!statement && !loading) {
     return (
-      <Screen scroll>
-        <Header title="Estado de cuenta" showBack />
+      <Screen scroll header={<Header title="Estado de cuenta" showBack />}>
         <View
           style={[
             styles.notFoundBox,
@@ -143,8 +142,7 @@ export default function MembershipStatementScreen() {
   const hasDebt = Boolean(statement?.amountDue);
 
   return (
-    <Screen scroll loading={showBlockingLoader}>
-      <Header title="Estado de cuenta" showBack />
+    <Screen scroll loading={showBlockingLoader} header={<Header title="Estado de cuenta" showBack />}>
 
       {member ? (
         <View style={[styles.header, { backgroundColor: colors.surface, borderColor: colors.border }]}>

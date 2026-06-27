@@ -42,8 +42,7 @@ export default function CreateGymJobScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title="Nueva oferta" showBack />
+    <Screen scroll header={<Header title="Nueva oferta" showBack />}>
       <Text style={[styles.hint, { color: colors.textMuted }]}>
         Los instructores registrados podrán ver y postularse a esta búsqueda.
       </Text>

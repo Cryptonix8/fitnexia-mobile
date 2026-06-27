@@ -85,7 +85,8 @@ export default function InstructorDashboard() {
     <Screen
       scroll
       loading={isLoading && allClasses.length === 0}
-      loadingMessage={LOADING_LABELS.classes}>
+      loadingMessage={LOADING_LABELS.classes}
+      header={<Text style={[styles.title, { color: colors.text }]}>Resumen de hoy</Text>}>
       {profile ? (
         <VerificationBanner
           verificationStatus={profile.verificationStatus}
@@ -93,7 +94,6 @@ export default function InstructorDashboard() {
         />
       ) : null}
       <Text style={[styles.greet, { color: colors.textMuted }]}>Hola, {user?.firstName} 👋</Text>
-      <Text style={[styles.title, { color: colors.text }]}>Resumen de hoy</Text>
 
       {gymInvites.length > 0 ? (
         <View style={styles.invitesSection}>

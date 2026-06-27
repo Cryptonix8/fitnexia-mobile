@@ -87,9 +87,8 @@ export default function GymGalleryScreen() {
   }
 
   return (
-    <Screen scroll>
+    <Screen scroll header={<Header title={PROFILE_MENU_LABELS.photoGallery} showBack />}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <Header title={PROFILE_MENU_LABELS.photoGallery} showBack />
         <Text style={[styles.hint, { color: colors.textMuted }]}>
           Mostrá tu instalación en el perfil público de tu gimnasio.
         </Text>

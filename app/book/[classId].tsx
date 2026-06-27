@@ -180,11 +180,16 @@ export default function BookScreen() {
   };
 
   return (
-    <Screen scroll loading={passesLoading} loadingMessage={LOADING_LABELS.passes}>
-      <Header
-        title={isWaitlist ? BUTTON_LABELS.joinWaitlistShort : BUTTON_LABELS.confirmBooking}
-        showBack
-      />
+    <Screen
+      scroll
+      loading={passesLoading}
+      loadingMessage={LOADING_LABELS.passes}
+      header={
+        <Header
+          title={isWaitlist ? BUTTON_LABELS.joinWaitlistShort : BUTTON_LABELS.confirmBooking}
+          showBack
+        />
+      }>
       <View style={styles.summary}>
         <Text style={styles.className}>{cls.title}</Text>
         <Text style={styles.instructor}>{cls.instructor.displayName}</Text>

@@ -27,8 +27,7 @@ export default function FavoriteSportsScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title={SCREEN_TITLES.favoriteSports} showBack />
+    <Screen scroll header={<Header title={SCREEN_TITLES.favoriteSports} showBack />}>
       <Text style={styles.hint}>
         Seleccioná los deportes que te gustan. Los usamos para personalizar tu feed.
       </Text>

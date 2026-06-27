@@ -42,8 +42,7 @@ export default function InstitutionProfileScreen() {
   const locationLabel = [loc?.address, loc?.city].filter(Boolean).join(', ');
 
   return (
-    <Screen scroll loading={loading} loadingMessage={LOADING_LABELS.default}>
-      <Header title="Club" showBack />
+    <Screen scroll loading={loading} loadingMessage={LOADING_LABELS.default} header={<Header title="Club" showBack />}>
       {institution ? (
         <>
           <View style={styles.hero}>

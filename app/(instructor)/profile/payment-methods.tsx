@@ -5,8 +5,7 @@ import { Screen } from '@/components/ui/screen';
 
 export default function InstructorPaymentMethodsScreen() {
   return (
-    <Screen scroll>
-      <Header title={SCREEN_TITLES.payoutAccount} showBack />
+    <Screen scroll header={<Header title={SCREEN_TITLES.payoutAccount} showBack />}>
       <MpPayoutConnect />
     </Screen>
   );

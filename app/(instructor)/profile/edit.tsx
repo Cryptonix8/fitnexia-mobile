@@ -66,8 +66,7 @@ export default function InstructorEditProfileScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title={SCREEN_TITLES.editProfile} showBack />
+    <Screen scroll header={<Header title={SCREEN_TITLES.editProfile} showBack />}>
       <AvatarPicker uri={avatarUri} onChange={setAvatarUri} size={96} kind="instructor" />
       <Input label="Nombre público" value={displayName} onChangeText={setDisplayName} />
       <Input label={AUTH_LABELS.email} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />

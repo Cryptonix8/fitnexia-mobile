@@ -182,8 +182,8 @@ export default function SearchScreen() {
       scroll
       edges={['top']}
       loading={isLoading && classes.length === 0}
-      loadingMessage={LOADING_LABELS.classes}>
-      <Text style={[styles.title, { color: colors.text }]}>Buscar</Text>
+      loadingMessage={LOADING_LABELS.classes}
+      header={<Text style={[styles.title, { color: colors.text }]}>Buscar</Text>}>
       <View style={[styles.searchBox, { backgroundColor: colors.input, borderColor: colors.border }]}>
         <Ionicons name="search" size={20} color={colors.textMuted} />
         <TextInput

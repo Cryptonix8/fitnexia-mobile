@@ -123,8 +123,7 @@ export default function GymMembershipPlansScreen() {
   const inactivePlans = plans.filter((p) => !p.active);
 
   return (
-    <Screen scroll loading={loading}>
-      <Header title={PROFILE_MENU_LABELS.membershipPlans} showBack />
+    <Screen scroll loading={loading} header={<Header title={PROFILE_MENU_LABELS.membershipPlans} showBack />}>
 
       <Text style={[styles.sectionTitle, { color: colors.text }]}>Nuevo plan</Text>
       <TextInput

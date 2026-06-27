@@ -54,8 +54,7 @@ export default function InstructorProfileScreen() {
   }
 
   return (
-    <Screen scroll>
-      <Header title="Instructor" showBack />
+    <Screen scroll header={<Header title="Instructor" showBack />}>
       <View style={styles.hero}>
         <UserAvatar size={100} kind="instructor" uri={instructor.photoUrl} style={styles.photo} />
         <Text style={[styles.name, { color: colors.text }]}>{instructor.displayName}</Text>

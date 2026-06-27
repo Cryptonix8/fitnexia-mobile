@@ -74,15 +74,17 @@ export default function InstructorCalendarScreen() {
     <Screen
       scroll
       loading={isLoading && allEvents.length === 0}
-      loadingMessage={LOADING_LABELS.classes}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Calendario</Text>
-        <Pressable
-          onPress={() => router.push('/(instructor)/profile/availability')}
-          hitSlop={8}>
-          <Text style={[styles.manageLink, { color: colors.primary }]}>Gestionar disponibilidad</Text>
-        </Pressable>
-      </View>
+      loadingMessage={LOADING_LABELS.classes}
+      header={
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: colors.text }]}>Calendario</Text>
+          <Pressable
+            onPress={() => router.push('/(instructor)/profile/availability')}
+            hitSlop={8}>
+            <Text style={[styles.manageLink, { color: colors.primary }]}>Gestionar disponibilidad</Text>
+          </Pressable>
+        </View>
+      }>
 
       <View style={[styles.tabs, { backgroundColor: colors.surfaceMuted }]}>
         <Tab label="Próximas" active={tab === 'upcoming'} onPress={() => setTab('upcoming')} />

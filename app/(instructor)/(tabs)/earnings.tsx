@@ -83,8 +83,7 @@ export default function EarningsScreen() {
     : '$0.00';
 
   return (
-    <Screen scroll loading={loading} loadingMessage={LOADING_LABELS.earnings}>
-      <Text style={[styles.title, { color: colors.text }]}>Ingresos</Text>
+    <Screen scroll loading={loading} loadingMessage={LOADING_LABELS.earnings} header={<Text style={[styles.title, { color: colors.text }]}>Ingresos</Text>}>
       <View style={[styles.summary, { backgroundColor: colors.primary }]}>
         <Text style={styles.summaryLabel}>Este mes (neto)</Text>
         <Text style={styles.summaryValue}>{netDisplay}</Text>

@@ -54,8 +54,7 @@ export default function GymJobsScreen() {
   };
 
   return (
-    <Screen scroll loading={loading && jobs.length === 0} loadingMessage="Cargando ofertas…">
-      <Header title="Ofertas de trabajo" showBack />
+    <Screen scroll loading={loading && jobs.length === 0} loadingMessage="Cargando ofertas…" header={<Header title="Ofertas de trabajo" showBack />}>
       <Button title="+ Nueva oferta" onPress={() => router.push('/(gym)/jobs/create')} />
 
       {jobs.length === 0 && !loading ? (

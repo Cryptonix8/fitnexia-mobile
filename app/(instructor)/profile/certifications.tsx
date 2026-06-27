@@ -145,9 +145,8 @@ export default function InstructorCertificationsScreen() {
   }
 
   return (
-    <Screen scroll>
+    <Screen scroll header={<Header title={PROFILE_MENU_LABELS.certifications} showBack />}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <Header title={PROFILE_MENU_LABELS.certifications} showBack />
         <Text style={[styles.hint, { color: colors.textMuted }]}>
           Agregá credenciales profesionales que se muestran en tu perfil público.
         </Text>

@@ -71,8 +71,7 @@ export default function GymSubscriptionScreen() {
   };
 
   return (
-    <Screen scroll loading={loading && !subscription} loadingMessage="Cargando plan…">
-      <Header title="Plan Fitnexia" showBack />
+    <Screen scroll loading={loading && !subscription} loadingMessage="Cargando plan…" header={<Header title="Plan Fitnexia" showBack />}>
 
       {subscription ? (
         <>

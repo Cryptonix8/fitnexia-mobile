@@ -207,8 +207,8 @@ export default function CreateClassScreen() {
     <Screen
       scroll
       loading={isGym && instructorsLoading}
-      loadingMessage={LOADING_LABELS.roster}>
-      <Header title={isGym ? 'Nueva clase grupal' : 'Nueva clase'} showBack />
+      loadingMessage={LOADING_LABELS.roster}
+      header={<Header title={isGym ? 'Nueva clase grupal' : 'Nueva clase'} showBack />}>
 
       {(user?.role === 'instructor' &&
         user.instructorProfile?.verificationStatus !== 'verified' &&

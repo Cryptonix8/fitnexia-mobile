@@ -117,8 +117,8 @@ export default function BookingsScreen() {
     <Screen
       scroll
       loading={pageLoading}
-      loadingMessage={LOADING_LABELS.bookings}>
-      <Text style={[styles.title, { color: colors.text }]}>Mis reservas</Text>
+      loadingMessage={LOADING_LABELS.bookings}
+      header={<Text style={[styles.title, { color: colors.text }]}>Mis reservas</Text>}>
       <View style={[styles.tabs, { backgroundColor: colors.surfaceMuted }]}>
         <Tab label="Próximas" active={tab === 'upcoming'} onPress={() => setTab('upcoming')} />
         <Tab label="Historial" active={tab === 'past'} onPress={() => setTab('past')} />

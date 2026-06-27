@@ -83,8 +83,7 @@ export default function GymReviewInstructorScreen() {
   if (eligibility.existingReview) {
     const existing = eligibility.existingReview;
     return (
-      <Screen scroll>
-        <Header title="Tu reseña" showBack />
+      <Screen scroll header={<Header title="Tu reseña" showBack />}>
         <View style={styles.hero}>
           <UserAvatar size={72} kind="instructor" uri={instructor.photoUrl} />
           <Text style={[styles.name, { color: colors.text }]}>{instructor.displayName}</Text>
@@ -164,8 +163,7 @@ export default function GymReviewInstructorScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title="Reseñar instructor" showBack />
+    <Screen scroll header={<Header title="Reseñar instructor" showBack />}>
 
       <View style={styles.hero}>
         <UserAvatar size={72} kind="instructor" uri={instructor.photoUrl} />

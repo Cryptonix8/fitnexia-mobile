@@ -77,8 +77,7 @@ export default function InstructorAvailabilityScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title={PROFILE_MENU_LABELS.scheduleAvailability} showBack />
+    <Screen scroll header={<Header title={PROFILE_MENU_LABELS.scheduleAvailability} showBack />}>
 
       <Text style={[styles.sectionTitle, { color: colors.text }]}>Disponible ahora</Text>
       <Text style={[styles.sectionHint, { color: colors.textMuted }]}>

@@ -108,8 +108,7 @@ export default function ReviewScreen() {
   }
 
   return (
-    <Screen scroll>
-      <Header title="Dejar una reseña" showBack />
+    <Screen scroll header={<Header title="Dejar una reseña" showBack />}>
       <Text style={styles.className}>{cls.title}</Text>
       <Text style={styles.hint}>Solo los asistentes verificados pueden reseñar. Las reseñas no se pueden editar.</Text>
 

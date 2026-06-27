@@ -62,14 +62,16 @@ export default function InstructorProfileScreen() {
   );
 
   return (
-    <Screen scroll>
-      <View style={styles.headerRow}>
-        <Text style={[styles.screenTitle, { color: colors.text }]}>{SCREEN_TITLES.profile}</Text>
-        <Pressable onPress={() => router.push('/(instructor)/profile/edit')} hitSlop={8}>
-          <Text style={[styles.editLink, { color: colors.primary }]}>{BUTTON_LABELS.edit}</Text>
-        </Pressable>
-      </View>
-
+    <Screen
+      scroll
+      header={
+        <View style={styles.headerRow}>
+          <Text style={[styles.screenTitle, { color: colors.text }]}>{SCREEN_TITLES.profile}</Text>
+          <Pressable onPress={() => router.push('/(instructor)/profile/edit')} hitSlop={8}>
+            <Text style={[styles.editLink, { color: colors.primary }]}>{BUTTON_LABELS.edit}</Text>
+          </Pressable>
+        </View>
+      }>
       <View style={styles.header}>
         <UserAvatar size={72} kind="instructor" uri={user.avatarUri} style={styles.avatar} />
         <View style={styles.headerText}>

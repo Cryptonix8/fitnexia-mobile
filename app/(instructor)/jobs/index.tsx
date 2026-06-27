@@ -35,8 +35,7 @@ export default function InstructorJobsScreen() {
   );
 
   return (
-    <Screen scroll loading={loading && jobs.length === 0} loadingMessage="Cargando ofertas…">
-      <Header title="Bolsa de trabajo" showBack />
+    <Screen scroll loading={loading && jobs.length === 0} loadingMessage="Cargando ofertas…" header={<Header title="Bolsa de trabajo" showBack />}>
       {jobs.length === 0 && !loading ? (
         <EmptyState
           icon="briefcase-outline"

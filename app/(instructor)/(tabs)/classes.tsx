@@ -23,11 +23,13 @@ export default function InstructorClassesScreen() {
     <Screen
       scroll
       loading={isLoading && mine.length === 0}
-      loadingMessage={LOADING_LABELS.classes}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Mis clases</Text>
-        <Button title="Nueva clase" size="sm" onPress={() => router.push('/create-class')} />
-      </View>
+      loadingMessage={LOADING_LABELS.classes}
+      header={
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: colors.text }]}>Mis clases</Text>
+          <Button title="Nueva clase" size="sm" onPress={() => router.push('/create-class')} />
+        </View>
+      }>
 
       {mine.length === 0 ? (
         <EmptyState

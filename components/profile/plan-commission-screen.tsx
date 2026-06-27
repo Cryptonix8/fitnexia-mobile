@@ -60,8 +60,7 @@ export function PlanCommissionScreen({ currentPlan, hint, planIds }: PlanCommiss
   }, [planIds]);
 
   return (
-    <Screen scroll>
-      <Header title={SCREEN_TITLES.planCommission} showBack />
+    <Screen scroll header={<Header title={SCREEN_TITLES.planCommission} showBack />}>
       <Text style={[styles.hint, { color: colors.textMuted }]}>{hint}</Text>
 
       {loading ? (

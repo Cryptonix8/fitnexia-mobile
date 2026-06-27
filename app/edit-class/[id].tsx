@@ -199,8 +199,7 @@ export default function EditClassScreen() {
   const booked = computeClassBooked(cls);
 
   return (
-    <Screen scroll>
-      <Header title={isGym ? 'Editar clase grupal' : 'Editar clase'} showBack />
+    <Screen scroll header={<Header title={isGym ? 'Editar clase grupal' : 'Editar clase'} showBack />}>
 
       {isGym ? (
         <View style={[styles.occupancy, { backgroundColor: colors.surfaceMuted }]}>

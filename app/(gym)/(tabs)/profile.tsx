@@ -43,14 +43,16 @@ export default function GymProfileScreen() {
     .filter((i): i is (typeof MOCK_INSTRUCTORS)[number] => Boolean(i));
 
   return (
-    <Screen scroll>
-      <View style={styles.headerRow}>
-        <Text style={[styles.screenTitle, { color: colors.text }]}>{SCREEN_TITLES.gymProfile}</Text>
-        <Pressable onPress={() => router.push('/(gym)/profile/edit')} hitSlop={8}>
-          <Text style={[styles.editLink, { color: colors.primary }]}>{BUTTON_LABELS.edit}</Text>
-        </Pressable>
-      </View>
-
+    <Screen
+      scroll
+      header={
+        <View style={styles.headerRow}>
+          <Text style={[styles.screenTitle, { color: colors.text }]}>{SCREEN_TITLES.gymProfile}</Text>
+          <Pressable onPress={() => router.push('/(gym)/profile/edit')} hitSlop={8}>
+            <Text style={[styles.editLink, { color: colors.primary }]}>{BUTTON_LABELS.edit}</Text>
+          </Pressable>
+        </View>
+      }>
       <View style={styles.header}>
         <UserAvatar size={72} kind="institution" uri={user.avatarUri} style={styles.logo} />
         <View style={styles.headerText}>

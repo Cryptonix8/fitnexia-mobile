@@ -50,8 +50,7 @@ export default function PaymentMethodsScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title={SCREEN_TITLES.paymentMethods} showBack />
+    <Screen scroll header={<Header title={SCREEN_TITLES.paymentMethods} showBack />}>
       <Text style={styles.hint}>
         Las tarjetas se almacenan de forma segura en Mercado Pago. Esta es una interfaz simulada hasta conectar la API.
       </Text>

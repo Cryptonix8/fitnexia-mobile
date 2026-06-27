@@ -145,8 +145,7 @@ export default function GymMembershipInvitesScreen() {
   };
 
   return (
-    <Screen scroll loading={loading && invites.length === 0}>
-      <Header title="Invitar socios" showBack />
+    <Screen scroll loading={loading && invites.length === 0} header={<Header title="Invitar socios" showBack />}>
 
       <Text style={[styles.label, { color: colors.textMuted }]}>Plan</Text>
       <View style={styles.planRow}>

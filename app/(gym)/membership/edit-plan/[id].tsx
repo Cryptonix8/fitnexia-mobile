@@ -139,8 +139,7 @@ export default function EditMembershipPlanScreen() {
   };
 
   return (
-    <Screen scroll loading={loading}>
-      <Header title={MEMBERSHIP_LABELS.editPlan} showBack />
+    <Screen scroll loading={loading} header={<Header title={MEMBERSHIP_LABELS.editPlan} showBack />}>
 
       <TextInput
         style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface }]}

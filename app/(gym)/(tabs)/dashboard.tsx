@@ -32,7 +32,8 @@ export default function GymDashboardScreen() {
     <Screen
       scroll
       loading={isLoading && stats.gymClasses.length === 0}
-      loadingMessage={LOADING_LABELS.classes}>
+      loadingMessage={LOADING_LABELS.classes}
+      header={<Text style={[styles.title, { color: colors.text }]}>Panel de control</Text>}>
       {profile ? (
         <VerificationBanner
           verificationStatus={profile.verificationStatus}
@@ -42,7 +43,6 @@ export default function GymDashboardScreen() {
       <Text style={[styles.greet, { color: colors.textMuted }]}>
         {profile?.name ?? 'Gimnasio'}
       </Text>
-      <Text style={[styles.title, { color: colors.text }]}>Panel de control</Text>
 
       <View style={styles.stats}>
         <MiniStat

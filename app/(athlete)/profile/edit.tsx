@@ -46,8 +46,7 @@ export default function EditProfileScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title={SCREEN_TITLES.editProfile} showBack />
+    <Screen scroll header={<Header title={SCREEN_TITLES.editProfile} showBack />}>
       <AvatarPicker uri={avatarUri} onChange={setAvatarUri} size={96} />
       <Input label={AUTH_LABELS.firstName} value={firstName} onChangeText={setFirstName} />
       <Input label={AUTH_LABELS.lastName} value={lastName} onChangeText={setLastName} />

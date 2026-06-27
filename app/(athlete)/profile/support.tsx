@@ -29,8 +29,7 @@ export default function SupportScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title={SCREEN_TITLES.helpSupport} showBack />
+    <Screen scroll header={<Header title={SCREEN_TITLES.helpSupport} showBack />}>
       <Text style={styles.hint}>Describí tu problema y te responderemos por email.</Text>
 
       <Text style={styles.label}>Categoría</Text>

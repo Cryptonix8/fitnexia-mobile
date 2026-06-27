@@ -62,8 +62,11 @@ export default function GymMembersScreen() {
   ];
 
   return (
-    <Screen scroll loading={loading && members.length === 0} loadingMessage={LOADING_LABELS.default}>
-      <Text style={[styles.title, { color: colors.text }]}>Socios</Text>
+    <Screen
+      scroll
+      loading={loading && members.length === 0}
+      loadingMessage={LOADING_LABELS.default}
+      header={<Text style={[styles.title, { color: colors.text }]}>Socios</Text>}>
       <Text style={[styles.hint, { color: colors.textMuted }]}>
         Registro de socios, estado de cuotas e invitaciones.
       </Text>

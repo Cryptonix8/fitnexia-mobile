@@ -69,8 +69,7 @@ export default function GymEditProfileScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Header title={SCREEN_TITLES.editProfile} showBack />
+    <Screen scroll header={<Header title={SCREEN_TITLES.editProfile} showBack />}>
       <AvatarPicker
         uri={avatarUri}
         onChange={setAvatarUri}

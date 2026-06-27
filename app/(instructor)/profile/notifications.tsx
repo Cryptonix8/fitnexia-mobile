@@ -5,8 +5,7 @@ import { Screen } from '@/components/ui/screen';
 
 export default function InstructorNotificationsScreen() {
   return (
-    <Screen scroll>
-      <Header title={SCREEN_TITLES.notifications} showBack />
+    <Screen scroll header={<Header title={SCREEN_TITLES.notifications} showBack />}>
       <NotificationsSettings />
     </Screen>
   );

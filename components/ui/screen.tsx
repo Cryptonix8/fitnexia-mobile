@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, View, type ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,6 +14,8 @@ type ScreenProps = ViewProps & {
   /** Full-screen overlay while primary server data is loading. */
   loading?: boolean;
   loadingMessage?: string;
+  /** Fixed above scroll content when `scroll` is true. */
+  header?: ReactNode;
 };
 
 export function Screen({
@@ -23,6 +25,7 @@ export function Screen({
   edges = ['top', 'bottom'],
   loading = false,
   loadingMessage = LOADING_LABELS.default,
+  header,
   style,
   ...rest
 }: ScreenProps) {
@@ -47,22 +50,41 @@ export function Screen({
   const overlay = <LoadingOverlay visible={loading} message={loadingMessage} />;
 
   if (scroll) {
+    const stickyHeader = header != null;
+
     return (
       <Fragment>
-        <ScrollView
-          style={[styles.root, { backgroundColor: colors.background }]}
-          contentContainerStyle={[
-            styles.scrollContent,
-            padded && styles.padded,
-            {
-              paddingTop: paddingTop + (padded ? Spacing.md : 0),
-              paddingBottom,
-            },
-          ]}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled">
-          {children}
-        </ScrollView>
+        <View style={[styles.root, { backgroundColor: colors.background }]}>
+          {stickyHeader ? (
+            <View
+              style={[
+                padded && styles.padded,
+                styles.stickyHeader,
+                {
+                  paddingTop: paddingTop + (padded ? Spacing.md : 0),
+                  backgroundColor: colors.background,
+                },
+              ]}>
+              {header}
+            </View>
+          ) : null}
+          <ScrollView
+            style={styles.flex}
+            contentContainerStyle={[
+              styles.scrollContent,
+              padded && styles.padded,
+              stickyHeader
+                ? { paddingBottom }
+                : {
+                    paddingTop: paddingTop + (padded ? Spacing.md : 0),
+                    paddingBottom,
+                  },
+            ]}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled">
+            {children}
+          </ScrollView>
+        </View>
         {overlay}
       </Fragment>
     );
@@ -80,6 +102,9 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
+  flex: {
+    flex: 1,
+  },
   scrollContent: {
     flexGrow: 1,
   },
@@ -88,5 +113,8 @@ const styles = StyleSheet.create({
   },
   padded: {
     paddingHorizontal: Spacing.md,
+  },
+  stickyHeader: {
+    zIndex: 1,
   },
 });

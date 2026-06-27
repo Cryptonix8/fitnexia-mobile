@@ -162,8 +162,8 @@ export default function GymManageInstructorsScreen() {
     <Screen
       scroll
       loading={loading && roster.length === 0}
-      loadingMessage={LOADING_LABELS.roster}>
-      <Header title={PROFILE_MENU_LABELS.instructors} showBack />
+      loadingMessage={LOADING_LABELS.roster}
+      header={<Header title={PROFILE_MENU_LABELS.instructors} showBack />}>
 
       <View style={styles.statsRow}>
         <View style={[styles.statPill, { backgroundColor: colors.successMuted }]}>
