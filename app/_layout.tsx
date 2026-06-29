@@ -1,3 +1,4 @@
+import '@/services/native-bootstrap';
 import '@/services/api/setup-network-guard';
 
 import { DarkTheme, DefaultTheme, ThemeProvider as NavThemeProvider } from '@react-navigation/native';

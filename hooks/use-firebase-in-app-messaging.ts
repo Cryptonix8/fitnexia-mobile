@@ -7,11 +7,11 @@ import {
 
 export function useFirebaseInAppMessaging(appReady: boolean) {
   useEffect(() => {
-    void initializeFirebaseInAppMessaging();
+    void initializeFirebaseInAppMessaging().catch(() => undefined);
   }, []);
 
   useEffect(() => {
     if (!appReady) return;
-    void enableInAppMessages();
+    void enableInAppMessages().catch(() => undefined);
   }, [appReady]);
 }
