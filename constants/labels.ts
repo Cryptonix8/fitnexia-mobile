@@ -263,6 +263,7 @@ export const BUTTON_LABELS = {
   viewProfile: 'Perfil',
   confirmBooking: 'Confirmar reserva',
   payAndConfirm: 'Pagar y confirmar',
+  closeAccount: 'Cerrar cuenta',
 } as const;
 
 export const CLASS_DETAIL_LABELS = {
@@ -394,6 +395,10 @@ export const ALERT_LABELS = {
   gymNameRequired: 'El nombre del gimnasio / escuela es obligatorio.',
   savedTitle: 'Guardado',
   validationFailedTitle: 'Revisá los datos',
+  closeAccountTitle: '¿Cerrar tu cuenta?',
+  closeAccountMessage:
+    'Se eliminarán tu perfil y todo el contenido asociado (clases, membresías, reservas, etc.). Esta acción no se puede deshacer.',
+  closeAccountFailedTitle: 'No se pudo cerrar la cuenta',
 } as const;
 
 export const ROLE_DESCRIPTIONS = {
@@ -428,4 +433,6 @@ export const LOADING_LABELS = {
   session: 'Cargando sesión…',
   passes: 'Cargando opciones de pago…',
   availability: 'Actualizando disponibilidad…',
+  closingAccount: 'Cerrando cuenta…',
+  signingOut: 'Cerrando sesión…',
 } as const;

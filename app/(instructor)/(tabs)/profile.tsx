@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { DarkModeToggle } from '@/components/profile/dark-mode-toggle';
+import { CloseAccountButton } from '@/components/profile/close-account-button';
+import { SignOutButton } from '@/components/profile/sign-out-button';
 import { ProfileMenuItem } from '@/components/profile/menu-item';
 import { UserAvatar } from '@/components/user-avatar';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Screen } from '@/components/ui/screen';
 import { getErrorMessage, useAuth } from '@/contexts/auth-context';
@@ -15,12 +16,10 @@ import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
 import { BADGE_LABELS, BUTTON_LABELS, LOADING_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, VERIFICATION_LABELS, formatUserPlanSummary, translateDisciplineLabels } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
-import { useSignOut } from '@/hooks/use-sign-out';
 import { formatWeeklyScheduleSummary, defaultWeeklySchedule } from '@/utils/schedule';
 
 export default function InstructorProfileScreen() {
   const { user, updateProfile } = useAuth();
-  const { signOut, signingOut } = useSignOut();
   const { colors } = useAppTheme();
   const showSupport = useFeature('platformSupport');
   const showPayoutAccount = useFeature('marketplacePayouts') || useFeature('integratedPayments');
@@ -174,12 +173,10 @@ export default function InstructorProfileScreen() {
         />
       ) : null}
 
-      <Button title={BUTTON_LABELS.signOut} variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
+      <SignOutButton />
+      <CloseAccountButton />
 
-      <LoadingOverlay
-        visible={signingOut || togglingAvailable}
-        message={signingOut ? 'Cerrando sesión…' : LOADING_LABELS.availability}
-      />
+      <LoadingOverlay visible={togglingAvailable} message={LOADING_LABELS.availability} />
     </Screen>
   );
 }

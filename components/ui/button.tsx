@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, type PressableProps } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Pressable, StyleSheet, Text, View, type PressableProps } from 'react-native';
 
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { useAppTheme } from '@/contexts/theme-context';
@@ -9,12 +10,14 @@ type ButtonProps = PressableProps & {
   title: string;
   variant?: ButtonVariant;
   size?: 'sm' | 'md' | 'lg';
+  icon?: keyof typeof Ionicons.glyphMap;
 };
 
 export function Button({
   title,
   variant = 'primary',
   size = 'md',
+  icon,
   disabled,
   style,
   ...rest
@@ -28,6 +31,8 @@ export function Button({
     ghost: { bg: colors.primaryMuted, text: colors.primaryText, border: colors.primaryMuted },
     danger: { bg: colors.error, text: colors.surface, border: colors.error },
   }[variant];
+
+  const iconSize = size === 'sm' ? 18 : size === 'lg' ? 22 : 20;
 
   return (
     <Pressable
@@ -45,14 +50,19 @@ export function Button({
       ]}
       disabled={disabled}
       {...rest}>
-      <Text
-        style={[
-          styles.text,
-          styles[`text_${size}`],
-          { color: variantStyles.text },
-        ]}>
-        {title}
-      </Text>
+      <View style={styles.content}>
+        {icon ? (
+          <Ionicons name={icon} size={iconSize} color={variantStyles.text} style={styles.icon} />
+        ) : null}
+        <Text
+          style={[
+            styles.text,
+            styles[`text_${size}`],
+            { color: variantStyles.text },
+          ]}>
+          {title}
+        </Text>
+      </View>
     </Pressable>
   );
 }
@@ -62,6 +72,14 @@ const styles = StyleSheet.create({
     borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    marginRight: Spacing.sm,
   },
   sm: { paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md, minHeight: 36 },
   md: { paddingVertical: 14, paddingHorizontal: Spacing.lg, minHeight: 48 },

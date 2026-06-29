@@ -11,6 +11,7 @@ import {
   forgotPasswordApi,
   googleSignInApi,
   type GoogleSignInParams,
+  closeAccountApi,
   loadCurrentUser,
   loginApi,
   logoutApi,
@@ -61,6 +62,7 @@ interface AuthContextValue {
   updateProfile: (updates: UpdateProfileParams) => Promise<void>;
   refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
+  closeAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -206,6 +208,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }, []);
 
+  const closeAccount = useCallback(async () => {
+    await unregisterPushNotifications();
+    await closeAccountApi();
+    setUser(null);
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
@@ -218,6 +226,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       updateProfile,
       refreshUser,
       logout,
+      closeAccount,
     }),
     [
       user,
@@ -230,6 +239,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       updateProfile,
       refreshUser,
       logout,
+      closeAccount,
     ],
   );
 

@@ -3,22 +3,20 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ProfileMenuItem } from '@/components/profile/menu-item';
+import { CloseAccountButton } from '@/components/profile/close-account-button';
+import { SignOutButton } from '@/components/profile/sign-out-button';
 import { DarkModeToggle } from '@/components/profile/dark-mode-toggle';
 import { UserAvatar } from '@/components/user-avatar';
-import { Button } from '@/components/ui/button';
-import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { BUTTON_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, translateDisciplineLabels } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
-import { useSignOut } from '@/hooks/use-sign-out';
 import { MOCK_CREDITS } from '@/data/mock';
 
 export default function AthleteProfileScreen() {
   const { user } = useAuth();
-  const { signOut, signingOut } = useSignOut();
   const { colors } = useAppTheme();
   const showCredits = useFeature('loyaltyCredits');
   const showPaymentMethods = useFeature('savedPaymentMethods');
@@ -114,9 +112,8 @@ export default function AthleteProfileScreen() {
         />
       ) : null}
 
-      <Button title={BUTTON_LABELS.signOut} variant="outline" onPress={signOut} style={{ marginTop: Spacing.lg }} />
-
-      <LoadingOverlay visible={signingOut} message="Cerrando sesión…" />
+      <SignOutButton />
+      <CloseAccountButton />
     </Screen>
   );
 }

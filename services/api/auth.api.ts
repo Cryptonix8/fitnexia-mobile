@@ -342,6 +342,11 @@ export async function updateUserAccountApi(body: { email: string }) {
   });
 }
 
+export async function closeAccountApi(): Promise<void> {
+  await apiRequest('/users/me', { method: 'DELETE' });
+  await clearTokens();
+}
+
 export async function updateAthleteProfileApi(body: Record<string, unknown>) {
   return apiRequest('/users/me/profile', { method: 'PATCH', body });
 }
