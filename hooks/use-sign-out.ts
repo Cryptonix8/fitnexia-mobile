@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 
@@ -19,7 +18,6 @@ export function useSignOut() {
           setSigningOut(true);
           try {
             await logout();
-            router.replace('/(auth)/login');
           } finally {
             setSigningOut(false);
           }

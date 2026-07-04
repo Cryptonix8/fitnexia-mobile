@@ -46,7 +46,6 @@ export async function completeGoogleSignIn({
       role,
       institutionName,
     });
-    router.replace('/');
   } catch (err) {
     if (err instanceof Error && err.message === 'EXPO_GO_UNSUPPORTED') {
       Alert.alert('Usá una build de desarrollo', getGoogleSetupInstructions());
@@ -55,7 +54,7 @@ export async function completeGoogleSignIn({
     if (err instanceof ApiError && err.code === 'NEEDS_ROLE') {
       Alert.alert('Crear una cuenta', getErrorMessage(err), [
         { text: 'Cancelar', style: 'cancel' },
-        { text: 'Registrarse', onPress: () => router.push('/(auth)/register') },
+        { text: 'Registrarse', onPress: () => router.push('/register') },
       ]);
       return;
     }

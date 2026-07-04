@@ -13,7 +13,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { usePushNotificationRouting } from '@/hooks/use-push-notification-routing';
 import { useFirebaseInAppMessaging } from '@/hooks/use-firebase-in-app-messaging';
 import { AppSplash } from '@/components/app-splash';
-import { SessionGuard } from '@/components/session-guard';
+import { AuthRootGate } from '@/components/auth-root-gate';
 import { AuthProvider } from '@/contexts/auth-context';
 import { BookingsProvider } from '@/contexts/bookings-context';
 import { ClassesProvider } from '@/contexts/classes-context';
@@ -39,6 +39,7 @@ function RootNavigator() {
 
   return (
     <NavThemeProvider value={navTheme}>
+      <AuthRootGate />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(auth)" />
@@ -117,9 +118,7 @@ export default function RootLayout() {
           <BookingsProvider>
             <ClassesProvider>
               <ReviewsProvider>
-                <SessionGuard>
-                  <AppBootstrap />
-                </SessionGuard>
+                <AppBootstrap />
               </ReviewsProvider>
             </ClassesProvider>
           </BookingsProvider>

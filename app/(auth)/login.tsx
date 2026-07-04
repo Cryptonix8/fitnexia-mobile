@@ -10,6 +10,7 @@ import { Screen } from '@/components/ui/screen';
 import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
+import { consumeSessionExpiredAlertPending } from '@/utils/auth-navigation';
 import { useFeature } from '@/hooks/use-feature';
 import { useGoogleSignIn } from '@/hooks/use-google-sign-in';
 import { completeGoogleSignIn } from '@/utils/google-auth';
@@ -26,7 +27,7 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (expired !== '1') return;
+    if (expired !== '1' && !consumeSessionExpiredAlertPending()) return;
     Alert.alert(AUTH_LABELS.sessionExpiredTitle, AUTH_LABELS.sessionExpiredMessage);
   }, [expired]);
 
@@ -40,7 +41,6 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await login(email, password);
-      router.replace('/');
     } catch (err) {
       Alert.alert('Error al iniciar sesión', getErrorMessage(err));
     } finally {
@@ -76,7 +76,7 @@ export default function LoginScreen() {
       />
 
       {passwordRecovery ? (
-        <Pressable onPress={() => router.push('/(auth)/forgot-password')}>
+        <Pressable onPress={() => router.push('/forgot-password')}>
           <Text style={styles.forgot}>¿Olvidaste tu contraseña?</Text>
         </Pressable>
       ) : null}
@@ -92,7 +92,7 @@ export default function LoginScreen() {
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>¿Sos nuevo? </Text>
-        <Pressable onPress={() => router.push('/(auth)/register')}>
+        <Pressable onPress={() => router.push('/register')}>
           <Text style={styles.link}>Crear cuenta</Text>
         </Pressable>
       </View>

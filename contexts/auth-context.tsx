@@ -6,7 +6,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { router } from 'expo-router';
 
 import {
   forgotPasswordApi,
@@ -33,6 +32,7 @@ import {
   subscribeSessionExpired,
 } from '@/services/api/session';
 import { clearTokens, getAccessToken } from '@/services/api/token-storage';
+import { getOnboardingComplete, setOnboardingComplete } from '@/services/onboarding-storage';
 import { getErrorMessage } from '@/services/api/errors';
 import {
   registerForPushNotifications,
@@ -42,6 +42,7 @@ import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { resolveMediaUrl, resolveMediaUrls } from '@/services/api/media.api';
 import type { UserRole } from '@/types/api';
 import type { AuthUser, RegisterParams, UpdateProfileParams } from '@/types/auth-user';
+import { markSessionExpiredAlertPending } from '@/utils/auth-navigation';
 
 export type {
   AuthUser,
@@ -87,8 +88,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleSessionExpired = useCallback(async () => {
     cancelSessionRefreshTimer();
     await clearTokens();
+    markSessionExpiredAlertPending();
     setUser(null);
-    router.replace('/(auth)/login?expired=1');
+  }, []);
+
+  const markOnboardingComplete = useCallback(async () => {
+    await setOnboardingComplete();
+    setHasSeenOnboarding(true);
   }, []);
 
   useEffect(() => {
@@ -106,6 +112,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let active = true;
     (async () => {
       try {
+        const seenOnboarding = await getOnboardingComplete();
+        if (active) setHasSeenOnboarding(seenOnboarding);
+
         const token = await getAccessToken();
         if (token) {
           const current = await loadCurrentUser();
@@ -126,38 +135,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [startSessionMonitor]);
 
   const completeOnboarding = useCallback(() => {
-    setHasSeenOnboarding(true);
-  }, []);
+    void markOnboardingComplete();
+  }, [markOnboardingComplete]);
 
   const login = useCallback(async (email: string, password: string) => {
     const loggedIn = await loginApi(email, password);
     resetSessionExpiredFlag();
+    await markOnboardingComplete();
     setUser(loggedIn);
     startSessionMonitor();
     registerForPushNotifications().catch((err) => {
       console.warn('Push registration failed:', getErrorMessage(err));
     });
-  }, [startSessionMonitor]);
+  }, [startSessionMonitor, markOnboardingComplete]);
 
   const loginWithGoogle = useCallback(async (params: GoogleSignInParams) => {
     const loggedIn = await googleSignInApi(params);
     resetSessionExpiredFlag();
+    await markOnboardingComplete();
     setUser(loggedIn);
     startSessionMonitor();
     registerForPushNotifications().catch((err) => {
       console.warn('Push registration failed:', getErrorMessage(err));
     });
-  }, [startSessionMonitor]);
+  }, [startSessionMonitor, markOnboardingComplete]);
 
   const register = useCallback(async (params: RegisterParams) => {
     const registered = await registerApi(params);
     resetSessionExpiredFlag();
+    await markOnboardingComplete();
     setUser(registered);
     startSessionMonitor();
     registerForPushNotifications().catch((err) => {
       console.warn('Push registration failed:', getErrorMessage(err));
     });
-  }, [startSessionMonitor]);
+  }, [startSessionMonitor, markOnboardingComplete]);
 
   const updateProfile = useCallback(
     async (updates: UpdateProfileParams) => {

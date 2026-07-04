@@ -11,20 +11,19 @@ export default function Index() {
     return <LoadingOverlay visible message={LOADING_LABELS.session} />;
   }
 
+  if (user) {
+    if (user.role === 'instructor') {
+      return <Redirect href="/(instructor)/(tabs)/dashboard" />;
+    }
+    if (user.role === 'institution') {
+      return <Redirect href="/(gym)/(tabs)/dashboard" />;
+    }
+    return <Redirect href="/(athlete)/(tabs)/home" />;
+  }
+
   if (!hasSeenOnboarding) {
-    return <Redirect href="/(auth)/onboarding" />;
+    return <Redirect href="/onboarding" />;
   }
 
-  if (!user) {
-    return <Redirect href="/(auth)/login" />;
-  }
-
-  if (user.role === 'instructor') {
-    return <Redirect href="/(instructor)/(tabs)/dashboard" />;
-  }
-  if (user.role === 'institution') {
-    return <Redirect href="/(gym)/(tabs)/dashboard" />;
-  }
-
-  return <Redirect href="/(athlete)/(tabs)/home" />;
+  return <Redirect href="/login" />;
 }

@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 
@@ -19,7 +18,6 @@ export function useCloseAccount() {
           setClosing(true);
           try {
             await closeAccount();
-            router.replace('/(auth)/login');
           } catch (err) {
             Alert.alert(ALERT_LABELS.closeAccountFailedTitle, getErrorMessage(err));
           } finally {

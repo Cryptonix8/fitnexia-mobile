@@ -85,7 +85,6 @@ export default function RegisterScreen() {
         disciplines: role === 'instructor' ? disciplines : [],
         institutionName: role === 'institution' ? institutionName.trim() : undefined,
       });
-      router.replace('/');
     } catch (err) {
       Alert.alert('Error en el registro', getErrorMessage(err));
     } finally {

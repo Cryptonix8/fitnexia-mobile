@@ -28,7 +28,7 @@ export default function ResetPasswordScreen() {
           El enlace de restablecimiento no es válido. Pedí uno nuevo desde la pantalla de inicio de
           sesión.
         </Text>
-        <Button title="Volver al inicio de sesión" onPress={() => router.replace('/(auth)/login')} />
+        <Button title="Volver al inicio de sesión" onPress={() => router.replace('/login')} />
       </Screen>
     );
   }
@@ -44,7 +44,7 @@ export default function ResetPasswordScreen() {
     try {
       await resetPasswordApi(resetToken, password);
       Alert.alert('Contraseña actualizada', 'Ya podés iniciar sesión con tu nueva contraseña.', [
-        { text: 'OK', onPress: () => router.replace('/(auth)/login') },
+        { text: 'OK', onPress: () => router.replace('/login') },
       ]);
     } catch (err) {
       Alert.alert('No se pudo restablecer la contraseña', getErrorMessage(err));
