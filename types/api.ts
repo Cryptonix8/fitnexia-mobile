@@ -186,7 +186,7 @@ export interface ClassRecurrence {
   enabled: boolean;
   frequency: 'weekly';
   weekdays: number[];
-  until: string;
+  seriesId?: string;
 }
 
 /** 0 = Sunday … 6 = Saturday */
@@ -214,6 +214,9 @@ export interface ClassListItem {
   location?: { lat: number; lng: number; label: string };
   averageRating?: number;
   classFormat?: ClassFormat;
+  seriesId?: string;
+  isSeriesException?: boolean;
+  recurrence?: ClassRecurrence;
 }
 
 export interface Class extends ClassListItem {

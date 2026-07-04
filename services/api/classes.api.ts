@@ -48,3 +48,24 @@ export async function updateClassApi(id: string, body: Record<string, unknown>) 
 export async function cancelClassApi(id: string) {
   return apiRequest<void>(`/classes/${id}/cancel`, { method: 'POST' });
 }
+
+export type ClassSeries = {
+  id: string;
+  title: string;
+  status: 'active' | 'paused' | 'deleted';
+  weekdays: number[];
+  timeOfDay: string;
+  anchorStartAt: string;
+};
+
+export async function pauseClassSeriesApi(seriesId: string) {
+  return apiRequest<ClassSeries>(`/class-series/${seriesId}/pause`, { method: 'POST' });
+}
+
+export async function resumeClassSeriesApi(seriesId: string) {
+  return apiRequest<ClassSeries>(`/class-series/${seriesId}/resume`, { method: 'POST' });
+}
+
+export async function deleteClassSeriesApi(seriesId: string) {
+  return apiRequest<ClassSeries>(`/class-series/${seriesId}/delete`, { method: 'POST' });
+}

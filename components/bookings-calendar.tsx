@@ -6,6 +6,7 @@ import { useAppTheme } from '@/contexts/theme-context';
 import {
   addMonths,
   buildMonthGrid,
+  chunkMonthGrid,
   formatMonthYear,
   getWeekdayLabels,
   isToday,
@@ -30,8 +31,61 @@ export function BookingsCalendar({
   markedDateKeys,
 }: BookingsCalendarProps) {
   const { colors } = useAppTheme();
-  const grid = buildMonthGrid(month);
+  const weeks = chunkMonthGrid(buildMonthGrid(month));
   const weekdays = getWeekdayLabels();
+
+  const renderDay = (day: Date | null, index: number) => {
+    if (!day) {
+      return <View key={`empty-${index}`} style={styles.dayCell} />;
+    }
+
+    const key = toDateKey(day);
+    const selected = isSameCalendarDay(day, selectedDate);
+    const today = isToday(day);
+    const marked = markedDateKeys.has(key);
+
+    return (
+      <Pressable
+        key={key}
+        style={styles.dayCell}
+        onPress={() => onSelectDate(day)}
+        accessibilityLabel={day.toLocaleDateString(APP_LOCALE, {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric',
+        })}
+        accessibilityState={{ selected }}>
+        <View
+          style={[
+            styles.dayInner,
+            selected && { backgroundColor: colors.primary },
+            !selected && today && {
+              borderWidth: 2,
+              borderColor: colors.primary,
+            },
+          ]}>
+          <Text
+            style={[
+              styles.dayText,
+              { color: colors.text },
+              selected && { color: colors.onPrimary, fontWeight: '700' },
+            ]}>
+            {day.getDate()}
+          </Text>
+          {marked ? (
+            <View
+              style={[
+                styles.dot,
+                {
+                  backgroundColor: selected ? colors.onPrimary : colors.primary,
+                },
+              ]}
+            />
+          ) : null}
+        </View>
+      </Pressable>
+    );
+  };
 
   return (
     <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -60,58 +114,11 @@ export function BookingsCalendar({
       </View>
 
       <View style={styles.grid}>
-        {grid.map((day, index) => {
-          if (!day) {
-            return <View key={`empty-${index}`} style={styles.dayCell} />;
-          }
-
-          const key = toDateKey(day);
-          const selected = isSameCalendarDay(day, selectedDate);
-          const today = isToday(day);
-          const marked = markedDateKeys.has(key);
-
-          return (
-            <Pressable
-              key={key}
-              style={styles.dayCell}
-              onPress={() => onSelectDate(day)}
-              accessibilityLabel={day.toLocaleDateString(APP_LOCALE, {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric',
-              })}
-              accessibilityState={{ selected }}>
-              <View
-                style={[
-                  styles.dayInner,
-                  selected && { backgroundColor: colors.primary },
-                  !selected && today && {
-                    borderWidth: 2,
-                    borderColor: colors.primary,
-                  },
-                ]}>
-                <Text
-                  style={[
-                    styles.dayText,
-                    { color: colors.text },
-                    selected && { color: colors.onPrimary, fontWeight: '700' },
-                  ]}>
-                  {day.getDate()}
-                </Text>
-                {marked ? (
-                  <View
-                    style={[
-                      styles.dot,
-                      {
-                        backgroundColor: selected ? colors.onPrimary : colors.primary,
-                      },
-                    ]}
-                  />
-                ) : null}
-              </View>
-            </Pressable>
-          );
-        })}
+        {weeks.map((week, weekIndex) => (
+          <View key={`week-${weekIndex}`} style={styles.weekRow}>
+            {week.map((day, dayIndex) => renderDay(day, weekIndex * 7 + dayIndex))}
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -145,11 +152,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   grid: {
+    width: '100%',
+  },
+  weekRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    width: '100%',
   },
   dayCell: {
-    width: `${100 / 7}%`,
+    flex: 1,
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',

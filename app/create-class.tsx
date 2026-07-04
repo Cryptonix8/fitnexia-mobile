@@ -21,6 +21,7 @@ import { fetchLinkedInstructors, type StaffRosterEntry } from '@/services/api/in
 import { getErrorMessage } from '@/services/api/errors';
 import { gymLocationLabel, resolveInstitutionId } from '@/utils/gym-classes';
 import { getLinkedInstructorId } from '@/utils/instructor';
+import { RecurringClassSection } from '@/components/recurring-class-section';
 import { combineDateAndTime, defaultClassStart } from '@/utils/schedule';
 import type { ClassFormat, Modality } from '@/types/api';
 
@@ -68,6 +69,7 @@ export default function CreateClassScreen() {
   const [price, setPrice] = useState('25');
   const [capacity, setCapacity] = useState('12');
   const [recurring, setRecurring] = useState(false);
+  const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([]);
   const [location, setLocation] = useState('');
   const [selectedInstructorId, setSelectedInstructorId] = useState<string | null>(
     linkedInstructors[0]?.id ?? null,
@@ -91,6 +93,31 @@ export default function CreateClassScreen() {
     }
   }, [isGym, institutionProfile, institutionId]);
 
+  useEffect(() => {
+    if (!recurring) return;
+    const day = startDate.getDay();
+    setSelectedWeekdays((prev) => {
+      if (prev.includes(day)) return prev;
+      if (prev.length <= 1) return [day];
+      return [...prev, day].sort((a, b) => a - b);
+    });
+  }, [recurring, startDate]);
+
+  const handleRecurringToggle = (enabled: boolean) => {
+    setRecurring(enabled);
+    if (enabled) {
+      setSelectedWeekdays([startDate.getDay()]);
+    } else {
+      setSelectedWeekdays([]);
+    }
+  };
+
+  const toggleWeekday = (day: number) => {
+    setSelectedWeekdays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort((a, b) => a - b),
+    );
+  };
+
   const publish = async () => {
     if (!title.trim()) {
       Alert.alert('Faltan datos', 'El nombre de la clase es obligatorio.');
@@ -113,9 +140,29 @@ export default function CreateClassScreen() {
       Alert.alert('Horario inválido', 'La clase debe empezar en el futuro. Elegí una fecha y hora posteriores.');
       return;
     }
+
+    if (recurringClasses && recurring) {
+      if (selectedWeekdays.length === 0) {
+        Alert.alert('Días requeridos', 'Seleccioná al menos un día de la semana.');
+        return;
+      }
+      if (!selectedWeekdays.includes(startAt.getDay())) {
+        Alert.alert(
+          'Fecha incompatible',
+          'La fecha de inicio debe coincidir con uno de los días seleccionados.',
+        );
+        return;
+      }
+    }
+
     setPublishing(true);
 
     try {
+      const recurrence =
+        recurringClasses && recurring
+          ? { enabled: true, frequency: 'weekly' as const, weekdays: selectedWeekdays }
+          : undefined;
+
       if (isGym) {
         const cap = parseInt(capacity, 10);
         if (Number.isNaN(cap) || cap < 2) {
@@ -131,6 +178,7 @@ export default function CreateClassScreen() {
 
         await addClass({
           title: title.trim(),
+          description: description.trim() || undefined,
           discipline,
           modality,
           classFormat: 'group',
@@ -153,6 +201,7 @@ export default function CreateClassScreen() {
                   label: location.trim() || gymLocationLabel(institutionProfile, institutionId),
                 }
               : undefined,
+          recurrence,
         });
       } else {
         if (classFormat === 'group') {
@@ -166,6 +215,7 @@ export default function CreateClassScreen() {
         const instructorCap = classFormat === 'individual' ? 1 : parseInt(capacity, 10);
         await addClass({
           title: title.trim(),
+          description: description.trim() || undefined,
           discipline,
           modality,
           classFormat,
@@ -186,13 +236,18 @@ export default function CreateClassScreen() {
                   label: location.trim(),
                 }
               : undefined,
+          recurrence,
         });
       }
 
       await refreshClasses();
-      Alert.alert('Publicada', `"${title.trim()}" ya está disponible.`, [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      Alert.alert(
+        'Publicada',
+        recurrence
+          ? `"${title.trim()}" se publicó como serie recurrente. Las próximas fechas ya están visibles en búsqueda.`
+          : `"${title.trim()}" ya está disponible.`,
+        [{ text: 'OK', onPress: () => router.back() }],
+      );
     } catch (err) {
       Alert.alert('Error al publicar', getErrorMessage(err));
     } finally {
@@ -259,6 +314,17 @@ export default function CreateClassScreen() {
         minimumDate={minDate}
       />
       <DateTimeField label="Hora de inicio" mode="time" value={startTime} onChange={setStartTime} />
+
+      {recurringClasses ? (
+        <RecurringClassSection
+          enabled={recurring}
+          selectedWeekdays={selectedWeekdays}
+          startDate={startDate}
+          onToggle={handleRecurringToggle}
+          onToggleWeekday={toggleWeekday}
+        />
+      ) : null}
+
       <Input
         label="Duración (minutos)"
         value={duration}
@@ -352,16 +418,6 @@ export default function CreateClassScreen() {
         />
       )}
 
-      {!isGym && recurringClasses ? (
-        <View style={styles.recurRow}>
-          <FilterChip
-            label={recurring ? '✓ Se repite semanalmente' : 'Repetir semanalmente'}
-            active={recurring}
-            onPress={() => setRecurring(!recurring)}
-          />
-        </View>
-      ) : null}
-
       {isGym && linkedInstructors.length === 0 ? (
         <Button
           title="Agregá staff primero"
@@ -401,5 +457,4 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   individualCapText: { fontSize: 15, fontWeight: '500' },
-  recurRow: { flexDirection: 'row', marginBottom: Spacing.md },
 });

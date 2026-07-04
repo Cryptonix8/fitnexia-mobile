@@ -48,6 +48,15 @@ export function buildMonthGrid(month: Date): (Date | null)[] {
   return cells;
 }
 
+/** Split a flat month grid into Sun–Sat week rows (length is always a multiple of 7). */
+export function chunkMonthGrid(cells: (Date | null)[]): (Date | null)[][] {
+  const weeks: (Date | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) {
+    weeks.push(cells.slice(i, i + 7));
+  }
+  return weeks;
+}
+
 export function isToday(date: Date): boolean {
   return isSameCalendarDay(date, new Date());
 }

@@ -1,9 +1,17 @@
 import type { WeeklyDaySchedule, WeeklySchedule } from '@/types/api';
 
 const WEEKDAY_LABELS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'] as const;
+const WEEKDAY_SHORT_LABELS = ['D', 'L', 'M', 'X', 'J', 'V', 'S'] as const;
+
+/** Monday-first order for UI (still uses JS getDay: 0=Sun … 6=Sat). */
+export const WEEKDAYS_MON_FIRST = [1, 2, 3, 4, 5, 6, 0] as const;
 
 export function weekdayLabel(weekday: number): string {
   return WEEKDAY_LABELS[weekday] ?? '?';
+}
+
+export function weekdayShortLabel(weekday: number): string {
+  return WEEKDAY_SHORT_LABELS[weekday] ?? '?';
 }
 
 export function defaultWeeklySchedule(): WeeklySchedule {

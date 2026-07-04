@@ -19,7 +19,10 @@ import { getErrorMessage } from '@/services/api/errors';
 import { useAuth } from '@/contexts/auth-context';
 import type { ClassListItem } from '@/types/api';
 
-export type NewClassInput = Omit<ClassListItem, 'id' | 'averageRating'>;
+export type NewClassInput = Omit<ClassListItem, 'id' | 'averageRating'> & {
+  description?: string;
+  recurrence?: import('@/types/api').ClassRecurrence;
+};
 
 interface ClassesContextValue {
   classes: ClassListItem[];
@@ -29,7 +32,11 @@ interface ClassesContextValue {
   getClassById: (id: string) => ClassListItem | undefined;
   getClassesByInstructor: (instructorId: string) => ClassListItem[];
   addClass: (input: NewClassInput) => Promise<ClassListItem>;
-  updateClass: (id: string, updates: Partial<ClassListItem>) => Promise<void>;
+  updateClass: (
+    id: string,
+    updates: Partial<ClassListItem>,
+    options?: { editScope?: 'this' | 'following' },
+  ) => Promise<void>;
   cancelClass: (id: string) => Promise<void>;
 }
 
@@ -42,7 +49,7 @@ function sortByStartAt(items: ClassListItem[]): ClassListItem[] {
 }
 
 function toCreatePayload(input: NewClassInput, userRole?: string, institutionId?: string, instructorId?: string) {
-  return {
+  const body: Record<string, unknown> = {
     title: input.title,
     discipline: input.discipline,
     modality: input.modality,
@@ -57,9 +64,15 @@ function toCreatePayload(input: NewClassInput, userRole?: string, institutionId?
       ? { label: input.location.label, lat: input.location.lat, lng: input.location.lng }
       : undefined,
   };
+  if (input.description) body.description = input.description;
+  if (input.recurrence?.enabled) body.recurrence = input.recurrence;
+  return body;
 }
 
-function toUpdatePayload(updates: Partial<ClassListItem>) {
+function toUpdatePayload(
+  updates: Partial<ClassListItem>,
+  options?: { editScope?: 'this' | 'following' },
+) {
   const body: Record<string, unknown> = {};
   if (updates.title !== undefined) body.title = updates.title;
   if (updates.discipline !== undefined) body.discipline = updates.discipline;
@@ -72,6 +85,7 @@ function toUpdatePayload(updates: Partial<ClassListItem>) {
   if (updates.location !== undefined) {
     body.location = updates.location;
   }
+  if (options?.editScope) body.editScope = options.editScope;
   return body;
 }
 
@@ -136,10 +150,16 @@ export function ClassesProvider({ children }: { children: React.ReactNode }) {
     [user?.role, user?.institutionId, user?.instructorId],
   );
 
-  const updateClass = useCallback(async (id: string, updates: Partial<ClassListItem>) => {
-    const updated = await updateClassApi(id, toUpdatePayload(updates));
-    setClasses((prev) => sortByStartAt(prev.map((c) => (c.id === id ? updated : c))));
-  }, []);
+  const updateClass = useCallback(
+    async (id: string, updates: Partial<ClassListItem>, options?: { editScope?: 'this' | 'following' }) => {
+      const updated = await updateClassApi(id, toUpdatePayload(updates, options));
+      setClasses((prev) => sortByStartAt(prev.map((c) => (c.id === id ? updated : c))));
+      if (options?.editScope === 'following') {
+        await refreshClasses();
+      }
+    },
+    [refreshClasses],
+  );
 
   const cancelClass = useCallback(async (id: string) => {
     await cancelClassApi(id);

@@ -25,7 +25,7 @@ export const FEATURES = {
   // --- Post-MVP (disabled for v1) ---
   googleSignIn: true,
   advancedSearch: false,
-  recurringClasses: false,
+  recurringClasses: true,
   liveStreaming: false,
   recordedClasses: false,
   waitlist: false,

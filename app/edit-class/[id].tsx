@@ -17,6 +17,12 @@ import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
 import { BUTTON_LABELS, LOADING_LABELS, MODALITY_LABELS, SCREEN_TITLES } from '@/constants/labels';
 import { getInstitutionById } from '@/data/mock';
 import {
+  deleteClassSeriesApi,
+  pauseClassSeriesApi,
+  resumeClassSeriesApi,
+} from '@/services/api/classes.api';
+import { getErrorMessage } from '@/services/api/errors';
+import {
   canManageGymClass,
   computeClassBooked,
   getLinkedInstructors,
@@ -31,7 +37,7 @@ export default function EditClassScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useAppTheme();
   const { user } = useAuth();
-  const { getClassById, isLoading, updateClass, cancelClass } = useClasses();
+  const { getClassById, isLoading, updateClass, cancelClass, refreshClasses } = useClasses();
   const cls = getClassById(id ?? '');
   const isGym = user?.role === 'institution';
   const institutionId = resolveInstitutionId(user);
@@ -52,6 +58,8 @@ export default function EditClassScreen() {
   const [price, setPrice] = useState('25');
   const [capacity, setCapacity] = useState('12');
   const [selectedInstructorId, setSelectedInstructorId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [seriesBusy, setSeriesBusy] = useState(false);
 
   useEffect(() => {
     if (!cls) return;
@@ -99,44 +107,18 @@ export default function EditClassScreen() {
     );
   }
 
-  const save = () => {
-    if (!title.trim()) {
-      Alert.alert('Faltan datos', 'El nombre de la clase es obligatorio.');
-      return;
-    }
+  const buildUpdates = () => {
     const durationMinutes = parseInt(duration, 10);
-    if (Number.isNaN(durationMinutes) || durationMinutes < 15) {
-      Alert.alert('Duración inválida', 'La duración debe ser de al menos 15 minutos.');
-      return;
-    }
     const priceAmount = Math.round(parseFloat(price) * 100);
-    if (Number.isNaN(priceAmount) || priceAmount <= 0) {
-      Alert.alert('Precio inválido', 'Ingresá un precio válido.');
-      return;
-    }
     const cap = isGym ? parseInt(capacity, 10) : classFormat === 'individual' ? 1 : parseInt(capacity, 10);
-    if (Number.isNaN(cap) || cap < 2) {
-      Alert.alert('Cupos inválidos', 'Las clases grupales necesitan al menos 2 cupos.');
-      return;
-    }
-
-    if (isGym && !selectedInstructorId) {
-      Alert.alert('Seleccioná instructor', 'Elegí un instructor vinculado.');
-      return;
-    }
-
     const booked = computeClassBooked(cls);
     const spotsLeft = Math.max(0, cap - booked);
     const startAt = combineDateAndTime(startDate, startTime);
-
-    const instructor = isGym
-      ? linkedInstructors.find((i) => i.id === selectedInstructorId)
-      : null;
-
+    const instructor = isGym ? linkedInstructors.find((i) => i.id === selectedInstructorId) : null;
     const profile = user?.institutionProfile;
     const mockGym = getInstitutionById(institutionId);
 
-    updateClass(cls.id, {
+    return {
       title: title.trim(),
       discipline,
       modality,
@@ -171,9 +153,135 @@ export default function EditClassScreen() {
                 }
               : undefined
           : undefined,
-    });
+    };
+  };
 
-    Alert.alert('Guardado', 'Clase actualizada.', [{ text: 'OK', onPress: () => router.back() }]);
+  const persist = async (editScope?: 'this' | 'following') => {
+    setSaving(true);
+    try {
+      await updateClass(cls.id, buildUpdates(), editScope ? { editScope } : undefined);
+      Alert.alert('Guardado', 'Clase actualizada.', [{ text: 'OK', onPress: () => router.back() }]);
+    } catch (err) {
+      Alert.alert('Error', getErrorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const save = () => {
+    if (!title.trim()) {
+      Alert.alert('Faltan datos', 'El nombre de la clase es obligatorio.');
+      return;
+    }
+    const durationMinutes = parseInt(duration, 10);
+    if (Number.isNaN(durationMinutes) || durationMinutes < 15) {
+      Alert.alert('Duración inválida', 'La duración debe ser de al menos 15 minutos.');
+      return;
+    }
+    const priceAmount = Math.round(parseFloat(price) * 100);
+    if (Number.isNaN(priceAmount) || priceAmount <= 0) {
+      Alert.alert('Precio inválido', 'Ingresá un precio válido.');
+      return;
+    }
+    const cap = isGym ? parseInt(capacity, 10) : classFormat === 'individual' ? 1 : parseInt(capacity, 10);
+    const isIndividual = !isGym && classFormat === 'individual';
+    if (!isIndividual && (Number.isNaN(cap) || cap < 2)) {
+      Alert.alert('Cupos inválidos', 'Las clases grupales necesitan al menos 2 cupos.');
+      return;
+    }
+
+    if (isGym && !selectedInstructorId) {
+      Alert.alert('Seleccioná instructor', 'Elegí un instructor vinculado.');
+      return;
+    }
+
+    if (cls.seriesId) {
+      Alert.alert('¿Qué querés cambiar?', 'Esta clase pertenece a una serie recurrente.', [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Solo esta clase', onPress: () => persist('this') },
+        { text: 'Esta y las siguientes', onPress: () => persist('following') },
+      ]);
+      return;
+    }
+
+    void persist();
+  };
+
+  const pauseSeries = () => {
+    if (!cls.seriesId) return;
+    Alert.alert(
+      'Pausar serie',
+      'Dejará de generarse clases futuras. Las reservas confirmadas se mantienen.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Pausar',
+          onPress: async () => {
+            setSeriesBusy(true);
+            try {
+              await pauseClassSeriesApi(cls.seriesId!);
+              await refreshClasses();
+              Alert.alert('Serie pausada', 'No se crearán nuevas fechas hasta que reanudes la serie.');
+            } catch (err) {
+              Alert.alert('Error', getErrorMessage(err));
+            } finally {
+              setSeriesBusy(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const resumeSeries = () => {
+    if (!cls.seriesId) return;
+    Alert.alert('Reanudar serie', 'Se volverán a generar clases futuras según los días configurados.', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Reanudar',
+        onPress: async () => {
+          setSeriesBusy(true);
+          try {
+            await resumeClassSeriesApi(cls.seriesId!);
+            await refreshClasses();
+            Alert.alert('Serie reanudada', 'Las próximas fechas ya están disponibles.');
+          } catch (err) {
+            Alert.alert('Error', getErrorMessage(err));
+          } finally {
+            setSeriesBusy(false);
+          }
+        },
+      },
+    ]);
+  };
+
+  const deleteSeries = () => {
+    if (!cls.seriesId) return;
+    Alert.alert(
+      'Eliminar serie',
+      'Se cancelarán las clases futuras sin reservas. Las que ya tienen reservas deberás cancelarlas manualmente.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar serie',
+          style: 'destructive',
+          onPress: async () => {
+            setSeriesBusy(true);
+            try {
+              await deleteClassSeriesApi(cls.seriesId!);
+              await refreshClasses();
+              Alert.alert('Serie eliminada', 'Las clases futuras sin reservas fueron canceladas.', [
+                { text: 'OK', onPress: () => router.back() },
+              ]);
+            } catch (err) {
+              Alert.alert('Error', getErrorMessage(err));
+            } finally {
+              setSeriesBusy(false);
+            }
+          },
+        },
+      ],
+    );
   };
 
   const remove = () => {
@@ -297,7 +405,42 @@ export default function EditClassScreen() {
         />
       ) : null}
 
-      <Button title={BUTTON_LABELS.saveChanges} onPress={save} style={{ marginTop: Spacing.md }} />
+      {cls.seriesId ? (
+        <View style={[styles.seriesBox, { backgroundColor: colors.surfaceMuted }]}>
+          <Text style={[styles.seriesTitle, { color: colors.text }]}>Serie recurrente</Text>
+          <Text style={[styles.seriesHint, { color: colors.textMuted }]}>
+            Podés pausar la generación de nuevas fechas o eliminar la serie completa.
+          </Text>
+          <Button
+            title="Pausar serie"
+            variant="outline"
+            onPress={pauseSeries}
+            disabled={seriesBusy || saving}
+            style={{ marginTop: Spacing.sm }}
+          />
+          <Button
+            title="Reanudar serie"
+            variant="outline"
+            onPress={resumeSeries}
+            disabled={seriesBusy || saving}
+            style={{ marginTop: Spacing.sm }}
+          />
+          <Button
+            title="Eliminar serie"
+            variant="outline"
+            onPress={deleteSeries}
+            disabled={seriesBusy || saving}
+            style={{ marginTop: Spacing.sm }}
+          />
+        </View>
+      ) : null}
+
+      <Button
+        title={saving ? 'Guardando…' : BUTTON_LABELS.saveChanges}
+        onPress={save}
+        disabled={saving || seriesBusy}
+        style={{ marginTop: Spacing.md }}
+      />
       <Button title="Cancelar clase" variant="outline" onPress={remove} style={{ marginTop: Spacing.sm }} />
     </Screen>
   );
@@ -312,4 +455,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   occupancyText: { fontSize: 14, fontWeight: '600' },
+  seriesBox: {
+    padding: Spacing.md,
+    borderRadius: 12,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  seriesTitle: { fontSize: 15, fontWeight: '700', marginBottom: Spacing.xs },
+  seriesHint: { fontSize: 13, lineHeight: 20 },
 });

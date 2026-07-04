@@ -72,7 +72,7 @@ export function classFormatDescription(
 }
 
 export const CLASS_CARD_LABELS = {
-  spotsLeft: (count: number) => `${count} lugares disponibles`,
+  spotsLeft: (count: number) => `Disponibles(${count})`,
 } as const;
 
 export const MODALITY_LABELS = {
