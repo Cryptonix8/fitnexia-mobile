@@ -228,7 +228,7 @@ async function persistAuthResponse(
   response: AuthResponse,
   registerParams?: RegisterParams,
 ): Promise<AuthUser> {
-  await setTokens(response.accessToken, response.refreshToken);
+  await setTokens(response.accessToken, response.refreshToken, response.expiresIn);
   try {
     return await fetchCurrentUser();
   } catch {

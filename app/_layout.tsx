@@ -13,6 +13,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { usePushNotificationRouting } from '@/hooks/use-push-notification-routing';
 import { useFirebaseInAppMessaging } from '@/hooks/use-firebase-in-app-messaging';
 import { AppSplash } from '@/components/app-splash';
+import { SessionGuard } from '@/components/session-guard';
 import { AuthProvider } from '@/contexts/auth-context';
 import { BookingsProvider } from '@/contexts/bookings-context';
 import { ClassesProvider } from '@/contexts/classes-context';
@@ -116,7 +117,9 @@ export default function RootLayout() {
           <BookingsProvider>
             <ClassesProvider>
               <ReviewsProvider>
-                <AppBootstrap />
+                <SessionGuard>
+                  <AppBootstrap />
+                </SessionGuard>
               </ReviewsProvider>
             </ClassesProvider>
           </BookingsProvider>

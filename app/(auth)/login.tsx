@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { GoogleSignInButton } from '@/components/google-sign-in-button';
@@ -16,6 +16,7 @@ import { completeGoogleSignIn } from '@/utils/google-auth';
 import { validateLoginForm } from '@/utils/validation';
 
 export default function LoginScreen() {
+  const { expired } = useLocalSearchParams<{ expired?: string }>();
   const googleSignIn = useFeature('googleSignIn');
   const passwordRecovery = useFeature('passwordRecovery');
   const { login, loginWithGoogle } = useAuth();
@@ -23,6 +24,11 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (expired !== '1') return;
+    Alert.alert(AUTH_LABELS.sessionExpiredTitle, AUTH_LABELS.sessionExpiredMessage);
+  }, [expired]);
 
   const handleLogin = async () => {
     const validation = validateLoginForm(email, password);

@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { router } from 'expo-router';
 
 import {
   forgotPasswordApi,
@@ -24,7 +25,14 @@ import {
   updateNotificationPrefsApi,
   updateUserAccountApi,
 } from '@/services/api/auth.api';
-import { getAccessToken } from '@/services/api/token-storage';
+import { refreshSession } from '@/services/api/client';
+import {
+  cancelSessionRefreshTimer,
+  resetSessionExpiredFlag,
+  scheduleSessionRefresh,
+  subscribeSessionExpired,
+} from '@/services/api/session';
+import { clearTokens, getAccessToken } from '@/services/api/token-storage';
 import { getErrorMessage } from '@/services/api/errors';
 import {
   registerForPushNotifications,
@@ -72,6 +80,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const startSessionMonitor = useCallback(() => {
+    void scheduleSessionRefresh(refreshSession);
+  }, []);
+
+  const handleSessionExpired = useCallback(async () => {
+    cancelSessionRefreshTimer();
+    await clearTokens();
+    setUser(null);
+    router.replace('/(auth)/login?expired=1');
+  }, []);
+
+  useEffect(() => {
+    return subscribeSessionExpired(() => {
+      void handleSessionExpired();
+    });
+  }, [handleSessionExpired]);
+
   const refreshUser = useCallback(async () => {
     const refreshed = await loadCurrentUser();
     if (refreshed) setUser(refreshed);
@@ -86,6 +111,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const current = await loadCurrentUser();
           if (active && current) {
             setUser(current);
+            resetSessionExpiredFlag();
+            startSessionMonitor();
             registerForPushNotifications().catch(() => undefined);
           }
         }
@@ -96,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       active = false;
     };
-  }, []);
+  }, [startSessionMonitor]);
 
   const completeOnboarding = useCallback(() => {
     setHasSeenOnboarding(true);
@@ -104,27 +131,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     const loggedIn = await loginApi(email, password);
+    resetSessionExpiredFlag();
     setUser(loggedIn);
+    startSessionMonitor();
     registerForPushNotifications().catch((err) => {
       console.warn('Push registration failed:', getErrorMessage(err));
     });
-  }, []);
+  }, [startSessionMonitor]);
 
   const loginWithGoogle = useCallback(async (params: GoogleSignInParams) => {
     const loggedIn = await googleSignInApi(params);
+    resetSessionExpiredFlag();
     setUser(loggedIn);
+    startSessionMonitor();
     registerForPushNotifications().catch((err) => {
       console.warn('Push registration failed:', getErrorMessage(err));
     });
-  }, []);
+  }, [startSessionMonitor]);
 
   const register = useCallback(async (params: RegisterParams) => {
     const registered = await registerApi(params);
+    resetSessionExpiredFlag();
     setUser(registered);
+    startSessionMonitor();
     registerForPushNotifications().catch((err) => {
       console.warn('Push registration failed:', getErrorMessage(err));
     });
-  }, []);
+  }, [startSessionMonitor]);
 
   const updateProfile = useCallback(
     async (updates: UpdateProfileParams) => {
@@ -203,12 +236,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const logout = useCallback(async () => {
+    cancelSessionRefreshTimer();
     await unregisterPushNotifications();
     await logoutApi();
     setUser(null);
   }, []);
 
   const closeAccount = useCallback(async () => {
+    cancelSessionRefreshTimer();
     await unregisterPushNotifications();
     await closeAccountApi();
     setUser(null);

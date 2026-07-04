@@ -297,6 +297,8 @@ export function classSpotsLabel(
 export const AUTH_LABELS = {
   welcomeBack: 'Bienvenido de nuevo',
   signInSubtitle: 'Iniciá sesión para continuar',
+  sessionExpiredTitle: 'Sesión expirada',
+  sessionExpiredMessage: 'Tu sesión venció por seguridad. Volvé a iniciar sesión para continuar.',
   continueWithGoogle: 'Continuar con Google',
   chooseProfile: 'Elegí tu perfil',
   createAccount: 'Crear cuenta',

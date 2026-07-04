@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { API_BASE_URL } from './config';
 import { safeFetch } from './fetch';
 import { parseJsonError, parseJsonResponse } from './parse-response';
+import { notifySessionExpired } from './session';
 import {
   clearTokens,
   getAccessToken,
@@ -17,31 +18,55 @@ type RequestOptions = {
   retry?: boolean;
 };
 
-async function refreshAccessToken(): Promise<boolean> {
-  const refreshToken = await getRefreshToken();
-  if (!refreshToken) return false;
+let refreshPromise: Promise<boolean> | null = null;
 
-  const res = await safeFetch(`${API_BASE_URL}/auth/refresh`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ refreshToken }),
-  });
+export async function refreshSession(): Promise<boolean> {
+  if (refreshPromise) return refreshPromise;
 
-  if (!res.ok) {
-    await clearTokens();
-    return false;
+  refreshPromise = (async () => {
+    const refreshToken = await getRefreshToken();
+    if (!refreshToken) {
+      await clearTokens();
+      return false;
+    }
+
+    const res = await safeFetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (!res.ok) {
+      await clearTokens();
+      return false;
+    }
+
+    const data = await parseJsonResponse<{
+      accessToken?: string;
+      refreshToken?: string;
+      expiresIn?: number;
+    }>(res);
+    if (!data?.accessToken || !data?.refreshToken) {
+      await clearTokens();
+      return false;
+    }
+    await setTokens(data.accessToken, data.refreshToken, data.expiresIn);
+    return true;
+  })();
+
+  try {
+    return await refreshPromise;
+  } finally {
+    refreshPromise = null;
   }
+}
 
-  const data = await parseJsonResponse<{
-    accessToken?: string;
-    refreshToken?: string;
-  }>(res);
-  if (!data?.accessToken || !data?.refreshToken) {
-    await clearTokens();
-    return false;
+async function handleUnauthorized(): Promise<boolean> {
+  const refreshed = await refreshSession();
+  if (!refreshed) {
+    notifySessionExpired();
   }
-  await setTokens(data.accessToken, data.refreshToken);
-  return true;
+  return refreshed;
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -65,7 +90,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   });
 
   if (res.status === 401 && auth && retry) {
-    const refreshed = await refreshAccessToken();
+    const refreshed = await handleUnauthorized();
     if (refreshed) {
       return apiRequest<T>(path, { ...options, retry: false });
     }
