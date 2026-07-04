@@ -7,6 +7,7 @@ export const BADGE_LABELS = {
   verified: 'Verificado',
   availableNow: 'Disponible ahora',
   full: 'Completo',
+  recurring: 'Recurrente',
 } as const;
 
 export const VERIFICATION_LABELS = {

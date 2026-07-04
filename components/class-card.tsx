@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { UserAvatar } from '@/components/user-avatar';
+import { RecurringClassBadge } from '@/components/recurring-class-badge';
 import { Badge } from '@/components/ui/badge';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { BADGE_LABELS, CLASS_CARD_LABELS, classFormatBadgeLabel, modalityLocationLabel, translateDisciplineLabel } from '@/constants/labels';
@@ -56,6 +57,7 @@ export function ClassCard({
           <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
             {item.title}
           </Text>
+          <RecurringClassBadge item={item} compact />
           {full ? <Badge label={BADGE_LABELS.full} variant="warning" /> : null}
         </View>
         <Text style={[styles.meta, { color: colors.textMuted }]}>
@@ -109,7 +111,7 @@ const styles = StyleSheet.create({
   compact: { marginBottom: Spacing.sm },
   thumb: {},
   body: { flex: 1, marginLeft: Spacing.md },
-  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flexWrap: 'wrap' },
   title: { flex: 1, fontSize: 16, fontWeight: '700' },
   meta: { fontSize: 13, marginTop: 4 },
   footer: {

@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { UserAvatar } from '@/components/user-avatar';
+import { RecurringClassBadge } from '@/components/recurring-class-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
@@ -72,6 +73,7 @@ export default function ClassDetailScreen() {
         <Text style={styles.title}>{cls.title}</Text>
         <View style={styles.tags}>
           <Badge label={translateDisciplineLabel(cls.discipline)} />
+          <RecurringClassBadge item={cls} />
           <Badge label={classFormatBadgeLabel(cls.classFormat, {
             capacity: cls.capacity,
             hasInstitution: Boolean(cls.institution),

@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+import { RecurringClassBadge } from '@/components/recurring-class-badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { useBookings } from '@/contexts/bookings-context';
@@ -139,7 +140,10 @@ export default function BookingsScreen() {
           <View
             key={booking.id}
             style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>{cls.title}</Text>
+            <View style={styles.titleRow}>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>{cls.title}</Text>
+              <RecurringClassBadge item={cls} compact />
+            </View>
             <Text style={[styles.meta, { color: colors.textMuted }]}>
               {formatClassDate(cls.startAt)}
             </Text>
@@ -253,7 +257,13 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     marginBottom: Spacing.md,
   },
-  cardTitle: { fontSize: 17, fontWeight: '700' },
+  cardTitle: { fontSize: 17, fontWeight: '700', flexShrink: 1 },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
   meta: { fontSize: 14, marginTop: 4 },
   row: {
     flexDirection: 'row',

@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BookingsCalendar } from '@/components/bookings-calendar';
+import { RecurringClassBadge } from '@/components/recurring-class-badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
@@ -131,7 +132,10 @@ export default function InstructorCalendarScreen() {
             key={c.id}
             style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[styles.time, { color: colors.primary }]}>{formatClassDate(c.startAt)}</Text>
-            <Text style={[styles.eventTitle, { color: colors.text }]}>{c.title}</Text>
+            <View style={styles.eventTitleRow}>
+              <Text style={[styles.eventTitle, { color: colors.text }]}>{c.title}</Text>
+              <RecurringClassBadge item={c} compact />
+            </View>
             <Text style={[styles.meta, { color: colors.textMuted }]}>
               {modalityLocationLabel(c.modality, c.location?.label)}
               {c.classFormat === 'individual' ? ' · 1 a 1' : ''}
@@ -204,7 +208,14 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   time: { fontSize: 13, fontWeight: '600' },
-  eventTitle: { fontSize: 17, fontWeight: '700', marginTop: 4 },
+  eventTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    marginTop: 4,
+  },
+  eventTitle: { fontSize: 17, fontWeight: '700', flexShrink: 1 },
   meta: { fontSize: 14, marginTop: 4, lineHeight: 20 },
   actions: {
     flexDirection: 'row',
