@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { UserAvatar } from '@/components/user-avatar';
 import { RecurringClassBadge } from '@/components/recurring-class-badge';
+import { ClassMetaBadges } from '@/components/class-meta-badges';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
@@ -27,6 +28,9 @@ import {
   classFormatBadgeLabel,
   classFormatDescription,
   classSpotsLabel,
+  classLanguageLabel,
+  classLevelLabel,
+  instructorGenderLabel,
   modalityBadgeLabel,
   modalityLocationLabel,
   resolveClassFormat,
@@ -82,6 +86,7 @@ export default function ClassDetailScreen() {
             label={modalityBadgeLabel(cls.modality)}
             variant="success"
           />
+          <ClassMetaBadges item={cls} />
         </View>
       </View>
 
@@ -98,6 +103,19 @@ export default function ClassDetailScreen() {
           }
         />
         <Row icon="cash-outline" label={CLASS_DETAIL_LABELS.price} value={formatMoney(cls.price)} />
+        {cls.level ? (
+          <Row icon="trending-up-outline" label={CLASS_DETAIL_LABELS.level} value={classLevelLabel(cls.level)!} />
+        ) : null}
+        {cls.language ? (
+          <Row icon="language-outline" label={CLASS_DETAIL_LABELS.language} value={classLanguageLabel(cls.language)!} />
+        ) : null}
+        {cls.instructor.gender ? (
+          <Row
+            icon="person-outline"
+            label={CLASS_DETAIL_LABELS.instructorGender}
+            value={instructorGenderLabel(cls.instructor.gender)!}
+          />
+        ) : null}
         <Row
           icon="people-circle-outline"
           label={CLASS_DETAIL_LABELS.format}

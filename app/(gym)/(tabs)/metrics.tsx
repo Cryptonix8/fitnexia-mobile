@@ -1,105 +1,111 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { LineChart } from '@/components/ui/line-chart';
 import { Screen } from '@/components/ui/screen';
-import { useAuth } from '@/contexts/auth-context';
-import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { formatMoney } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { LOADING_LABELS } from '@/constants/labels';
-import { getLinkedInstitutionId } from '@/utils/institution';
-import {
-  formatAttendanceRate,
-  formatGymChange,
-  formatRevenueCompact,
-  getGymMetrics,
-} from '@/utils/gym-metrics';
+import { fetchInstitutionMetrics, type InstitutionMetrics } from '@/services/api/metrics.api';
 
-function formatRevenueAxis(cents: number): string {
-  return formatRevenueCompact(cents);
+function formatAttendanceRate(rate: number): string {
+  return `${Math.round(rate * 100)}%`;
+}
+
+function formatRevenueCompact(cents: number): string {
+  if (cents >= 100000) return `$${Math.round(cents / 100000)}k`;
+  return formatMoney({ amount: cents, currency: DEFAULT_CURRENCY });
 }
 
 export default function GymMetricsScreen() {
-  const { user } = useAuth();
   const { colors } = useAppTheme();
-  const { classes, isLoading } = useClasses();
-  const institutionId = getLinkedInstitutionId(user);
-  const metrics = getGymMetrics(institutionId, classes);
+  const [metrics, setMetrics] = useState<InstitutionMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      fetchInstitutionMetrics('week')
+        .then(setMetrics)
+        .catch(() => setMetrics(null))
+        .finally(() => setLoading(false));
+    }, []),
+  );
+
+  if (!metrics) {
+    return (
+      <Screen loading={loading} loadingMessage={LOADING_LABELS.default}>
+        <Text style={{ color: colors.textMuted }}>No hay métricas disponibles</Text>
+      </Screen>
+    );
+  }
 
   const revenueSeries = metrics.daily.map((d) => ({
-    label: d.label,
+    label: d.date.slice(5),
     value: d.revenueCents,
   }));
 
-  const attendanceSeries = metrics.daily.map((d) => ({
-    label: d.label,
-    value: d.attendancePct,
-  }));
-
   const bookingsSeries = metrics.daily.map((d) => ({
-    label: d.label,
+    label: d.date.slice(5),
     value: d.bookings,
   }));
 
   return (
     <Screen
       scroll
-      loading={isLoading && classes.length === 0}
-      loadingMessage={LOADING_LABELS.classes}
+      loading={loading}
+      loadingMessage={LOADING_LABELS.default}
       header={
         <>
           <Text style={[styles.title, { color: colors.text }]}>Métricas</Text>
           <Text style={[styles.period, { color: colors.textMuted }]}>Esta semana</Text>
         </>
       }>
-
       <View style={styles.statsRow}>
         <StatCard
           icon="calendar-outline"
           label="Reservas"
           value={String(metrics.bookings)}
-          change={formatGymChange(metrics.bookingsChangePct)}
           colors={colors}
         />
         <StatCard
           icon="cash-outline"
           label="Ingresos"
-          value={formatRevenueCompact(metrics.revenueCents)}
-          change={formatGymChange(metrics.revenueChangePct)}
+          value={formatRevenueCompact(metrics.revenue.amount)}
           colors={colors}
         />
         <StatCard
           icon="people-outline"
-          label="Asistencia"
-          value={formatAttendanceRate(metrics.attendanceRate)}
-          change={formatGymChange(metrics.attendanceChangePct)}
+          label="Ocupación"
+          value={formatAttendanceRate(metrics.occupancyRate)}
           colors={colors}
         />
       </View>
 
-      <Text style={[styles.section, { color: colors.text }]}>Tendencia de ingresos</Text>
+      {metrics.retentionRate != null ? (
+        <View style={[styles.retention, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={{ color: colors.textMuted }}>Retención de atletas</Text>
+          <Text style={{ color: colors.text, fontSize: 24, fontWeight: '800' }}>
+            {formatAttendanceRate(metrics.retentionRate)}
+          </Text>
+        </View>
+      ) : null}
+
+      <Text style={[styles.section, { color: colors.text }]}>Ingresos por día</Text>
       <LineChart
         chartId="revenue"
         data={revenueSeries}
-        formatValue={formatRevenueAxis}
+        formatValue={formatRevenueCompact}
         formatTooltip={(p) => formatMoney({ amount: p.value, currency: DEFAULT_CURRENCY })}
         color={colors.primary}
         height={220}
       />
 
-      <Text style={[styles.section, { color: colors.text }]}>Tendencia de asistencia</Text>
-      <LineChart
-        chartId="attendance"
-        data={attendanceSeries}
-        formatValue={(v) => formatAttendanceRate(v)}
-        color={colors.accent}
-        height={220}
-      />
-
-      <Text style={[styles.section, { color: colors.text }]}>Tendencia de reservas</Text>
+      <Text style={[styles.section, { color: colors.text }]}>Reservas por día</Text>
       <LineChart
         chartId="bookings"
         data={bookingsSeries}
@@ -115,15 +121,32 @@ export default function GymMetricsScreen() {
           style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={styles.rowBody}>
             <Text style={[styles.rowName, { color: colors.text }]}>{c.title}</Text>
-            <Text style={[styles.rowSub, { color: colors.textMuted }]}>
-              {c.bookings} reservas
-            </Text>
+            <Text style={[styles.rowSub, { color: colors.textMuted }]}>{c.bookings} reservas</Text>
           </View>
           <Text style={[styles.rowVal, { color: colors.primary }]}>
-            {formatAttendanceRate(c.attendancePct)}
+            {formatAttendanceRate(c.occupancyRate)}
           </Text>
         </View>
       ))}
+
+      {(metrics.topInstructors?.length ?? 0) > 0 ? (
+        <>
+          <Text style={[styles.section, { color: colors.text }]}>Instructores</Text>
+          {metrics.topInstructors!.map((i) => (
+            <View
+              key={i.name}
+              style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <View style={styles.rowBody}>
+                <Text style={[styles.rowName, { color: colors.text }]}>{i.name}</Text>
+                <Text style={[styles.rowSub, { color: colors.textMuted }]}>{i.bookings} clases</Text>
+              </View>
+              <Text style={[styles.rowVal, { color: colors.primary }]}>
+                {formatRevenueCompact(i.revenueCents)}
+              </Text>
+            </View>
+          ))}
+        </>
+      ) : null}
     </Screen>
   );
 }
@@ -132,19 +155,16 @@ function StatCard({
   icon,
   label,
   value,
-  change,
   colors,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   value: string;
-  change: string;
   colors: {
     surface: string;
     text: string;
     textMuted: string;
     primary: string;
-    success: string;
   };
 }) {
   return (
@@ -152,7 +172,6 @@ function StatCard({
       <Ionicons name={icon} size={20} color={colors.primary} />
       <Text style={[styles.statLabel, { color: colors.textMuted }]}>{label}</Text>
       <Text style={[styles.statValue, { color: colors.text }]}>{value}</Text>
-      <Text style={[styles.statChange, { color: colors.success }]}>{change}</Text>
     </View>
   );
 }
@@ -169,7 +188,12 @@ const styles = StyleSheet.create({
   },
   statLabel: { fontSize: 12, marginTop: Spacing.xs },
   statValue: { fontSize: 22, fontWeight: '800' },
-  statChange: { fontSize: 10, fontWeight: '600' },
+  retention: {
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+  },
   section: { fontSize: 18, fontWeight: '700', marginTop: Spacing.lg, marginBottom: Spacing.md },
   row: {
     flexDirection: 'row',

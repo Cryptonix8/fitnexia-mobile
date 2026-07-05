@@ -170,6 +170,16 @@ export default function GymProfileScreen() {
         onPress={() => router.push('/(gym)/membership/settings')}
       />
       <ProfileMenuItem
+        icon="football-outline"
+        label="Canchas y espacios"
+        onPress={() => router.push('/(gym)/courts/index')}
+      />
+      <ProfileMenuItem
+        icon="cash-outline"
+        label="Panel de cobranzas"
+        onPress={() => router.push('/(gym)/membership/collections')}
+      />
+      <ProfileMenuItem
         icon="notifications-outline"
         label={PROFILE_MENU_LABELS.notifications}
         onPress={() => router.push('/(gym)/profile/notifications')}

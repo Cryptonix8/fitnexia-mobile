@@ -1,4 +1,4 @@
-import type { Certification, InstructorPlan, ProfileVerificationStatus, UserRole, WeeklySchedule } from '@/types/api';
+import type { Certification, InstructorPlan, InstructorGender, ProfileVerificationStatus, UserRole, WeeklySchedule } from '@/types/api';
 import { defaultWeeklySchedule } from '@/utils/schedule';
 
 export interface NotificationPreferences {
@@ -29,6 +29,7 @@ export interface InstructorProfileData {
   verified: boolean;
   verificationStatus: ProfileVerificationStatus;
   plan: InstructorPlan;
+  gender?: InstructorGender | null;
 }
 
 export interface InstructorInvite {

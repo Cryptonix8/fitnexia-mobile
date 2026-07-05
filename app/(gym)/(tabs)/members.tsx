@@ -77,6 +77,12 @@ export default function GymMembersScreen() {
           onPress={() => router.push('/(gym)/membership/add-member')}
           style={styles.actionBtn}
         />
+        <Button
+          title="Cobranzas"
+          variant="secondary"
+          onPress={() => router.push('/(gym)/membership/collections')}
+          style={styles.actionBtn}
+        />
         <View style={styles.actionRow}>
           <Button
             title="Planes"

@@ -1,4 +1,4 @@
-import type { ClassListItem } from '@/types/api';
+import type { ClassLevel, ClassListItem } from '@/types/api';
 import type { ScheduleFilter } from '@/constants/fitnexia';
 import { translateDisciplineLabel, translateLocationLabel } from '@/constants/labels';
 import { isWithinRadius } from '@/utils/geo';
@@ -17,6 +17,9 @@ export interface ClassSearchFilters {
   userLng?: number | null;
   radiusKm?: number;
   verifiedOnly?: boolean;
+  level?: ClassLevel | null;
+  language?: string | null;
+  instructorGender?: string | null;
 }
 
 function classHour(iso: string): number {
@@ -91,6 +94,17 @@ export function filterClasses(
     }
 
     if (filters.verifiedOnly && !item.instructor.verified) return false;
+
+    if (filters.level && item.level !== filters.level) return false;
+    if (filters.language && item.language?.toLowerCase() !== filters.language.toLowerCase()) {
+      return false;
+    }
+    if (
+      filters.instructorGender &&
+      (item.instructor as { gender?: string }).gender !== filters.instructorGender
+    ) {
+      return false;
+    }
 
     if (filters.query.trim()) {
       const q = filters.query.toLowerCase();

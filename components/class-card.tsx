@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { UserAvatar } from '@/components/user-avatar';
 import { RecurringClassBadge } from '@/components/recurring-class-badge';
+import { ClassMetaBadges } from '@/components/class-meta-badges';
 import { Badge } from '@/components/ui/badge';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { BADGE_LABELS, CLASS_CARD_LABELS, classFormatBadgeLabel, modalityLocationLabel, translateDisciplineLabel } from '@/constants/labels';
@@ -75,6 +76,7 @@ export function ClassCard({
           <Text style={[styles.price, { color: colors.primary }]}>{formatMoney(item.price)}</Text>
         </View>
         <View style={styles.tags}>
+          <ClassMetaBadges item={item} />
           <View style={styles.tag}>
             <Ionicons
               name={item.modality === 'online' ? 'videocam' : 'location'}
@@ -123,7 +125,7 @@ const styles = StyleSheet.create({
   instructorRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs, flex: 1 },
   instructor: { fontSize: 13, fontWeight: '500' },
   price: { fontSize: 15, fontWeight: '700' },
-  tags: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.sm, gap: Spacing.md },
+  tags: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.sm, gap: Spacing.md, flexWrap: 'wrap' },
   tag: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   tagText: { fontSize: 12 },
   spots: { fontSize: 12, fontWeight: '500' },

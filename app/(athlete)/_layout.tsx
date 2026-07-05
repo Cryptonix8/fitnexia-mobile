@@ -9,6 +9,8 @@ export default function AthleteLayout() {
       <Stack.Screen name="profile/notifications" />
       <Stack.Screen name="profile/payment-methods" />
       <Stack.Screen name="profile/support" />
+      <Stack.Screen name="notifications" />
+      <Stack.Screen name="courts/reservations" />
     </Stack>
   );
 }

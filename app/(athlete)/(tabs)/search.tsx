@@ -17,14 +17,14 @@ import {
   Spacing,
   type ScheduleFilter,
 } from '@/constants/fitnexia';
-import { GEO_LABELS, LOADING_LABELS, MODALITY_LABELS, VERIFICATION_LABELS } from '@/constants/labels';
+import { GEO_LABELS, LOADING_LABELS, MODALITY_LABELS, VERIFICATION_LABELS, CLASS_LEVEL_OPTIONS, CLASS_LANGUAGE_OPTIONS, INSTRUCTOR_GENDER_OPTIONS } from '@/constants/labels';
 import { useAppTheme } from '@/contexts/theme-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useFeature } from '@/hooks/use-feature';
 import { useUserLocation } from '@/hooks/use-user-location';
 import { filterClasses, sortClassesByDate } from '@/utils/class-filters';
 import { classDistanceKm, DEFAULT_RADIUS_KM, formatDistanceKm, sortClassesByDistance } from '@/utils/geo';
-import type { Modality } from '@/types/api';
+import type { ClassLevel, Modality } from '@/types/api';
 
 type ViewMode = 'list' | 'map';
 
@@ -34,11 +34,15 @@ export default function SearchScreen() {
   const { colors } = useAppTheme();
   const { classes, isLoading } = useClasses();
   const geoEnabled = useFeature('geolocationMap');
+  const advancedSearch = useFeature('advancedSearch');
   const { coords, loading: locationLoading, permissionDenied, requestLocation } = useUserLocation();
 
   const [query, setQuery] = useState('');
   const [discipline, setDiscipline] = useState<string | null>(null);
   const [modality, setModality] = useState<Modality | null>(null);
+  const [level, setLevel] = useState<ClassLevel | null>(null);
+  const [language, setLanguage] = useState<string | null>(null);
+  const [instructorGender, setInstructorGender] = useState<string | null>(null);
   const [locationKey, setLocationKey] = useState<string | null>(null);
   const [locationText, setLocationText] = useState('');
   const [schedule, setSchedule] = useState<ScheduleFilter>('any');
@@ -131,6 +135,9 @@ export default function SearchScreen() {
       userLng: coords?.lng ?? null,
       radiusKm: DEFAULT_RADIUS_KM,
       verifiedOnly,
+      level: advancedSearch ? level : null,
+      language: advancedSearch ? language : null,
+      instructorGender: advancedSearch ? instructorGender : null,
     });
     if (geoEnabled && nearMe && coords) {
       return sortClassesByDistance(filtered, coords);
@@ -148,6 +155,10 @@ export default function SearchScreen() {
     nearMe,
     coords,
     verifiedOnly,
+    advancedSearch,
+    level,
+    language,
+    instructorGender,
   ]);
 
   const activeFilterCount = [
@@ -157,6 +168,9 @@ export default function SearchScreen() {
     schedule !== 'any' ? schedule : null,
     priceRangeId !== 'any' ? priceRangeId : null,
     verifiedOnly ? 'verified' : null,
+    advancedSearch && level ? level : null,
+    advancedSearch && language ? language : null,
+    advancedSearch && instructorGender ? instructorGender : null,
   ].filter(Boolean).length;
 
   const clearFilters = () => {
@@ -168,6 +182,9 @@ export default function SearchScreen() {
     setPriceRangeId('any');
     setVerifiedOnly(false);
     setNearMe(false);
+    setLevel(null);
+    setLanguage(null);
+    setInstructorGender(null);
   };
 
   const distanceFor = (classId: string) => {
@@ -255,6 +272,36 @@ export default function SearchScreen() {
             placeholder="Cualquiera"
           />
         </View>
+
+        {advancedSearch ? (
+          <View style={styles.filterRow}>
+            <FilterSelect
+              label="Nivel"
+              value={level}
+              options={[...CLASS_LEVEL_OPTIONS]}
+              onChange={(v) => setLevel((v as ClassLevel) || null)}
+              placeholder="Cualquier nivel"
+            />
+            <FilterSelect
+              label="Idioma"
+              value={language}
+              options={[...CLASS_LANGUAGE_OPTIONS]}
+              onChange={setLanguage}
+              placeholder="Cualquier idioma"
+            />
+          </View>
+        ) : null}
+
+        {advancedSearch ? (
+          <FilterSelect
+            label="Género del instructor"
+            value={instructorGender}
+            options={[...INSTRUCTOR_GENDER_OPTIONS]}
+            onChange={setInstructorGender}
+            placeholder="Cualquiera"
+            style={styles.fullWidth}
+          />
+        ) : null}
 
         <FilterSelect
           label="Ubicación"

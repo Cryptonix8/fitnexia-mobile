@@ -7,7 +7,7 @@ import type {
   RegisterParams,
 } from '@/types/auth-user';
 import { DEFAULT_NOTIFICATIONS, defaultInstructorProfile, defaultInstitutionProfile } from '@/types/auth-user';
-import type { Certification, Instructor, Institution, UserRole, WeeklySchedule } from '@/types/api';
+import type { Certification, Instructor, Institution, InstructorGender, UserRole, WeeklySchedule } from '@/types/api';
 import { defaultWeeklySchedule } from '@/utils/schedule';
 
 import { apiRequest, clearTokens, getRefreshToken, setTokens } from './client';
@@ -46,6 +46,7 @@ function mapInstructorProfile(profile: Instructor): InstructorProfileData {
     verified: profile.verified ?? false,
     verificationStatus: profile.verificationStatus ?? (profile.verified ? 'verified' : 'unverified'),
     plan: profile.plan ?? 'basic',
+    gender: profile.gender ?? null,
   };
 }
 

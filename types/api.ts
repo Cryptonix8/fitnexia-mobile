@@ -11,6 +11,8 @@ export type Modality = 'in_person' | 'online';
 
 export type ClassLevel = 'beginner' | 'intermediate' | 'advanced';
 
+export type InstructorGender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
+
 export type BookingStatus =
   | 'pending_payment'
   | 'confirmed'
@@ -104,6 +106,7 @@ export interface Instructor {
   averageRating: number;
   reviewCount: number;
   plan?: InstructorPlan;
+  gender?: InstructorGender;
 }
 
 export interface InstitutionLocation {
@@ -209,11 +212,13 @@ export interface ClassListItem {
   price: Money;
   capacity?: number;
   spotsLeft?: number;
-  instructor: Pick<Instructor, 'id' | 'displayName' | 'photoUrl' | 'verified'>;
+  instructor: Pick<Instructor, 'id' | 'displayName' | 'photoUrl' | 'verified' | 'gender'>;
   institution?: Pick<Institution, 'id' | 'name' | 'logoUrl' | 'verified'> | null;
   location?: { lat: number; lng: number; label: string };
   averageRating?: number;
   classFormat?: ClassFormat;
+  level?: ClassLevel;
+  language?: string;
   seriesId?: string;
   isSeriesException?: boolean;
   recurrence?: ClassRecurrence;

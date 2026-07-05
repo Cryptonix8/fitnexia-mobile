@@ -24,23 +24,25 @@ export const FEATURES = {
 
   // --- Post-MVP (disabled for v1) ---
   googleSignIn: true,
-  advancedSearch: false,
+  advancedSearch: true,
   recurringClasses: true,
   liveStreaming: false,
   recordedClasses: false,
-  waitlist: false,
+  waitlist: true,
   multipleCurrencies: false,
   digitalWallets: false,
   subscriptionPaymentModels: true,
   integratedPayments: true,
   marketplacePayouts: true,
   loyaltyCredits: false,
-  reviewResponses: false,
-  inAppNotificationCenter: false,
-  analyticsMetrics: false,
+  reviewResponses: true,
+  inAppNotificationCenter: true,
+  analyticsMetrics: true,
   platformSupport: false,
   savedPaymentMethods: false,
   geolocationMap: true,
+  courts: true,
+  clubCollections: true,
 } as const;
 
 export type FeatureKey = keyof typeof FEATURES;

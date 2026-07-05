@@ -66,6 +66,8 @@ function toCreatePayload(input: NewClassInput, userRole?: string, institutionId?
   };
   if (input.description) body.description = input.description;
   if (input.recurrence?.enabled) body.recurrence = input.recurrence;
+  if (input.level) body.level = input.level;
+  if (input.language) body.language = input.language;
   return body;
 }
 
@@ -85,6 +87,8 @@ function toUpdatePayload(
   if (updates.location !== undefined) {
     body.location = updates.location;
   }
+  if (updates.level !== undefined) body.level = updates.level;
+  if (updates.language !== undefined) body.language = updates.language;
   if (options?.editScope) body.editScope = options.editScope;
   return body;
 }

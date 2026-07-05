@@ -274,6 +274,9 @@ export const CLASS_DETAIL_LABELS = {
   price: 'Precio',
   spots: 'Cupos',
   format: 'Tipo de clase',
+  level: 'Nivel',
+  language: 'Idioma',
+  instructorGender: 'Instructor',
   about: 'Acerca de',
   locationTbd: 'Por definir',
   full: 'Completo',
@@ -281,6 +284,59 @@ export const CLASS_DETAIL_LABELS = {
   liveStream: 'Transmisión en vivo en Fitnexia',
   onlineSessionLink: 'Sesión en línea (enlace compartido después de reservar)',
 } as const;
+
+const CLASS_LEVEL_LABELS: Record<string, string> = {
+  beginner: 'Principiante',
+  intermediate: 'Intermedio',
+  advanced: 'Avanzado',
+};
+
+const LANGUAGE_LABELS: Record<string, string> = {
+  es: 'Español',
+  en: 'Inglés',
+  pt: 'Portugués',
+};
+
+const INSTRUCTOR_GENDER_LABELS: Record<string, string> = {
+  male: 'Masculino',
+  female: 'Femenino',
+  other: 'Otro',
+  prefer_not_to_say: 'Prefiero no decir',
+};
+
+export function classLevelLabel(level?: string | null): string | undefined {
+  if (!level) return undefined;
+  return CLASS_LEVEL_LABELS[level] ?? level;
+}
+
+export function classLanguageLabel(language?: string | null): string | undefined {
+  if (!language) return undefined;
+  return LANGUAGE_LABELS[language.toLowerCase()] ?? language;
+}
+
+export function instructorGenderLabel(gender?: string | null): string | undefined {
+  if (!gender) return undefined;
+  return INSTRUCTOR_GENDER_LABELS[gender] ?? gender;
+}
+
+export const CLASS_LEVEL_OPTIONS = [
+  { value: 'beginner', label: 'Principiante' },
+  { value: 'intermediate', label: 'Intermedio' },
+  { value: 'advanced', label: 'Avanzado' },
+] as const;
+
+export const CLASS_LANGUAGE_OPTIONS = [
+  { value: 'es', label: 'Español' },
+  { value: 'en', label: 'Inglés' },
+  { value: 'pt', label: 'Portugués' },
+] as const;
+
+export const INSTRUCTOR_GENDER_OPTIONS = [
+  { value: 'male', label: 'Masculino' },
+  { value: 'female', label: 'Femenino' },
+  { value: 'other', label: 'Otro' },
+  { value: 'prefer_not_to_say', label: 'Prefiero no decir' },
+] as const;
 
 export function classSpotsLabel(
   spotsLeft: number,

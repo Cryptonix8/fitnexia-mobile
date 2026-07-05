@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AvatarPicker } from '@/components/avatar-picker';
+import { FilterSelect } from '@/components/ui/filter-select';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Input } from '@/components/ui/input';
@@ -10,7 +11,8 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth, getErrorMessage } from '@/contexts/auth-context';
 import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import { DEFAULT_CURRENCY } from '@/constants/currency';
-import { AUTH_LABELS, BUTTON_LABELS, SCREEN_TITLES, ALERT_LABELS, PROFILE_MENU_LABELS } from '@/constants/labels';
+import { AUTH_LABELS, BUTTON_LABELS, SCREEN_TITLES, ALERT_LABELS, PROFILE_MENU_LABELS, INSTRUCTOR_GENDER_OPTIONS } from '@/constants/labels';
+import type { InstructorGender } from '@/types/api';
 import { validateInstructorProfileForm } from '@/utils/validation';
 
 export default function InstructorEditProfileScreen() {
@@ -21,6 +23,7 @@ export default function InstructorEditProfileScreen() {
   const [bio, setBio] = useState(profile?.bio ?? '');
   const [hourlyRate, setHourlyRate] = useState(profile?.hourlyRate ?? '');
   const [disciplines, setDisciplines] = useState<string[]>(profile?.disciplines ?? []);
+  const [gender, setGender] = useState<InstructorGender | null>(profile?.gender ?? null);
   const [avatarUri, setAvatarUri] = useState<string | null>(user?.avatarUri ?? null);
   const [email, setEmail] = useState(user?.email ?? '');
 
@@ -55,6 +58,7 @@ export default function InstructorEditProfileScreen() {
           bio: bio.trim(),
           hourlyRate: hourlyRate.trim(),
           disciplines,
+          gender,
         },
       });
       Alert.alert(ALERT_LABELS.savedTitle, 'Tu perfil profesional fue actualizado.', [
@@ -77,6 +81,15 @@ export default function InstructorEditProfileScreen() {
         onChangeText={setHourlyRate}
         keyboardType="decimal-pad"
         placeholder="ej. 1300"
+      />
+
+      <FilterSelect
+        label="Género"
+        value={gender}
+        options={[...INSTRUCTOR_GENDER_OPTIONS]}
+        onChange={(v) => setGender((v as InstructorGender) || null)}
+        placeholder="Seleccioná una opción"
+        style={styles.filterSelect}
       />
 
       <Text style={styles.label}>{PROFILE_MENU_LABELS.disciplines}</Text>
@@ -113,4 +126,5 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: FitnexiaColors.primary, borderColor: FitnexiaColors.primary },
   chipText: { fontSize: 14, color: FitnexiaColors.gray700 },
   chipTextActive: { color: FitnexiaColors.white, fontWeight: '600' },
+  filterSelect: { marginBottom: Spacing.md },
 });

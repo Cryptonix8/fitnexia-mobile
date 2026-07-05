@@ -14,23 +14,34 @@ import { useReviews } from '@/contexts/reviews-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { useClasses } from '@/contexts/classes-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { BADGE_LABELS, LOADING_LABELS, PROFILE_MENU_LABELS, translateDisciplineLabel } from '@/constants/labels';
+import { BADGE_LABELS, LOADING_LABELS, PROFILE_MENU_LABELS, instructorGenderLabel, translateDisciplineLabel } from '@/constants/labels';
 import { fetchInstructorById } from '@/services/api/instructors.api';
-import type { Instructor } from '@/types/api';
+import { fetchInstructorAthleteReviews } from '@/services/api/v2-features.api';
+import type { Instructor, Review } from '@/types/api';
+import { useFeature } from '@/hooks/use-feature';
 
 export default function InstructorProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useAppTheme();
   const { classes } = useClasses();
   const { getStaffReviewsForInstructor, loadStaffReviewsForInstructor } = useReviews();
+  const reviewResponses = useFeature('reviewResponses');
   const [instructor, setInstructor] = useState<Instructor | null>(null);
+  const [athleteReviews, setAthleteReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    Promise.all([fetchInstructorById(id), loadStaffReviewsForInstructor(id)])
-      .then(([data]) => setInstructor(data))
+    Promise.all([
+      fetchInstructorById(id),
+      loadStaffReviewsForInstructor(id),
+      fetchInstructorAthleteReviews(id).catch(() => []),
+    ])
+      .then(([data, , reviews]) => {
+        setInstructor(data);
+        setAthleteReviews(reviews);
+      })
       .catch(() => setInstructor(null))
       .finally(() => setLoading(false));
   }, [id, loadStaffReviewsForInstructor]);
@@ -76,6 +87,11 @@ export default function InstructorProfileScreen() {
             ? `${instructor.averageRating.toFixed(1)} · ${instructor.reviewCount} reseñas de atletas`
             : 'Sin reseñas de atletas'}
         </Text>
+        {instructor.gender ? (
+          <Text style={[styles.reviewLabel, { color: colors.textMuted }]}>
+            {instructorGenderLabel(instructor.gender)}
+          </Text>
+        ) : null}
         <Text style={[styles.bio, { color: colors.textSecondary }]}>{instructor.bio}</Text>
       </View>
 
@@ -108,6 +124,29 @@ export default function InstructorProfileScreen() {
               <Text style={[styles.certMeta, { color: colors.textMuted }]}>
                 {cert.issuer} · {cert.year}
               </Text>
+            </View>
+          ))}
+        </>
+      ) : null}
+
+      {athleteReviews.length > 0 ? (
+        <>
+          <Text style={[styles.section, { color: colors.text }]}>Reseñas de atletas</Text>
+          {athleteReviews.map((review) => (
+            <View
+              key={review.id}
+              style={[styles.reviewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Text style={[styles.reviewGym, { color: colors.textMuted }]}>{review.authorName}</Text>
+              <StarRating rating={review.rating} reviewCount={1} size={16} showCount={false} />
+              {review.comment ? (
+                <Text style={[styles.reviewComment, { color: colors.textSecondary }]}>{review.comment}</Text>
+              ) : null}
+              {reviewResponses && review.response ? (
+                <View style={[styles.responseBox, { backgroundColor: colors.surfaceMuted }]}>
+                  <Text style={[styles.responseLabel, { color: colors.textMuted }]}>Respuesta del instructor</Text>
+                  <Text style={{ color: colors.textSecondary }}>{review.response}</Text>
+                </View>
+              ) : null}
             </View>
           ))}
         </>
@@ -172,4 +211,6 @@ const styles = StyleSheet.create({
   },
   reviewGym: { fontSize: 12, fontWeight: '600', marginBottom: 4 },
   reviewComment: { marginTop: Spacing.sm, lineHeight: 20 },
+  responseBox: { marginTop: Spacing.sm, padding: Spacing.sm, borderRadius: Radius.sm },
+  responseLabel: { fontSize: 12, fontWeight: '600', marginBottom: 4 },
 });

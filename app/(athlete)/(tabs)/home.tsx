@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useMemo } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { ClassCard } from '@/components/class-card';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -10,6 +10,7 @@ import { useClasses } from '@/contexts/classes-context';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import { LOADING_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
+import { fetchUnreadNotificationCount } from '@/services/api/v2-features.api';
 import { useUserLocation } from '@/hooks/use-user-location';
 import {
   classDistanceKm,
@@ -20,7 +21,9 @@ import {
 export default function AthleteHomeScreen() {
   const { classes, isLoading, error, refreshClasses } = useClasses();
   const geoEnabled = useFeature('geolocationMap');
+  const inboxEnabled = useFeature('inAppNotificationCenter');
   const { coords, requestLocation } = useUserLocation();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     if (geoEnabled) {
@@ -31,7 +34,12 @@ export default function AthleteHomeScreen() {
   useFocusEffect(
     useCallback(() => {
       void refreshClasses();
-    }, [refreshClasses]),
+      if (inboxEnabled) {
+        fetchUnreadNotificationCount()
+          .then((r) => setUnreadCount(r.unread))
+          .catch(() => setUnreadCount(0));
+      }
+    }, [refreshClasses, inboxEnabled]),
   );
 
   const allClasses = useMemo(() => {
@@ -52,9 +60,20 @@ export default function AthleteHomeScreen() {
             <Text style={styles.greet}>Buenos días 👋</Text>
             <Text style={styles.headline}>Encontrá tu próxima clase</Text>
           </View>
-          <View style={styles.bell}>
-            <Ionicons name="notifications-outline" size={24} color={FitnexiaColors.gray900} />
-          </View>
+          {inboxEnabled ? (
+            <Pressable style={styles.bell} onPress={() => router.push('/(athlete)/notifications')}>
+              <Ionicons name="notifications-outline" size={24} color={FitnexiaColors.gray900} />
+              {unreadCount > 0 ? (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+                </View>
+              ) : null}
+            </Pressable>
+          ) : (
+            <View style={styles.bell}>
+              <Ionicons name="notifications-outline" size={24} color={FitnexiaColors.gray900} />
+            </View>
+          )}
         </View>
       }>
 
@@ -119,6 +138,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  badge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: FitnexiaColors.error,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: { color: FitnexiaColors.white, fontSize: 10, fontWeight: '700' },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',

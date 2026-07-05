@@ -1,9 +1,10 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
@@ -12,11 +13,13 @@ import { Radius, Spacing } from '@/constants/fitnexia';
 import { BADGE_LABELS, LOADING_LABELS } from '@/constants/labels';
 import { fetchInstitutionById } from '@/services/api/institutions.api';
 import { normalizeMediaUrl } from '@/services/api/media.api';
+import { useFeature } from '@/hooks/use-feature';
 import type { Institution } from '@/types/api';
 
 export default function InstitutionProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useAppTheme();
+  const courtsEnabled = useFeature('courts');
   const [institution, setInstitution] = useState<Institution | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -76,6 +79,14 @@ export default function InstitutionProfileScreen() {
             <Pressable onPress={() => Linking.openURL(institution.website!)}>
               <InfoRow label="Web" value={institution.website} colors={colors} link />
             </Pressable>
+          ) : null}
+
+          {courtsEnabled ? (
+            <Button
+              title="Reservar cancha"
+              onPress={() => router.push(`/courts/${institution.id}`)}
+              style={{ marginTop: Spacing.lg }}
+            />
           ) : null}
 
           {institution.instructors?.length ? (

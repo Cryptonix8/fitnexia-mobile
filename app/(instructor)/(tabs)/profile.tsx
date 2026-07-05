@@ -23,6 +23,7 @@ export default function InstructorProfileScreen() {
   const { colors } = useAppTheme();
   const showSupport = useFeature('platformSupport');
   const showPayoutAccount = useFeature('marketplacePayouts') || useFeature('integratedPayments');
+  const showReviewResponses = useFeature('reviewResponses');
   const profile = user?.instructorProfile;
   const [togglingAvailable, setTogglingAvailable] = useState(false);
 
@@ -152,6 +153,13 @@ export default function InstructorProfileScreen() {
         value={formatUserPlanSummary(profile.plan)}
         onPress={() => router.push('/(instructor)/profile/plan')}
       />
+      {showReviewResponses ? (
+        <ProfileMenuItem
+          icon="chatbubble-ellipses-outline"
+          label="Responder reseñas"
+          onPress={() => router.push('/(instructor)/profile/reviews')}
+        />
+      ) : null}
       <ProfileMenuItem
         icon="notifications-outline"
         label={PROFILE_MENU_LABELS.notifications}

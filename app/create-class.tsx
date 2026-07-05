@@ -5,6 +5,7 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 import { InstructorPicker } from '@/components/instructor-picker';
 import { DateTimeField } from '@/components/date-time-field';
 import { FilterChip } from '@/components/ui/filter-chip';
+import { FilterSelect } from '@/components/ui/filter-select';
 import { Button } from '@/components/ui/button';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Header } from '@/components/ui/header';
@@ -15,7 +16,7 @@ import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
-import { LOADING_LABELS, MODALITY_LABELS, VERIFICATION_LABELS } from '@/constants/labels';
+import { LOADING_LABELS, MODALITY_LABELS, VERIFICATION_LABELS, CLASS_LEVEL_OPTIONS, CLASS_LANGUAGE_OPTIONS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { fetchLinkedInstructors, type StaffRosterEntry } from '@/services/api/institutions.api';
 import { getErrorMessage } from '@/services/api/errors';
@@ -23,7 +24,7 @@ import { gymLocationLabel, resolveInstitutionId } from '@/utils/gym-classes';
 import { getLinkedInstructorId } from '@/utils/instructor';
 import { RecurringClassSection } from '@/components/recurring-class-section';
 import { combineDateAndTime, defaultClassStart } from '@/utils/schedule';
-import type { ClassFormat, Modality } from '@/types/api';
+import type { ClassFormat, ClassLevel, Modality } from '@/types/api';
 
 export default function CreateClassScreen() {
   const { colors } = useAppTheme();
@@ -63,6 +64,8 @@ export default function CreateClassScreen() {
   const [discipline, setDiscipline] = useState<string>(DISCIPLINES[0]);
   const [classFormat, setClassFormat] = useState<ClassFormat>('group');
   const [modality, setModality] = useState<Modality>('in_person');
+  const [level, setLevel] = useState<ClassLevel | null>('beginner');
+  const [language, setLanguage] = useState<string | null>('es');
   const [startDate, setStartDate] = useState(defaults.date);
   const [startTime, setStartTime] = useState(defaults.time);
   const [duration, setDuration] = useState('60');
@@ -202,6 +205,8 @@ export default function CreateClassScreen() {
                 }
               : undefined,
           recurrence,
+          level: level ?? undefined,
+          language: language ?? undefined,
         });
       } else {
         if (classFormat === 'group') {
@@ -227,6 +232,7 @@ export default function CreateClassScreen() {
           instructor: {
             id: getLinkedInstructorId(user),
             displayName: user?.instructorProfile?.displayName ?? 'Instructor',
+            gender: user?.instructorProfile?.gender ?? undefined,
           },
           location:
             modality === 'in_person' && location.trim()
@@ -237,6 +243,8 @@ export default function CreateClassScreen() {
                 }
               : undefined,
           recurrence,
+          level: level ?? undefined,
+          language: language ?? undefined,
         });
       }
 
@@ -296,6 +304,25 @@ export default function CreateClassScreen() {
         multiline
       />
 
+      <View style={styles.filterRow}>
+        <FilterSelect
+          label="Nivel"
+          value={level}
+          options={[...CLASS_LEVEL_OPTIONS]}
+          onChange={(v) => setLevel((v as ClassLevel) || null)}
+          placeholder="Nivel"
+          clearable={false}
+        />
+        <FilterSelect
+          label="Idioma"
+          value={language}
+          options={[...CLASS_LANGUAGE_OPTIONS]}
+          onChange={setLanguage}
+          placeholder="Idioma"
+          clearable={false}
+        />
+      </View>
+
       {isGym ? (
         <InstructorPicker
           instructors={linkedInstructors}
@@ -305,7 +332,6 @@ export default function CreateClassScreen() {
         />
       ) : null}
 
-      <Text style={[styles.label, { color: colors.textSecondary }]}>Fecha y hora</Text>
       <DateTimeField
         label="Fecha"
         mode="date"
@@ -443,6 +469,7 @@ const styles = StyleSheet.create({
   gymHint: { fontSize: 14, lineHeight: 20, marginBottom: Spacing.md },
   unverifiedWarn: { fontSize: 13, lineHeight: 18, marginBottom: Spacing.md, fontWeight: '600' },
   label: { fontSize: 14, fontWeight: '600', marginBottom: Spacing.sm },
+  filterRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
   helper: { fontSize: 13, lineHeight: 20, marginBottom: Spacing.md },
   row: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: Spacing.sm },
   groupBadge: {

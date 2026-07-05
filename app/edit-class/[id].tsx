@@ -5,6 +5,7 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 import { InstructorPicker } from '@/components/instructor-picker';
 import { DateTimeField } from '@/components/date-time-field';
 import { FilterChip } from '@/components/ui/filter-chip';
+import { FilterSelect } from '@/components/ui/filter-select';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Input } from '@/components/ui/input';
@@ -14,7 +15,7 @@ import { useClasses } from '@/contexts/classes-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
-import { BUTTON_LABELS, LOADING_LABELS, MODALITY_LABELS, SCREEN_TITLES } from '@/constants/labels';
+import { BUTTON_LABELS, LOADING_LABELS, MODALITY_LABELS, SCREEN_TITLES, CLASS_LEVEL_OPTIONS, CLASS_LANGUAGE_OPTIONS } from '@/constants/labels';
 import { getInstitutionById } from '@/data/mock';
 import {
   deleteClassSeriesApi,
@@ -31,7 +32,7 @@ import {
 } from '@/utils/gym-classes';
 import { getLinkedInstructorId } from '@/utils/instructor';
 import { combineDateAndTime } from '@/utils/schedule';
-import type { ClassFormat, Modality } from '@/types/api';
+import type { ClassFormat, ClassLevel, Modality } from '@/types/api';
 
 export default function EditClassScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -51,6 +52,8 @@ export default function EditClassScreen() {
   const [discipline, setDiscipline] = useState<string>(DISCIPLINES[0]);
   const [classFormat, setClassFormat] = useState<ClassFormat>('group');
   const [modality, setModality] = useState<Modality>('in_person');
+  const [level, setLevel] = useState<ClassLevel | null>(null);
+  const [language, setLanguage] = useState<string | null>(null);
   const [startDate, setStartDate] = useState(new Date());
   const [startTime, setStartTime] = useState(new Date());
   const [duration, setDuration] = useState('60');
@@ -74,6 +77,8 @@ export default function EditClassScreen() {
     setLocation(cls.location?.label ?? '');
     setPrice(String(cls.price.amount / 100));
     setCapacity(String(cls.capacity ?? 12));
+    setLevel(cls.level ?? null);
+    setLanguage(cls.language ?? null);
     setSelectedInstructorId(cls.instructor.id);
   }, [cls, isGym]);
 
@@ -128,6 +133,8 @@ export default function EditClassScreen() {
       price: { amount: priceAmount, currency: DEFAULT_CURRENCY },
       capacity: cap,
       spotsLeft,
+      level: level ?? undefined,
+      language: language ?? undefined,
       instructor: instructor
         ? { id: instructor.id, displayName: instructor.displayName }
         : cls.instructor,
@@ -319,6 +326,23 @@ export default function EditClassScreen() {
 
       <Input label="Nombre de la clase" value={title} onChangeText={setTitle} />
 
+      <View style={styles.filterRow}>
+        <FilterSelect
+          label="Nivel"
+          value={level}
+          options={[...CLASS_LEVEL_OPTIONS]}
+          onChange={(v) => setLevel((v as ClassLevel) || null)}
+          placeholder="Nivel"
+        />
+        <FilterSelect
+          label="Idioma"
+          value={language}
+          options={[...CLASS_LANGUAGE_OPTIONS]}
+          onChange={setLanguage}
+          placeholder="Idioma"
+        />
+      </View>
+
       {isGym ? (
         <InstructorPicker
           instructors={linkedInstructors}
@@ -448,6 +472,7 @@ export default function EditClassScreen() {
 
 const styles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '600', marginBottom: Spacing.sm },
+  filterRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
   row: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: Spacing.sm },
   occupancy: {
     padding: Spacing.md,

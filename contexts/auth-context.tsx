@@ -208,6 +208,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             currency: DEFAULT_CURRENCY,
           };
         }
+        if (p?.gender !== undefined) body.gender = p.gender;
         if (updates.avatarUri !== undefined) body.photoUrl = photoUrl;
         if (Object.keys(body).length) await updateInstructorProfileApi(body);
         if (p?.availableNow !== undefined) {

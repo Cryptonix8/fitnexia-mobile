@@ -10,6 +10,7 @@ import { formatMoney } from '@/data/mock';
 import { useBookings } from '@/contexts/bookings-context';
 import { useClasses } from '@/contexts/classes-context';
 import { getErrorMessage } from '@/services/api/errors';
+import { joinWaitlistApi } from '@/services/api/v2-features.api';
 import { fetchMyActivePasses, fetchPassProducts } from '@/services/api/passes.api';
 import { useFeature } from '@/hooks/use-feature';
 import { openPaymentCheckout } from '@/utils/booking-payment';
@@ -135,6 +136,7 @@ export default function BookScreen() {
     setLoading(true);
     try {
       if (isWaitlist) {
+        await joinWaitlistApi(classId ?? '');
         Alert.alert(
           'En lista de espera',
           'Te avisaremos cuando se libere un cupo. Tendrás 2 horas para confirmar.',

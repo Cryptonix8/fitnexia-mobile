@@ -21,6 +21,7 @@ export default function AthleteProfileScreen() {
   const showCredits = useFeature('loyaltyCredits');
   const showPaymentMethods = useFeature('savedPaymentMethods');
   const showSupport = useFeature('platformSupport');
+  const showCourts = useFeature('courts');
   const credits = MOCK_CREDITS;
 
   const favoriteSportsLabel =
@@ -85,6 +86,13 @@ export default function AthleteProfileScreen() {
           icon="card-outline"
           label={PROFILE_MENU_LABELS.clubMembership}
           onPress={() => router.push('/membership')}
+        />
+      ) : null}
+      {showCourts ? (
+        <ProfileMenuItem
+          icon="football-outline"
+          label="Reservas de canchas"
+          onPress={() => router.push('/(athlete)/courts/reservations')}
         />
       ) : null}
       <ProfileMenuItem
