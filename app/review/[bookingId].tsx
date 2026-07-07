@@ -16,13 +16,15 @@ import {
   submitReviewApi,
 } from '@/services/api/bookings.api';
 import { getErrorMessage } from '@/services/api/errors';
+import { useBookings } from '@/contexts/bookings-context';
 import type { Booking, ClassListItem } from '@/types/api';
 
 export default function ReviewScreen() {
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
+  const { refreshBookings } = useBookings();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [cls, setCls] = useState<ClassListItem | null>(null);
-  const [rating, setRating] = useState(5);
+  const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -137,11 +139,12 @@ export default function ReviewScreen() {
 
       <Button
         title="Enviar reseña"
-        disabled={loading}
+        disabled={loading || rating < 1}
         onPress={async () => {
           setLoading(true);
           try {
             await submitReviewApi(booking.id, rating, comment.trim() || undefined);
+            await refreshBookings();
             Alert.alert('¡Gracias!', 'Tu reseña fue publicada.', [
               { text: 'OK', onPress: () => router.back() },
             ]);

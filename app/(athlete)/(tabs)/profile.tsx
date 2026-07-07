@@ -11,7 +11,7 @@ import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { BUTTON_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, translateDisciplineLabels } from '@/constants/labels';
+import { BUTTON_LABELS, NOTIFICATION_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, translateDisciplineLabels } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { MOCK_CREDITS } from '@/data/mock';
 
@@ -98,6 +98,11 @@ export default function AthleteProfileScreen() {
       <ProfileMenuItem
         icon="notifications-outline"
         label={PROFILE_MENU_LABELS.notifications}
+        onPress={() => router.push('/(athlete)/notifications')}
+      />
+      <ProfileMenuItem
+        icon="options-outline"
+        label={NOTIFICATION_LABELS.preferencesTitle}
         onPress={() => router.push('/(athlete)/profile/notifications')}
       />
       {showPaymentMethods ? (

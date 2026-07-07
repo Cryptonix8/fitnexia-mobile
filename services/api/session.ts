@@ -1,4 +1,4 @@
-import { getAccessExpiresAt } from './token-storage';
+import { getAccessExpiresAt, getRefreshToken } from './token-storage';
 
 const REFRESH_BUFFER_MS = 60_000;
 
@@ -41,13 +41,27 @@ export async function scheduleSessionRefresh(
   if (!expiresAt) return;
 
   const runRefresh = async () => {
-    const ok = await refreshFn();
-    if (ok) {
-      expiredNotified = false;
-      await scheduleSessionRefresh(refreshFn);
-      return;
+    try {
+      const ok = await refreshFn();
+      if (ok) {
+        expiredNotified = false;
+        await scheduleSessionRefresh(refreshFn);
+        return;
+      }
+      const stillHasSession = await getRefreshToken();
+      if (stillHasSession) {
+        refreshTimer = setTimeout(() => {
+          void runRefresh();
+        }, 30_000);
+        return;
+      }
+      notifySessionExpired();
+    } catch (err) {
+      console.warn('[auth] Scheduled refresh failed:', err);
+      refreshTimer = setTimeout(() => {
+        void runRefresh();
+      }, 30_000);
     }
-    notifySessionExpired();
   };
 
   const msUntilRefresh = expiresAt - Date.now() - REFRESH_BUFFER_MS;

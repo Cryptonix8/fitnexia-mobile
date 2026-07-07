@@ -28,7 +28,7 @@ interface ClassesContextValue {
   classes: ClassListItem[];
   isLoading: boolean;
   error: string | null;
-  refreshClasses: () => Promise<void>;
+  refreshClasses: (options?: { silent?: boolean }) => Promise<void>;
   getClassById: (id: string) => ClassListItem | undefined;
   getClassesByInstructor: (instructorId: string) => ClassListItem[];
   addClass: (input: NewClassInput) => Promise<ClassListItem>;
@@ -99,8 +99,10 @@ export function ClassesProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshClasses = useCallback(async () => {
-    setIsLoading(true);
+  const refreshClasses = useCallback(async (options?: { silent?: boolean }) => {
+    if (!options?.silent) {
+      setIsLoading(true);
+    }
     setError(null);
     try {
       if (user?.role === 'instructor') {
@@ -119,7 +121,9 @@ export function ClassesProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       setError(getErrorMessage(err, 'No se pudieron cargar las clases'));
     } finally {
-      setIsLoading(false);
+      if (!options?.silent) {
+        setIsLoading(false);
+      }
     }
   }, [user?.role]);
 

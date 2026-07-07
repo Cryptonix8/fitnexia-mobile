@@ -4,6 +4,7 @@ export default function InstructorLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="notifications" />
       <Stack.Screen name="profile/edit" />
       <Stack.Screen name="profile/certifications" />
       <Stack.Screen name="profile/availability" />

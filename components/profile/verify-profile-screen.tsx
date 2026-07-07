@@ -3,7 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import * as DocumentPicker from 'expo-document-picker';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +20,7 @@ import {
   submitVerificationApi,
   type ProfileVerificationStatus,
 } from '@/services/api/verification.api';
+import { subscribeAppRefresh } from '@/services/app-refresh';
 
 type DocKey = 'dniFront' | 'dniBack' | 'certification';
 
@@ -75,8 +76,10 @@ export function VerifyProfileScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (silent = false) => {
+    if (!silent) {
+      setLoading(true);
+    }
     try {
       const res = await fetchVerificationStatusApi();
       setStatus(res.verificationStatus);
@@ -84,15 +87,25 @@ export function VerifyProfileScreen() {
     } catch {
       setStatus(profileStatus ?? 'unverified');
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
+    }
+  }, [profileStatus]);
+
+  useEffect(() => {
+    if (profileStatus) {
+      setStatus(profileStatus);
     }
   }, [profileStatus]);
 
   useFocusEffect(
     useCallback(() => {
-      load();
+      void load();
     }, [load]),
   );
+
+  useEffect(() => subscribeAppRefresh(() => load(true)), [load]);
 
   const uploadedCount = useMemo(
     () => DOC_STEPS.filter((step) => docs[step.key]).length,

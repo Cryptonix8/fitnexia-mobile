@@ -8,11 +8,11 @@ import { Screen } from '@/components/ui/screen';
 import { DEFAULT_NOTIFICATIONS, useAuth, type NotificationPreferences } from '@/contexts/auth-context';
 import { isNotificationPrefVisible } from '@/constants/features';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
-import { ALERT_LABELS, BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
+import { ALERT_LABELS, BUTTON_LABELS, NOTIFICATION_LABELS } from '@/constants/labels';
 
 const ALL_ITEMS: { key: keyof NotificationPreferences; label: string; desc: string }[] = [
   { key: 'bookingConfirmed', label: 'Confirmaciones de reserva', desc: 'Cuando se reserva o cancela una clase' },
-  { key: 'classReminders', label: 'Recordatorios de clase', desc: '24 h y 1 h antes de tu clase' },
+  { key: 'classReminders', label: 'Recordatorios de clase', desc: '24 h, 1 h y 10 min antes de tu clase' },
   { key: 'paymentUpdates', label: 'Actualizaciones de pago', desc: 'Recibos y avisos de reembolso' },
   { key: 'reviewInvites', label: 'Invitaciones a reseñar', desc: 'Después de completar una clase' },
   { key: 'creditsExpiring', label: 'Créditos por vencer', desc: '30 días antes de que venzan los créditos' },
@@ -37,7 +37,7 @@ export default function NotificationsScreen() {
   };
 
   return (
-    <Screen scroll header={<Header title={SCREEN_TITLES.notifications} showBack />}>
+    <Screen scroll header={<Header title={NOTIFICATION_LABELS.preferencesTitle} showBack />}>
       <Text style={styles.hint}>Elegí qué querés recibir por push y email.</Text>
       {ALL_ITEMS.filter((item) => isNotificationPrefVisible(item.key)).map((item) => (
         <View key={item.key} style={styles.row}>

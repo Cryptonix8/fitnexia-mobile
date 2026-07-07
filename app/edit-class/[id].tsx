@@ -31,7 +31,7 @@ import {
   resolveInstitutionId,
 } from '@/utils/gym-classes';
 import { getLinkedInstructorId } from '@/utils/instructor';
-import { combineDateAndTime } from '@/utils/schedule';
+import { combineDateAndTime, startAtToPickerValues } from '@/utils/schedule';
 import type { ClassFormat, ClassLevel, Modality } from '@/types/api';
 
 export default function EditClassScreen() {
@@ -66,13 +66,13 @@ export default function EditClassScreen() {
 
   useEffect(() => {
     if (!cls) return;
-    const start = new Date(cls.startAt);
+    const { date, time } = startAtToPickerValues(cls.startAt);
     setTitle(cls.title);
     setDiscipline(cls.discipline);
     setClassFormat(isGym ? 'group' : (cls.classFormat ?? (cls.capacity === 1 ? 'individual' : 'group')));
     setModality(cls.modality);
-    setStartDate(start);
-    setStartTime(start);
+    setStartDate(date);
+    setStartTime(time);
     setDuration(String(cls.durationMinutes));
     setLocation(cls.location?.label ?? '');
     setPrice(String(cls.price.amount / 100));

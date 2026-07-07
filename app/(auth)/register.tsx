@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { FilterSelect } from '@/components/ui/filter-select';
 import { AvatarPicker } from '@/components/avatar-picker';
 import { GoogleSignInButton } from '@/components/google-sign-in-button';
 import { RoleCard } from '@/components/role-card';
@@ -11,7 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
-import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
+import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS, INSTRUCTOR_GENDER_OPTIONS } from '@/constants/labels';
+import type { InstructorGender } from '@/types/api';
 import { useFeature } from '@/hooks/use-feature';
 import { useGoogleSignIn } from '@/hooks/use-google-sign-in';
 import type { UserRole } from '@/types/api';
@@ -32,6 +34,7 @@ export default function RegisterScreen() {
   const [favoriteSports, setFavoriteSports] = useState<string[]>([]);
   const [disciplines, setDisciplines] = useState<string[]>([]);
   const [institutionName, setInstitutionName] = useState('');
+  const [gender, setGender] = useState<InstructorGender | null>(null);
   const [loading, setLoading] = useState(false);
 
   const toggleSport = (sport: string) => {
@@ -66,6 +69,7 @@ export default function RegisterScreen() {
       institutionName,
       favoriteSports,
       disciplines,
+      gender: role === 'instructor' ? gender : undefined,
     });
     if (!validation.ok) {
       Alert.alert(ALERT_LABELS.validationFailedTitle, validation.message);
@@ -84,6 +88,7 @@ export default function RegisterScreen() {
         favoriteSports: role === 'athlete' ? favoriteSports : [],
         disciplines: role === 'instructor' ? disciplines : [],
         institutionName: role === 'institution' ? institutionName.trim() : undefined,
+        gender: role === 'instructor' ? gender : undefined,
       });
     } catch (err) {
       Alert.alert('Error en el registro', getErrorMessage(err));
@@ -162,43 +167,16 @@ export default function RegisterScreen() {
             placeholder="Al menos 8 caracteres"
           />
 
-          {/* {role === 'instructor' ? (
-            <>
-              <Text style={styles.sportsLabel}>Disciplines (optional)</Text>
-              <View style={styles.sportsGrid}>
-                {DISCIPLINES.map((sport) => {
-                  const active = disciplines.includes(sport);
-                  return (
-                    <Pressable
-                      key={sport}
-                      style={[styles.chip, active && styles.chipActive]}
-                      onPress={() => toggleDiscipline(sport)}>
-                      <Text style={[styles.chipText, active && styles.chipTextActive]}>{sport}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </>
+          {role === 'instructor' ? (
+            <FilterSelect
+              label="Género"
+              value={gender}
+              options={[...INSTRUCTOR_GENDER_OPTIONS]}
+              onChange={(v) => setGender((v as InstructorGender) || null)}
+              placeholder="Seleccioná una opción"
+              style={{ marginBottom: Spacing.lg }}
+            />
           ) : null}
-
-          {role === 'athlete' ? (
-            <>
-              <Text style={styles.sportsLabel}>Favorite sports (optional)</Text>
-              <View style={styles.sportsGrid}>
-                {DISCIPLINES.map((sport) => {
-                  const active = favoriteSports.includes(sport);
-                  return (
-                    <Pressable
-                      key={sport}
-                      style={[styles.chip, active && styles.chipActive]}
-                      onPress={() => toggleSport(sport)}>
-                      <Text style={[styles.chipText, active && styles.chipTextActive]}>{sport}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </>
-          ) : null} */}
 
           <Button title={BUTTON_LABELS.createAccount} disabled={loading} onPress={submit} />
           {googleSignIn ? (

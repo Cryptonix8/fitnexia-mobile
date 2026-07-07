@@ -14,7 +14,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { MOCK_INSTRUCTORS } from '@/data/mock';
 import { Radius, Spacing } from '@/constants/fitnexia';
-import { BADGE_LABELS, BUTTON_LABELS, GYM_TIER_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, VERIFICATION_LABELS, translateDisciplineLabels } from '@/constants/labels';
+import { BADGE_LABELS, BUTTON_LABELS, GYM_TIER_LABELS, NOTIFICATION_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, VERIFICATION_LABELS, translateDisciplineLabels } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { normalizeMediaUrl } from '@/services/api/media.api';
 
@@ -182,6 +182,11 @@ export default function GymProfileScreen() {
       <ProfileMenuItem
         icon="notifications-outline"
         label={PROFILE_MENU_LABELS.notifications}
+        onPress={() => router.push('/(gym)/notifications')}
+      />
+      <ProfileMenuItem
+        icon="options-outline"
+        label={NOTIFICATION_LABELS.preferencesTitle}
         onPress={() => router.push('/(gym)/profile/notifications')}
       />
       {showPayoutAccount ? (

@@ -201,6 +201,7 @@ function fallbackAuthUser(response: AuthResponse, params?: RegisterParams): Auth
         params?.firstName ?? '',
         params?.lastName ?? '',
         params?.disciplines,
+        params?.gender ?? null,
       ),
     };
   }
@@ -266,6 +267,7 @@ export async function registerApi(params: RegisterParams): Promise<AuthUser> {
       favoriteSports: params.favoriteSports,
       disciplines: params.disciplines,
       institutionName: params.institutionName,
+      gender: params.role === 'instructor' ? params.gender : undefined,
     },
   });
 

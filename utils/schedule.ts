@@ -43,10 +43,20 @@ export function dateToTimeString(date: Date): string {
   return formatTimeString(date.getHours(), date.getMinutes());
 }
 
+/** Merge calendar date + clock time in the device's local timezone. */
 export function combineDateAndTime(date: Date, time: Date): Date {
   const result = new Date(date);
   result.setHours(time.getHours(), time.getMinutes(), 0, 0);
   return result;
+}
+
+/** UTC ISO from API → picker values in the device's local timezone. */
+export function startAtToPickerValues(iso: string): { date: Date; time: Date } {
+  const start = new Date(iso);
+  return {
+    date: new Date(start.getFullYear(), start.getMonth(), start.getDate()),
+    time: new Date(2000, 0, 1, start.getHours(), start.getMinutes(), 0, 0),
+  };
 }
 
 export function formatScheduleDay(day: WeeklyDaySchedule): string {

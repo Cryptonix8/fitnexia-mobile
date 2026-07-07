@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { InstructorReviewsSection } from '@/components/profile/instructor-reviews-section';
 import { StarRating } from '@/components/star-rating';
 import { UserAvatar } from '@/components/user-avatar';
 import { Badge } from '@/components/ui/badge';
@@ -17,15 +17,26 @@ import { Radius, Spacing } from '@/constants/fitnexia';
 import { BADGE_LABELS, LOADING_LABELS, PROFILE_MENU_LABELS, instructorGenderLabel, translateDisciplineLabel } from '@/constants/labels';
 import { fetchInstructorById } from '@/services/api/instructors.api';
 import { fetchInstructorAthleteReviews } from '@/services/api/v2-features.api';
-import type { Instructor, Review } from '@/types/api';
-import { useFeature } from '@/hooks/use-feature';
+import type { Instructor, Review, StaffReview } from '@/types/api';
+
+function StaffReviewCard({ review }: { review: StaffReview }) {
+  const { colors } = useAppTheme();
+  return (
+    <View style={[styles.reviewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <Text style={[styles.reviewGym, { color: colors.textMuted }]}>{review.institutionName}</Text>
+      <StarRating rating={review.rating} reviewCount={1} size={16} showCount={false} />
+      {review.comment ? (
+        <Text style={[styles.reviewComment, { color: colors.textSecondary }]}>{review.comment}</Text>
+      ) : null}
+    </View>
+  );
+}
 
 export default function InstructorProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useAppTheme();
   const { classes } = useClasses();
   const { getStaffReviewsForInstructor, loadStaffReviewsForInstructor } = useReviews();
-  const reviewResponses = useFeature('reviewResponses');
   const [instructor, setInstructor] = useState<Instructor | null>(null);
   const [athleteReviews, setAthleteReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,14 +90,11 @@ export default function InstructorProfileScreen() {
           rating={instructor.averageRating}
           reviewCount={instructor.reviewCount}
           size={18}
-          showCount={false}
           style={styles.rating}
         />
-        <Text style={[styles.reviewLabel, { color: colors.textMuted }]}>
-          {instructor.reviewCount > 0
-            ? `${instructor.averageRating.toFixed(1)} · ${instructor.reviewCount} reseñas de atletas`
-            : 'Sin reseñas de atletas'}
-        </Text>
+        {instructor.reviewCount === 0 ? (
+          <Text style={[styles.reviewLabel, { color: colors.textMuted }]}>Sin reseñas de atletas</Text>
+        ) : null}
         {instructor.gender ? (
           <Text style={[styles.reviewLabel, { color: colors.textMuted }]}>
             {instructorGenderLabel(instructor.gender)}
@@ -129,42 +137,16 @@ export default function InstructorProfileScreen() {
         </>
       ) : null}
 
-      {athleteReviews.length > 0 ? (
-        <>
-          <Text style={[styles.section, { color: colors.text }]}>Reseñas de atletas</Text>
-          {athleteReviews.map((review) => (
-            <View
-              key={review.id}
-              style={[styles.reviewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Text style={[styles.reviewGym, { color: colors.textMuted }]}>{review.authorName}</Text>
-              <StarRating rating={review.rating} reviewCount={1} size={16} showCount={false} />
-              {review.comment ? (
-                <Text style={[styles.reviewComment, { color: colors.textSecondary }]}>{review.comment}</Text>
-              ) : null}
-              {reviewResponses && review.response ? (
-                <View style={[styles.responseBox, { backgroundColor: colors.surfaceMuted }]}>
-                  <Text style={[styles.responseLabel, { color: colors.textMuted }]}>Respuesta del instructor</Text>
-                  <Text style={{ color: colors.textSecondary }}>{review.response}</Text>
-                </View>
-              ) : null}
-            </View>
-          ))}
-        </>
-      ) : null}
+      <InstructorReviewsSection
+        reviews={athleteReviews}
+        seeMoreHref={athleteReviews.length > 3 ? `/instructor/${id}/reviews` : undefined}
+      />
 
       {staffReviews.length > 0 ? (
         <>
           <Text style={[styles.section, { color: colors.text }]}>Reseñas del staff del gimnasio</Text>
-          {staffReviews.map((review) => (
-            <View
-              key={review.id}
-              style={[styles.reviewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Text style={[styles.reviewGym, { color: colors.textMuted }]}>{review.institutionName}</Text>
-              <StarRating rating={review.rating} reviewCount={1} size={16} showCount={false} />
-              {review.comment ? (
-                <Text style={[styles.reviewComment, { color: colors.textSecondary }]}>{review.comment}</Text>
-              ) : null}
-            </View>
+          {staffReviews.slice(0, 3).map((review) => (
+            <StaffReviewCard key={review.id} review={review} />
           ))}
         </>
       ) : null}
@@ -211,6 +193,4 @@ const styles = StyleSheet.create({
   },
   reviewGym: { fontSize: 12, fontWeight: '600', marginBottom: 4 },
   reviewComment: { marginTop: Spacing.sm, lineHeight: 20 },
-  responseBox: { marginTop: Spacing.sm, padding: Spacing.sm, borderRadius: Radius.sm },
-  responseLabel: { fontSize: 12, fontWeight: '600', marginBottom: 4 },
 });

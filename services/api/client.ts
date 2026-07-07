@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 
 import { API_BASE_URL } from './config';
 import { safeFetch } from './fetch';
+import { ApiError } from './errors';
 import { parseJsonError, parseJsonResponse } from './parse-response';
 import { notifySessionExpired } from './session';
 import {
@@ -24,34 +25,44 @@ export async function refreshSession(): Promise<boolean> {
   if (refreshPromise) return refreshPromise;
 
   refreshPromise = (async () => {
-    const refreshToken = await getRefreshToken();
-    if (!refreshToken) {
+    try {
+      const refreshToken = await getRefreshToken();
+      if (!refreshToken) {
+        await clearTokens();
+        return false;
+      }
+
+      const res = await safeFetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!res.ok) {
+        await clearTokens();
+        return false;
+      }
+
+      const data = await parseJsonResponse<{
+        accessToken?: string;
+        refreshToken?: string;
+        expiresIn?: number;
+      }>(res);
+      if (!data?.accessToken || !data?.refreshToken) {
+        await clearTokens();
+        return false;
+      }
+      await setTokens(data.accessToken, data.refreshToken, data.expiresIn);
+      return true;
+    } catch (err) {
+      // Keep session when offline; only clear tokens on auth failures above.
+      if (err instanceof ApiError && err.code === 'NETWORK_ERROR') {
+        console.warn('[auth] Token refresh skipped (offline):', err.message);
+        return false;
+      }
       await clearTokens();
       return false;
     }
-
-    const res = await safeFetch(`${API_BASE_URL}/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ refreshToken }),
-    });
-
-    if (!res.ok) {
-      await clearTokens();
-      return false;
-    }
-
-    const data = await parseJsonResponse<{
-      accessToken?: string;
-      refreshToken?: string;
-      expiresIn?: number;
-    }>(res);
-    if (!data?.accessToken || !data?.refreshToken) {
-      await clearTokens();
-      return false;
-    }
-    await setTokens(data.accessToken, data.refreshToken, data.expiresIn);
-    return true;
   })();
 
   try {
@@ -64,7 +75,10 @@ export async function refreshSession(): Promise<boolean> {
 async function handleUnauthorized(): Promise<boolean> {
   const refreshed = await refreshSession();
   if (!refreshed) {
-    notifySessionExpired();
+    const stillHasSession = await getRefreshToken();
+    if (!stillHasSession) {
+      notifySessionExpired();
+    }
   }
   return refreshed;
 }

@@ -11,6 +11,13 @@ type StarRatingProps = {
   style?: ViewStyle;
 };
 
+function starIconName(starIndex: number, rating: number): keyof typeof Ionicons.glyphMap {
+  const value = rating - starIndex + 1;
+  if (value >= 0.75) return 'star';
+  if (value >= 0.25) return 'star-half';
+  return 'star-outline';
+}
+
 export function StarRating({
   rating = 0,
   reviewCount = 0,
@@ -20,7 +27,6 @@ export function StarRating({
 }: StarRatingProps) {
   const { colors } = useAppTheme();
   const hasRating = reviewCount > 0;
-  const filledStars = hasRating ? Math.min(5, Math.max(0, Math.round(rating))) : 0;
 
   return (
     <View style={[styles.row, style]}>
@@ -28,7 +34,7 @@ export function StarRating({
         {[1, 2, 3, 4, 5].map((n) => (
           <Ionicons
             key={n}
-            name={n <= filledStars ? 'star' : 'star-outline'}
+            name={hasRating ? starIconName(n, rating) : 'star-outline'}
             size={size}
             color={colors.warning}
           />

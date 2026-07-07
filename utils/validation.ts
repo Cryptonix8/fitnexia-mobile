@@ -164,7 +164,9 @@ export function validateRegisterForm(params: {
   institutionName?: string;
   favoriteSports?: string[];
   disciplines?: string[];
+  gender?: string | null;
 }): ValidationResult {
+  const GENDER_VALUES = ['male', 'female', 'other', 'prefer_not_to_say'];
   const errors = collect([
     () => validateEmail(params.email),
     () => validatePassword(params.password),
@@ -180,6 +182,13 @@ export function validateRegisterForm(params: {
         : null,
     () => validateDisciplines(params.favoriteSports ?? []),
     () => validateDisciplines(params.disciplines ?? []),
+    () => {
+      if (params.role !== 'instructor') return null;
+      if (!params.gender || !GENDER_VALUES.includes(params.gender)) {
+        return { field: 'gender', message: 'Seleccioná tu género para continuar.' };
+      }
+      return null;
+    },
   ]);
   return errors.length ? fail(errors) : ok();
 }

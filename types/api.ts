@@ -216,6 +216,7 @@ export interface ClassListItem {
   institution?: Pick<Institution, 'id' | 'name' | 'logoUrl' | 'verified'> | null;
   location?: { lat: number; lng: number; label: string };
   averageRating?: number;
+  reviewCount?: number;
   classFormat?: ClassFormat;
   level?: ClassLevel;
   language?: string;
@@ -287,6 +288,7 @@ export interface Booking {
   userId: string;
   price: Money;
   createdAt: string;
+  alreadyReviewed?: boolean;
   checkoutUrl?: string;
   paymentId?: string;
   /** Present on /bookings/me and /bookings/:id — includes past classes no longer in search */
@@ -343,6 +345,12 @@ export interface Notification {
   body: string;
   read: boolean;
   createdAt: string;
+  data?: {
+    tab?: string;
+    screen?: string;
+    classId?: string;
+    bookingId?: string;
+  };
 }
 
 export interface HomeFeed {

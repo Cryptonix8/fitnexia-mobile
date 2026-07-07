@@ -87,6 +87,7 @@ export function defaultInstructorProfile(
   firstName: string,
   lastName: string,
   disciplines: string[] = [],
+  gender: InstructorGender | null = null,
 ): InstructorProfileData {
   return {
     displayName: `${firstName} ${lastName}`.trim(),
@@ -99,6 +100,7 @@ export function defaultInstructorProfile(
     verified: false,
     verificationStatus: 'unverified',
     plan: 'basic',
+    gender,
   };
 }
 
@@ -128,6 +130,7 @@ export type RegisterParams = {
   favoriteSports?: string[];
   disciplines?: string[];
   institutionName?: string;
+  gender?: InstructorGender | null;
 };
 
 export type UpdateProfileParams = Partial<

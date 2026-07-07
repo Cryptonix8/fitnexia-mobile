@@ -34,7 +34,7 @@ export default function GymReviewInstructorScreen() {
   const [eligibility, setEligibility] = useState<Awaited<
     ReturnType<typeof fetchStaffReviewEligibility>
   > | null>(null);
-  const [rating, setRating] = useState(5);
+  const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
 
   useEffect(() => {
@@ -204,7 +204,7 @@ export default function GymReviewInstructorScreen() {
         onChangeText={setComment}
       />
 
-      <Button title="Enviar reseña verificada" onPress={submit} disabled={submitting} />
+      <Button title="Enviar reseña verificada" onPress={submit} disabled={submitting || rating < 1} />
 
       <LoadingOverlay visible={submitting} message="Enviando reseña…" />
     </Screen>

@@ -5,23 +5,30 @@ import { safeFetch } from './fetch';
 import { parseJsonError, parseJsonResponse } from './parse-response';
 import { getAccessToken } from './token-storage';
 
-/** Rewrite legacy/broken media URLs saved before production URL fix. */
+/** Extract /v1/media/... path from relative or absolute URLs (incl. nginx prefix, legacy ngrok hosts). */
+function extractMediaPath(uri: string): string | null {
+  if (uri.startsWith('/v1/media/')) return uri.split('?')[0];
+  if (uri.startsWith('/media/')) return `/v1${uri.split('?')[0]}`;
+
+  try {
+    const { pathname } = new URL(uri);
+    const idx = pathname.indexOf('/v1/media/');
+    if (idx >= 0) return pathname.slice(idx).split('?')[0];
+  } catch {
+    // not a URL
+  }
+
+  return null;
+}
+
+/** Rewrite stored media URLs to the API host the app is using now. */
 export function normalizeMediaUrl(uri: string | null | undefined): string | null | undefined {
   if (!uri) return uri;
 
-  if (uri.startsWith('/v1/media/') || uri.startsWith('/media/')) {
-    const base = API_BASE_URL.replace(/\/v1$/, '');
-    return `${base}${uri.startsWith('/v1') ? uri : `/v1${uri}`}`;
-  }
-
-  try {
-    const parsed = new URL(uri);
-    if (parsed.pathname.startsWith('/v1/media/') && !parsed.pathname.startsWith('/fitnexia-api/')) {
-      const apiOrigin = API_BASE_URL.replace(/\/v1$/, '');
-      return `${apiOrigin}${parsed.pathname}`;
-    }
-  } catch {
-    // not a URL — return as-is
+  const mediaPath = extractMediaPath(uri);
+  if (mediaPath) {
+    const apiOrigin = API_BASE_URL.replace(/\/v1$/, '');
+    return `${apiOrigin}${mediaPath}`;
   }
 
   return uri;

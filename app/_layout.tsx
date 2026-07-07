@@ -12,6 +12,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { usePushNotificationRouting } from '@/hooks/use-push-notification-routing';
 import { useFirebaseInAppMessaging } from '@/hooks/use-firebase-in-app-messaging';
+import { AppLiveSync } from '@/components/app-live-sync';
 import { AppSplash } from '@/components/app-splash';
 import { AuthRootGate } from '@/components/auth-root-gate';
 import { AuthProvider } from '@/contexts/auth-context';
@@ -118,6 +119,7 @@ export default function RootLayout() {
           <BookingsProvider>
             <ClassesProvider>
               <ReviewsProvider>
+                <AppLiveSync />
                 <AppBootstrap />
               </ReviewsProvider>
             </ClassesProvider>

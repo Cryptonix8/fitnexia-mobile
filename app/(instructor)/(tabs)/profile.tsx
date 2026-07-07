@@ -1,12 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { InstructorReviewsSection } from '@/components/profile/instructor-reviews-section';
 import { DarkModeToggle } from '@/components/profile/dark-mode-toggle';
 import { CloseAccountButton } from '@/components/profile/close-account-button';
 import { SignOutButton } from '@/components/profile/sign-out-button';
 import { ProfileMenuItem } from '@/components/profile/menu-item';
+import { StarRating } from '@/components/star-rating';
 import { UserAvatar } from '@/components/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
@@ -14,9 +17,12 @@ import { Screen } from '@/components/ui/screen';
 import { getErrorMessage, useAuth } from '@/contexts/auth-context';
 import { useAppTheme } from '@/contexts/theme-context';
 import { Spacing } from '@/constants/fitnexia';
-import { BADGE_LABELS, BUTTON_LABELS, LOADING_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, VERIFICATION_LABELS, formatUserPlanSummary, translateDisciplineLabels } from '@/constants/labels';
+import { BADGE_LABELS, BUTTON_LABELS, LOADING_LABELS, NOTIFICATION_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, VERIFICATION_LABELS, formatUserPlanSummary, translateDisciplineLabels } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { formatWeeklyScheduleSummary, defaultWeeklySchedule } from '@/utils/schedule';
+import { fetchInstructorById } from '@/services/api/instructors.api';
+import { fetchInstructorAthleteReviews } from '@/services/api/v2-features.api';
+import type { Instructor, Review } from '@/types/api';
 
 export default function InstructorProfileScreen() {
   const { user, updateProfile } = useAuth();
@@ -26,6 +32,33 @@ export default function InstructorProfileScreen() {
   const showReviewResponses = useFeature('reviewResponses');
   const profile = user?.instructorProfile;
   const [togglingAvailable, setTogglingAvailable] = useState(false);
+  const [publicProfile, setPublicProfile] = useState<Instructor | null>(null);
+  const [athleteReviews, setAthleteReviews] = useState<Review[]>([]);
+
+  const loadPublicProfile = useCallback(async () => {
+    if (!user?.instructorId) {
+      setPublicProfile(null);
+      setAthleteReviews([]);
+      return;
+    }
+    try {
+      const [instructor, reviews] = await Promise.all([
+        fetchInstructorById(user.instructorId),
+        fetchInstructorAthleteReviews(user.instructorId).catch(() => []),
+      ]);
+      setPublicProfile(instructor);
+      setAthleteReviews(reviews);
+    } catch {
+      setPublicProfile(null);
+      setAthleteReviews([]);
+    }
+  }, [user?.instructorId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadPublicProfile();
+    }, [loadPublicProfile]),
+  );
 
   const toggleAvailable = async () => {
     if (!profile || togglingAvailable) return;
@@ -86,8 +119,23 @@ export default function InstructorProfileScreen() {
             ) : null}
             {profile.availableNow ? <Badge label={BADGE_LABELS.availableNow} variant="success" /> : null}
           </View>
+          {publicProfile && publicProfile.reviewCount > 0 ? (
+            <StarRating
+              rating={publicProfile.averageRating}
+              reviewCount={publicProfile.reviewCount}
+              size={16}
+              style={{ marginTop: Spacing.sm }}
+            />
+          ) : (
+            <Text style={[styles.ratingHint, { color: colors.textMuted }]}>Sin reseñas de atletas</Text>
+          )}
         </View>
       </View>
+
+      <InstructorReviewsSection
+        reviews={athleteReviews}
+        seeMoreHref={athleteReviews.length > 3 ? '/(instructor)/profile/reviews' : undefined}
+      />
 
       <Pressable
         style={[
@@ -163,6 +211,11 @@ export default function InstructorProfileScreen() {
       <ProfileMenuItem
         icon="notifications-outline"
         label={PROFILE_MENU_LABELS.notifications}
+        onPress={() => router.push('/(instructor)/notifications')}
+      />
+      <ProfileMenuItem
+        icon="options-outline"
+        label={NOTIFICATION_LABELS.preferencesTitle}
         onPress={() => router.push('/(instructor)/profile/notifications')}
       />
       {showPayoutAccount ? (
@@ -204,6 +257,7 @@ const styles = StyleSheet.create({
   name: { fontSize: 22, fontWeight: '800' },
   email: { fontSize: 14, marginTop: 2 },
   badges: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm, flexWrap: 'wrap' },
+  ratingHint: { fontSize: 13, marginTop: Spacing.sm },
   availableBtn: {
     flexDirection: 'row',
     alignItems: 'center',

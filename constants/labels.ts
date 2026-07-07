@@ -115,6 +115,21 @@ export const TAB_LABELS = {
   },
 } as const;
 
+export const NOTIFICATION_LABELS = {
+  screenTitle: 'Notificaciones',
+  emptyTitle: 'Sin notificaciones',
+  emptyDescription: 'Cuando haya novedades sobre tus clases, reservas o perfil, las verás acá.',
+  markAll: 'Marcar todas',
+  seeMore: 'Ver {count} más',
+  unreadOne: '1 sin leer',
+  unreadMany: '{count} sin leer',
+  deleteTitle: 'Eliminar notificación',
+  deleteMessage: 'Esta acción no se puede deshacer.',
+  deleteConfirm: 'Eliminar',
+  cancel: 'Cancelar',
+  preferencesTitle: 'Preferencias de alertas',
+} as const;
+
 export const PROFILE_MENU_LABELS = {
   favoriteSports: 'Deportes favoritos',
   notifications: 'Notificaciones',
@@ -262,6 +277,7 @@ export const BUTTON_LABELS = {
   joinWaitlistShort: 'Lista de espera',
   classFull: 'Clase completa',
   viewProfile: 'Perfil',
+  seeMore: 'Ver más',
   confirmBooking: 'Confirmar reserva',
   payAndConfirm: 'Pagar y confirmar',
   closeAccount: 'Cerrar cuenta',

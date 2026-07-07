@@ -15,7 +15,7 @@ import type { Booking, CreateBookingResponse, PassPeriodType, PaymentModel } fro
 interface BookingsContextValue {
   bookings: Booking[];
   isLoading: boolean;
-  refreshBookings: () => Promise<void>;
+  refreshBookings: (options?: { silent?: boolean }) => Promise<void>;
   createBooking: (
     classId: string,
     paymentModel?: PaymentModel,
@@ -31,13 +31,15 @@ export function BookingsProvider({ children }: { children: React.ReactNode }) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const refreshBookings = useCallback(async () => {
+  const refreshBookings = useCallback(async (options?: { silent?: boolean }) => {
     if (user?.role !== 'athlete') {
       setBookings([]);
-      setIsLoading(false);
+      if (!options?.silent) setIsLoading(false);
       return;
     }
-    setIsLoading(true);
+    if (!options?.silent) {
+      setIsLoading(true);
+    }
     try {
       const data = await fetchMyBookings();
       setBookings(data);
@@ -45,7 +47,9 @@ export function BookingsProvider({ children }: { children: React.ReactNode }) {
       console.warn('Failed to load bookings:', getErrorMessage(err));
       setBookings([]);
     } finally {
-      setIsLoading(false);
+      if (!options?.silent) {
+        setIsLoading(false);
+      }
     }
   }, [user?.role]);
 

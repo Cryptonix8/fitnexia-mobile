@@ -1,11 +1,11 @@
+import { NOTIFICATION_LABELS } from '@/constants/labels';
 import { Header } from '@/components/ui/header';
 import { NotificationsSettings } from '@/components/profile/notifications-settings';
-import { SCREEN_TITLES } from '@/constants/labels';
 import { Screen } from '@/components/ui/screen';
 
-export default function InstructorNotificationsScreen() {
+export default function InstructorNotificationPrefsScreen() {
   return (
-    <Screen scroll header={<Header title={SCREEN_TITLES.notifications} showBack />}>
+    <Screen scroll header={<Header title={NOTIFICATION_LABELS.preferencesTitle} showBack />}>
       <NotificationsSettings />
     </Screen>
   );

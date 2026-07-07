@@ -44,9 +44,10 @@ export async function respondToReviewApi(reviewId: string, response: string) {
   });
 }
 
-export async function fetchNotifications(params?: { page?: number; unreadOnly?: boolean }) {
+export async function fetchNotifications(params?: { page?: number; limit?: number; unreadOnly?: boolean }) {
   const query = new URLSearchParams();
   if (params?.page) query.set('page', String(params.page));
+  if (params?.limit) query.set('limit', String(params.limit));
   if (params?.unreadOnly) query.set('unreadOnly', 'true');
   const qs = query.toString();
   return apiRequest<PaginatedResponse<import('@/types/api').Notification>>(
@@ -58,10 +59,22 @@ export async function fetchUnreadNotificationCount() {
   return apiRequest<{ unread: number }>('/notifications/unread-count');
 }
 
+export async function fetchUnreadByTab() {
+  return apiRequest<{ unread: number; byTab: Record<string, number> }>('/notifications/unread-by-tab');
+}
+
 export async function markNotificationReadApi(id: string) {
   return apiRequest(`/notifications/${id}/read`, { method: 'PATCH' });
 }
 
 export async function markAllNotificationsReadApi() {
   return apiRequest('/notifications/read-all', { method: 'POST' });
+}
+
+export async function markTabNotificationsReadApi(tab: string) {
+  return apiRequest(`/notifications/mark-tab-read/${encodeURIComponent(tab)}`, { method: 'POST' });
+}
+
+export async function deleteNotificationApi(id: string) {
+  return apiRequest(`/notifications/${id}`, { method: 'DELETE' });
 }

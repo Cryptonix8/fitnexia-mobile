@@ -7,6 +7,7 @@ import {
   routeFromPushData,
   type PushNotificationData,
 } from '@/services/push-notification-routing';
+import { requestAppRefresh } from '@/services/app-refresh';
 
 function navigateFromNotification(data: PushNotificationData | undefined) {
   const href = routeFromPushData(data);
@@ -19,7 +20,12 @@ export function usePushNotificationRouting() {
   useEffect(() => {
     if (Constants.appOwnership === 'expo') return;
 
-    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+    const receivedSubscription = Notifications.addNotificationReceivedListener(() => {
+      requestAppRefresh();
+    });
+
+    const responseSubscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      requestAppRefresh();
       const data = response.notification.request.content.data as PushNotificationData;
       navigateFromNotification(data);
     });
@@ -27,13 +33,15 @@ export function usePushNotificationRouting() {
     void Notifications.getLastNotificationResponseAsync()
       .then((response) => {
         if (!response) return;
+        requestAppRefresh();
         const data = response.notification.request.content.data as PushNotificationData;
         navigateFromNotification(data);
       })
       .catch(() => undefined);
 
     return () => {
-      subscription.remove();
+      receivedSubscription.remove();
+      responseSubscription.remove();
     };
   }, []);
 }

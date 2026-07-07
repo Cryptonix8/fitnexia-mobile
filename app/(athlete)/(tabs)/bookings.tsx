@@ -187,13 +187,15 @@ export default function BookingsScreen() {
                   onPress={() => cancelReservation(booking, cls)}
                 />
               </View>
-            ) : booking.status === 'completed' ? (
+            ) : booking.status === 'completed' && !booking.alreadyReviewed ? (
               <Button
                 title="Dejar una reseña"
                 variant="outline"
                 size="sm"
                 onPress={() => router.push(`/review/${booking.id}`)}
               />
+            ) : booking.status === 'completed' ? (
+              <Text style={[styles.reviewedLabel, { color: colors.textMuted }]}>Reseña enviada</Text>
             ) : booking.status === 'confirmed' ? (
               <View style={styles.actions}>
                 <Pressable onPress={() => router.push(`/class/${cls.id}`)}>
@@ -280,6 +282,7 @@ const styles = StyleSheet.create({
   },
   badgeText: { fontSize: 12, fontWeight: '600' },
   link: { fontWeight: '600' },
+  reviewedLabel: { fontSize: 13, fontWeight: '500', marginTop: Spacing.sm },
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-between',

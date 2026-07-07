@@ -3,7 +3,7 @@ import { NotificationsInbox } from '@/components/notifications/notifications-inb
 import { Screen } from '@/components/ui/screen';
 import { LOADING_LABELS, NOTIFICATION_LABELS } from '@/constants/labels';
 
-export default function NotificationsScreen() {
+export default function InstructorNotificationsScreen() {
   return (
     <Screen
       scroll

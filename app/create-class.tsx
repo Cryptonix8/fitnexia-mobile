@@ -64,8 +64,6 @@ export default function CreateClassScreen() {
   const [discipline, setDiscipline] = useState<string>(DISCIPLINES[0]);
   const [classFormat, setClassFormat] = useState<ClassFormat>('group');
   const [modality, setModality] = useState<Modality>('in_person');
-  const [level, setLevel] = useState<ClassLevel | null>('beginner');
-  const [language, setLanguage] = useState<string | null>('es');
   const [startDate, setStartDate] = useState(defaults.date);
   const [startTime, setStartTime] = useState(defaults.time);
   const [duration, setDuration] = useState('60');
@@ -74,6 +72,8 @@ export default function CreateClassScreen() {
   const [recurring, setRecurring] = useState(false);
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([]);
   const [location, setLocation] = useState('');
+  const [level, setLevel] = useState<ClassLevel | null>(null);
+  const [language, setLanguage] = useState<string | null>(null);
   const [selectedInstructorId, setSelectedInstructorId] = useState<string | null>(
     linkedInstructors[0]?.id ?? null,
   );
@@ -232,7 +232,6 @@ export default function CreateClassScreen() {
           instructor: {
             id: getLinkedInstructorId(user),
             displayName: user?.instructorProfile?.displayName ?? 'Instructor',
-            gender: user?.instructorProfile?.gender ?? undefined,
           },
           location:
             modality === 'in_person' && location.trim()
@@ -311,7 +310,6 @@ export default function CreateClassScreen() {
           options={[...CLASS_LEVEL_OPTIONS]}
           onChange={(v) => setLevel((v as ClassLevel) || null)}
           placeholder="Nivel"
-          clearable={false}
         />
         <FilterSelect
           label="Idioma"
@@ -319,7 +317,6 @@ export default function CreateClassScreen() {
           options={[...CLASS_LANGUAGE_OPTIONS]}
           onChange={setLanguage}
           placeholder="Idioma"
-          clearable={false}
         />
       </View>
 
@@ -332,6 +329,7 @@ export default function CreateClassScreen() {
         />
       ) : null}
 
+      <Text style={[styles.label, { color: colors.textSecondary }]}>Fecha y hora</Text>
       <DateTimeField
         label="Fecha"
         mode="date"
@@ -469,9 +467,9 @@ const styles = StyleSheet.create({
   gymHint: { fontSize: 14, lineHeight: 20, marginBottom: Spacing.md },
   unverifiedWarn: { fontSize: 13, lineHeight: 18, marginBottom: Spacing.md, fontWeight: '600' },
   label: { fontSize: 14, fontWeight: '600', marginBottom: Spacing.sm },
-  filterRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
   helper: { fontSize: 13, lineHeight: 20, marginBottom: Spacing.md },
   row: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: Spacing.sm },
+  filterRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
   groupBadge: {
     padding: Spacing.md,
     borderRadius: 12,

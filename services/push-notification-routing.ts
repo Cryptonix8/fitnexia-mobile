@@ -17,11 +17,16 @@ export function routeFromPushData(data: PushNotificationData | undefined) {
     case 'password_reset':
       return '/(auth)/forgot-password';
     case 'booking_confirmed':
+    case 'class_scheduled':
     case 'payment_confirmed':
-      return '/(athlete)/(tabs)/bookings';
+      return data.classId ? `/class/${data.classId}` : '/(athlete)/(tabs)/bookings';
     case 'class_reminder_24h':
     case 'class_reminder_1h':
+    case 'class_reminder_10m':
+    case 'class_ended':
       return data.classId ? `/class/${data.classId}` : '/(athlete)/(tabs)/bookings';
+    case 'class_posted':
+      return data.classId ? `/class/${data.classId}` : '/(instructor)/(tabs)/classes';
     case 'instructor_invite':
       return '/(instructor)/(tabs)/dashboard';
     case 'review_invite':

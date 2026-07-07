@@ -6,6 +6,7 @@ import { UserAvatar } from '@/components/user-avatar';
 import { RecurringClassBadge } from '@/components/recurring-class-badge';
 import { ClassMetaBadges } from '@/components/class-meta-badges';
 import { Badge } from '@/components/ui/badge';
+import { StarRating } from '@/components/star-rating';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
@@ -137,6 +138,7 @@ export default function ClassDetailScreen() {
         name={cls.instructor.displayName}
         photoUrl={cls.instructor.photoUrl}
         rating={cls.averageRating}
+        reviewCount={cls.reviewCount}
         onPress={() => router.push(`/instructor/${cls.instructor.id}`)}
       />
 
@@ -198,12 +200,14 @@ function PressableInstructor({
   photoUrl,
   verified,
   rating,
+  reviewCount,
   onPress,
 }: {
   name: string;
   photoUrl?: string;
   verified?: boolean;
   rating?: number;
+  reviewCount?: number;
   onPress: () => void;
 }) {
   return (
@@ -212,8 +216,8 @@ function PressableInstructor({
       <View style={{ flex: 1 }}>
         <Text style={styles.instructorName}>{name}</Text>
         {verified ? <Badge label={BADGE_LABELS.verified} variant="verified" /> : null}
-        {rating ? (
-          <Text style={styles.rating}>★ {rating.toFixed(1)}</Text>
+        {rating != null && reviewCount != null && reviewCount > 0 ? (
+          <StarRating rating={rating} reviewCount={reviewCount} size={16} showCount />
         ) : null}
       </View>
       <Button title={BUTTON_LABELS.viewProfile} variant="ghost" size="sm" onPress={onPress} />
