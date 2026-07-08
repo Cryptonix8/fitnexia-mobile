@@ -20,6 +20,7 @@ interface BookingsContextValue {
     classId: string,
     paymentModel?: PaymentModel,
     periodType?: PassPeriodType,
+    useCredits?: boolean,
   ) => Promise<CreateBookingResponse>;
   cancelBooking: (bookingId: string) => Promise<Booking>;
 }
@@ -58,8 +59,13 @@ export function BookingsProvider({ children }: { children: React.ReactNode }) {
   }, [refreshBookings]);
 
   const createBooking = useCallback(
-    async (classId: string, paymentModel?: PaymentModel, periodType?: PassPeriodType) => {
-      const result = await createBookingApi(classId, paymentModel, periodType);
+    async (
+      classId: string,
+      paymentModel?: PaymentModel,
+      periodType?: PassPeriodType,
+      useCredits = false,
+    ) => {
+      const result = await createBookingApi(classId, paymentModel, periodType, useCredits);
       setBookings((prev) => [result.booking, ...prev.filter((b) => b.id !== result.booking.id)]);
       return result;
     },

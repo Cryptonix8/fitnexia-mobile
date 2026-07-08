@@ -12,11 +12,12 @@ import { useClasses } from '@/contexts/classes-context';
 import { getErrorMessage } from '@/services/api/errors';
 import { joinWaitlistApi } from '@/services/api/v2-features.api';
 import { fetchMyActivePasses, fetchPassProducts } from '@/services/api/passes.api';
+import { fetchMyCredits } from '@/services/api/credits.api';
 import { useFeature } from '@/hooks/use-feature';
 import { openPaymentCheckout } from '@/utils/booking-payment';
 import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
 import { BUTTON_LABELS, LOADING_LABELS, SCREEN_TITLES } from '@/constants/labels';
-import type { AthletePass, PassPeriodType, PassProducts, PaymentModel } from '@/types/api';
+import type { AthletePass, CreditBalance, PassPeriodType, PassProducts, PaymentModel } from '@/types/api';
 
 const ALL_PAYMENT_OPTIONS: { id: PaymentModel; label: string; desc: string }[] = [
   { id: 'per_class', label: 'Pago por clase', desc: 'Pago único al reservar' },
@@ -48,6 +49,7 @@ export default function BookScreen() {
   const { getClassById, isLoading: classesLoading, refreshClasses } = useClasses();
   const { createBooking, refreshBookings } = useBookings();
   const waitlistEnabled = useFeature('waitlist');
+  const loyaltyCredits = useFeature('loyaltyCredits');
   const subscriptionModels = useFeature('subscriptionPaymentModels');
   const integratedPayments = useFeature('integratedPayments');
   const digitalWallets = useFeature('digitalWallets');
@@ -58,6 +60,8 @@ export default function BookScreen() {
   const [activePasses, setActivePasses] = useState<AthletePass[]>([]);
   const [loading, setLoading] = useState(false);
   const [passesLoading, setPassesLoading] = useState(subscriptionModels);
+  const [credits, setCredits] = useState<CreditBalance | null>(null);
+  const [useCredits, setUseCredits] = useState(false);
 
   const isWaitlist = waitlist === '1' && waitlistEnabled;
 
@@ -118,6 +122,30 @@ export default function BookScreen() {
     };
   }, [subscriptionModels]);
 
+  useEffect(() => {
+    if (!loyaltyCredits) return;
+    let cancelled = false;
+    fetchMyCredits()
+      .then((data) => {
+        if (!cancelled) setCredits(data);
+      })
+      .catch(() => {
+        if (!cancelled) setCredits(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [loyaltyCredits]);
+
+  const canRedeemCredits = useMemo(() => {
+    if (!credits?.freeClassEligible || !cls) return false;
+    return cls.price.amount <= credits.maxFreeClassValue.amount;
+  }, [credits, cls]);
+
+  useEffect(() => {
+    if (!canRedeemCredits) setUseCredits(false);
+  }, [canRedeemCredits]);
+
   if (!cls) {
     return (
       <Screen loading={classesLoading} loadingMessage={LOADING_LABELS.classes}>
@@ -149,7 +177,18 @@ export default function BookScreen() {
         classId ?? '',
         paymentModel,
         paymentModel === 'per_period' ? periodType : undefined,
+        useCredits && canRedeemCredits && paymentModel === 'per_class',
       );
+
+      if (useCredits && canRedeemCredits && paymentModel === 'per_class') {
+        await refreshClasses();
+        Alert.alert(
+          'Clase gratis confirmada',
+          'Usaste 10 créditos de fidelidad. Fitnexia cubre el costo de esta clase.',
+          [{ text: 'OK', onPress: () => router.replace('/(athlete)/(tabs)/bookings') }],
+        );
+        return;
+      }
 
       if (integratedPayments && result.payment?.checkoutUrl) {
         await openPaymentCheckout(result.payment.checkoutUrl, result.booking.id);
@@ -305,13 +344,30 @@ export default function BookScreen() {
         )
       ) : null}
 
+      {!isWaitlist && loyaltyCredits && canRedeemCredits && paymentModel === 'per_class' && !activePass ? (
+        <Pressable
+          style={[styles.loyaltyCard, useCredits && styles.loyaltyCardActive]}
+          onPress={() => setUseCredits((v) => !v)}>
+          <View style={styles.radio}>{useCredits ? <View style={styles.radioInner} /> : null}</View>
+          <View style={styles.optionBody}>
+            <Text style={styles.optionLabel}>Usar clase gratis (10 créditos)</Text>
+            <Text style={styles.optionDesc}>
+              Tenés {credits?.balance ?? 0} créditos. Fitnexia cubre hasta{' '}
+              {credits ? formatMoney(credits.maxFreeClassValue) : ''}.
+            </Text>
+          </View>
+        </Pressable>
+      ) : null}
+
       <Button
         title={
           isWaitlist
             ? BUTTON_LABELS.joinWaitlistShort
-            : needsPassCheckout || (integratedPayments && paymentModel === 'per_class')
-              ? BUTTON_LABELS.payAndConfirm
-              : BUTTON_LABELS.confirmBooking
+            : useCredits && canRedeemCredits
+              ? 'Confirmar clase gratis'
+              : needsPassCheckout || (integratedPayments && paymentModel === 'per_class')
+                ? BUTTON_LABELS.payAndConfirm
+                : BUTTON_LABELS.confirmBooking
         }
         disabled={loading}
         onPress={confirm}
@@ -411,4 +467,16 @@ const styles = StyleSheet.create({
   },
   methodText: { fontSize: 16, fontWeight: '600' },
   methodSub: { fontSize: 13, color: FitnexiaColors.gray500, marginTop: 4 },
+  loyaltyCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#fef3c7',
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    marginTop: Spacing.md,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    gap: Spacing.md,
+  },
+  loyaltyCardActive: { borderColor: FitnexiaColors.primary },
 });

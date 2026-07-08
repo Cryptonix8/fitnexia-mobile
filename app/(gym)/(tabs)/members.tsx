@@ -1,10 +1,11 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { ActionHubGrid } from '@/components/ui/action-hub-grid';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { useAppTheme } from '@/contexts/theme-context';
@@ -54,6 +55,49 @@ export default function GymMembersScreen() {
     }, [load]),
   );
 
+  const actions = useMemo(
+    () => [
+      {
+        id: 'add',
+        label: MEMBERSHIP_LABELS.addMember,
+        subtitle: 'Alta manual de un nuevo socio',
+        icon: 'person-add-outline' as const,
+        tint: colors.primary,
+        iconColor: colors.surface,
+        featured: true,
+        onPress: () => router.push('/(gym)/membership/add-member'),
+      },
+      {
+        id: 'collections',
+        label: 'Cobranzas',
+        subtitle: 'Panel de pagos del mes',
+        icon: 'wallet-outline' as const,
+        tint: colors.warningMuted,
+        iconColor: colors.warning,
+        onPress: () => router.push('/(gym)/membership/collections'),
+      },
+      {
+        id: 'plans',
+        label: 'Planes',
+        subtitle: 'Cuotas y beneficios',
+        icon: 'card-outline' as const,
+        tint: colors.primaryMuted,
+        iconColor: colors.primary,
+        onPress: () => router.push('/(gym)/membership/plans'),
+      },
+      {
+        id: 'invites',
+        label: 'Invitar',
+        subtitle: 'Códigos y emails',
+        icon: 'mail-outline' as const,
+        tint: colors.successMuted,
+        iconColor: colors.success,
+        onPress: () => router.push('/(gym)/membership/invites'),
+      },
+    ],
+    [colors],
+  );
+
   const filters: { key: string | undefined; label: string; count?: number }[] = [
     { key: undefined, label: 'Todos', count: summary.total },
     { key: 'up_to_date', label: MEMBERSHIP_LABELS.feeUpToDate, count: summary.upToDate },
@@ -68,36 +112,37 @@ export default function GymMembersScreen() {
       loadingMessage={LOADING_LABELS.default}
       header={<Text style={[styles.title, { color: colors.text }]}>Socios</Text>}>
       <Text style={[styles.hint, { color: colors.textMuted }]}>
-        Registro de socios, estado de cuotas e invitaciones.
+        Gestioná socios, cuotas, cobranzas e invitaciones.
       </Text>
 
-      <View style={styles.actions}>
-        <Button
-          title={MEMBERSHIP_LABELS.addMember}
-          onPress={() => router.push('/(gym)/membership/add-member')}
-          style={styles.actionBtn}
+      <View style={styles.summaryRow}>
+        <SummaryStat
+          label="Al día"
+          value={summary.upToDate}
+          icon="checkmark-circle-outline"
+          tint={colors.successMuted}
+          iconColor={colors.success}
+          colors={colors}
         />
-        <Button
-          title="Cobranzas"
-          variant="secondary"
-          onPress={() => router.push('/(gym)/membership/collections')}
-          style={styles.actionBtn}
+        <SummaryStat
+          label="Pendientes"
+          value={summary.pending}
+          icon="time-outline"
+          tint={colors.warningMuted}
+          iconColor={colors.warning}
+          colors={colors}
         />
-        <View style={styles.actionRow}>
-          <Button
-            title="Planes"
-            variant="outline"
-            onPress={() => router.push('/(gym)/membership/plans')}
-            style={styles.actionBtnHalf}
-          />
-          <Button
-            title="Invitar"
-            variant="outline"
-            onPress={() => router.push('/(gym)/membership/invites')}
-            style={styles.actionBtnHalf}
-          />
-        </View>
+        <SummaryStat
+          label="Morosos"
+          value={summary.overdue}
+          icon="alert-circle-outline"
+          tint={colors.error + '18'}
+          iconColor={colors.error}
+          colors={colors}
+        />
       </View>
+
+      <ActionHubGrid actions={actions} />
 
       <ScrollView
         horizontal
@@ -112,10 +157,15 @@ export default function GymMembersScreen() {
               styles.filterChip,
               {
                 backgroundColor: filter === f.key ? colors.primary : colors.surface,
-                borderColor: colors.border,
+                borderColor: filter === f.key ? colors.primary : colors.border,
               },
             ]}>
-            <Text style={{ color: filter === f.key ? '#fff' : colors.text, fontWeight: '600', fontSize: 13 }}>
+            <Text
+              style={{
+                color: filter === f.key ? colors.surface : colors.text,
+                fontWeight: '600',
+                fontSize: 13,
+              }}>
               {f.label}
               {f.count != null ? ` (${f.count})` : ''}
             </Text>
@@ -172,18 +222,47 @@ export default function GymMembersScreen() {
           </Pressable>
         ))
       )}
-
     </Screen>
+  );
+}
+
+function SummaryStat({
+  label,
+  value,
+  icon,
+  tint,
+  iconColor,
+  colors,
+}: {
+  label: string;
+  value: number;
+  icon: keyof typeof Ionicons.glyphMap;
+  tint: string;
+  iconColor: string;
+  colors: { text: string; textMuted: string };
+}) {
+  return (
+    <View style={[styles.stat, { backgroundColor: tint }]}>
+      <Ionicons name={icon} size={18} color={iconColor} />
+      <Text style={[styles.statValue, { color: colors.text }]}>{value}</Text>
+      <Text style={[styles.statLabel, { color: colors.textMuted }]}>{label}</Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   title: { fontSize: 26, fontWeight: '800', marginBottom: Spacing.xs },
   hint: { fontSize: 14, lineHeight: 20, marginBottom: Spacing.md },
-  actions: { gap: Spacing.sm, marginBottom: Spacing.md },
-  actionBtn: { alignSelf: 'stretch' },
-  actionRow: { flexDirection: 'row', gap: Spacing.sm },
-  actionBtnHalf: { flex: 1 },
+  summaryRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
+  stat: {
+    flex: 1,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    alignItems: 'center',
+    gap: 2,
+  },
+  statValue: { fontSize: 22, fontWeight: '800' },
+  statLabel: { fontSize: 11, fontWeight: '600' },
   filterScroll: { marginBottom: Spacing.md, flexGrow: 0 },
   filterRow: { flexDirection: 'row', gap: Spacing.sm, paddingRight: Spacing.md },
   filterChip: {

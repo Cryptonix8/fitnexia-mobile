@@ -11,6 +11,7 @@ export default function AthleteLayout() {
       <Stack.Screen name="profile/support" />
       <Stack.Screen name="notifications" />
       <Stack.Screen name="courts/reservations" />
+      <Stack.Screen name="courts/recurring-shifts" />
     </Stack>
   );
 }

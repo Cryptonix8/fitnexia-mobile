@@ -2,11 +2,12 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { CourtScheduleGrid } from '@/components/courts/court-schedule-grid';
 import { FilterChip } from '@/components/ui/filter-chip';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useAppTheme } from '@/contexts/theme-context';
-import { Radius, Spacing } from '@/constants/fitnexia';
+import { Spacing } from '@/constants/fitnexia';
 import { LOADING_LABELS } from '@/constants/labels';
 import { fetchGymCourtSchedule } from '@/services/api/courts.api';
 
@@ -21,19 +22,17 @@ export default function GymCourtScheduleScreen() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    setLoading(true);
     try {
       setSchedule(await fetchGymCourtSchedule({ date }));
     } catch {
       setSchedule([]);
-    } finally {
-      setLoading(false);
     }
   }, [date]);
 
   useFocusEffect(
     useCallback(() => {
-      load();
+      setLoading(true);
+      load().finally(() => setLoading(false));
     }, [load]),
   );
 
@@ -48,55 +47,31 @@ export default function GymCourtScheduleScreen() {
       scroll
       loading={loading}
       loadingMessage={LOADING_LABELS.default}
-      header={<Header title="Disponibilidad" showBack />}>
+      header={<Header title="Disponibilidad en tiempo real" showBack />}>
+      <Text style={[styles.intro, { color: colors.textMuted }]}>
+        Vista por cancha y día. Los turnos en verde están libres; los rojos ya tienen reserva.
+      </Text>
+
       <View style={styles.chips}>
         {dates.map((d) => (
           <FilterChip
             key={d}
-            label={new Date(`${d}T12:00:00`).toLocaleDateString('es-UY', { weekday: 'short', day: 'numeric' })}
+            label={new Date(`${d}T12:00:00`).toLocaleDateString('es-UY', {
+              weekday: 'short',
+              day: 'numeric',
+            })}
             active={date === d}
             onPress={() => setDate(d)}
           />
         ))}
       </View>
 
-      {schedule.map((day) => (
-        <View key={day.court.id} style={{ marginBottom: Spacing.lg }}>
-          <Text style={[styles.courtName, { color: colors.text }]}>{day.court.name}</Text>
-          <View style={styles.slots}>
-            {day.slots.map((slot) => (
-              <View
-                key={slot.startAt}
-                style={[
-                  styles.slot,
-                  {
-                    backgroundColor: slot.available ? colors.success + '22' : colors.error + '22',
-                    borderColor: slot.available ? colors.success : colors.error,
-                  },
-                ]}>
-                <Text style={{ color: colors.text, fontSize: 12 }}>
-                  {new Date(slot.startAt).toLocaleTimeString('es-UY', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      ))}
+      <CourtScheduleGrid schedule={schedule} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  intro: { fontSize: 14, lineHeight: 20, marginBottom: Spacing.md },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.lg },
-  courtName: { fontWeight: '700', fontSize: 16, marginBottom: Spacing.sm },
-  slots: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs },
-  slot: {
-    borderWidth: 1,
-    borderRadius: Radius.sm,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-  },
 });

@@ -3,6 +3,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { ActionHubGrid, type HubAction } from '@/components/ui/action-hub-grid';
 import { ClassCard } from '@/components/class-card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
@@ -22,6 +23,7 @@ export default function AthleteHomeScreen() {
   const { classes, isLoading, error, refreshClasses } = useClasses();
   const geoEnabled = useFeature('geolocationMap');
   const inboxEnabled = useFeature('inAppNotificationCenter');
+  const openGamesEnabled = useFeature('openGames');
   const { coords, requestLocation } = useUserLocation();
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -48,6 +50,21 @@ export default function AthleteHomeScreen() {
     }
     return classes;
   }, [classes, coords, geoEnabled]);
+
+  const quickActions: HubAction[] = openGamesEnabled
+    ? [
+        {
+          id: 'open-games',
+          label: 'Partidos abiertos',
+          subtitle: 'Pádel y fútbol — buscá jugadores',
+          icon: 'people',
+          tint: '#dbeafe',
+          iconColor: '#2563eb',
+          featured: true,
+          onPress: () => router.push('/open-games'),
+        },
+      ]
+    : [];
 
   return (
     <Screen
@@ -86,6 +103,8 @@ export default function AthleteHomeScreen() {
           onFocus={() => router.push('/(athlete)/(tabs)/search')}
         />
       </View>
+
+      {quickActions.length > 0 ? <ActionHubGrid actions={quickActions} /> : null}
 
       {error && classes.length === 0 ? (
         <EmptyState

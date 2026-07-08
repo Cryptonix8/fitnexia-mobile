@@ -52,13 +52,34 @@ export type CourtScheduleDay = {
 export type CourtReservation = {
   id: string;
   courtId: string;
+  institutionId?: string;
   courtName?: string;
+  institutionName?: string;
   startAt: string;
   endAt: string;
   durationMinutes: number;
   status: string;
   price: Money;
   isMemberRate: boolean;
+  cancellationPolicyHours?: number;
+  canCancel?: boolean;
+  refundEligible?: boolean;
+};
+
+export type CourtQuote = {
+  appliedPrice: Money;
+  isMemberRate: boolean;
+  memberPrice: Money;
+  nonMemberPrice: Money;
+  durationMinutes: number;
+  slotMinutes: number;
+  cancellationPolicyHours: number;
+};
+
+export type CreateCourtReservationResult = {
+  reservation: CourtReservation;
+  checkoutUrl?: string;
+  paymentRequired?: boolean;
 };
 
 export async function fetchGymCourts() {
@@ -120,17 +141,28 @@ export async function fetchInstitutionCourtSchedule(
   return result.data;
 }
 
+export async function fetchInstitutionCourtSettings(institutionId: string) {
+  return apiRequest<{ cancellationPolicyHours: number; defaultSlotMinutes: number }>(
+    `/courts/institutions/${institutionId}/settings`,
+    { auth: false },
+  );
+}
+
+export async function fetchGymCourtReservations(params: { date?: string; courtId?: string } = {}) {
+  const query = new URLSearchParams();
+  if (params.date) query.set('date', params.date);
+  if (params.courtId) query.set('courtId', params.courtId);
+  const suffix = query.toString() ? `?${query.toString()}` : '';
+  const result = await apiRequest<{ data: CourtReservation[] }>(`/courts/me/reservations${suffix}`);
+  return result.data;
+}
+
 export async function quoteCourtPrice(body: {
   courtId: string;
   startAt: string;
   durationMinutes: number;
 }) {
-  return apiRequest<{
-    appliedPrice: Money;
-    isMemberRate: boolean;
-    memberPrice: Money;
-    nonMemberPrice: Money;
-  }>('/courts/quote', { method: 'POST', body });
+  return apiRequest<CourtQuote>('/courts/quote', { method: 'POST', body });
 }
 
 export async function createCourtReservationApi(body: {
@@ -138,10 +170,21 @@ export async function createCourtReservationApi(body: {
   startAt: string;
   durationMinutes: number;
 }) {
-  return apiRequest<{ reservation: CourtReservation }>('/courts/reservations', {
+  return apiRequest<CreateCourtReservationResult>('/courts/reservations', {
     method: 'POST',
     body,
   });
+}
+
+export async function fetchCourtReservationById(id: string) {
+  return apiRequest<CourtReservation>(`/courts/reservations/${id}`);
+}
+
+export async function syncCourtReservationPaymentApi(id: string) {
+  return apiRequest<{ synced: boolean; reservation: CourtReservation }>(
+    `/courts/reservations/${id}/sync-payment`,
+    { method: 'POST' },
+  );
 }
 
 export async function fetchMyCourtReservations() {

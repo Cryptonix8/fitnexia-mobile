@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ProfileMenuItem } from '@/components/profile/menu-item';
@@ -13,16 +14,38 @@ import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { BUTTON_LABELS, NOTIFICATION_LABELS, PROFILE_MENU_LABELS, SCREEN_TITLES, translateDisciplineLabels } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
-import { MOCK_CREDITS } from '@/data/mock';
+import { formatMoney } from '@/data/mock';
+import { fetchMyCredits } from '@/services/api/credits.api';
+import type { CreditBalance } from '@/types/api';
+
+const EMPTY_CREDITS: CreditBalance = {
+  balance: 0,
+  creditsUntilReward: 10,
+  expiresAt: '',
+  lastBookingAt: '',
+  freeClassEligible: false,
+  maxFreeClassValue: { amount: 150_000, currency: 'UYU' },
+};
 
 export default function AthleteProfileScreen() {
   const { user } = useAuth();
   const { colors } = useAppTheme();
   const showCredits = useFeature('loyaltyCredits');
+  const showFixedShifts = useFeature('fixedCourtShifts');
+  const showOpenGames = useFeature('openGames');
   const showPaymentMethods = useFeature('savedPaymentMethods');
   const showSupport = useFeature('platformSupport');
   const showCourts = useFeature('courts');
-  const credits = MOCK_CREDITS;
+  const [credits, setCredits] = useState<CreditBalance>(EMPTY_CREDITS);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!showCredits) return;
+      fetchMyCredits()
+        .then(setCredits)
+        .catch(() => setCredits(EMPTY_CREDITS));
+    }, [showCredits]),
+  );
 
   const favoriteSportsLabel =
     user?.favoriteSports.length
@@ -63,13 +86,20 @@ export default function AthleteProfileScreen() {
             <View
               style={[
                 styles.progressFill,
-                { width: `${(credits.balance / 10) * 100}%`, backgroundColor: colors.primary },
+                { width: `${Math.min(100, (credits.balance / 10) * 100)}%`, backgroundColor: colors.primary },
               ]}
             />
           </View>
           <Text style={[styles.creditsHint, { color: colors.textMuted }]}>
-            {credits.creditsUntilReward} más para una clase gratis (hasta 1.500 UYU)
+            {credits.freeClassEligible
+              ? `¡Tenés una clase gratis disponible! (hasta ${formatMoney(credits.maxFreeClassValue)})`
+              : `${credits.creditsUntilReward} más para una clase gratis (hasta ${formatMoney(credits.maxFreeClassValue)})`}
           </Text>
+          {credits.expiresAt ? (
+            <Text style={[styles.creditsExpiry, { color: colors.textMuted }]}>
+              Vencen el {new Date(credits.expiresAt).toLocaleDateString('es-UY')} si no reservás
+            </Text>
+          ) : null}
         </View>
       ) : null}
 
@@ -93,6 +123,20 @@ export default function AthleteProfileScreen() {
           icon="football-outline"
           label="Reservas de canchas"
           onPress={() => router.push('/(athlete)/courts/reservations')}
+        />
+      ) : null}
+      {showFixedShifts && showCourts ? (
+        <ProfileMenuItem
+          icon="repeat-outline"
+          label="Turnos fijos semanales"
+          onPress={() => router.push('/(athlete)/courts/recurring-shifts')}
+        />
+      ) : null}
+      {showOpenGames ? (
+        <ProfileMenuItem
+          icon="people-outline"
+          label="Partidos abiertos"
+          onPress={() => router.push('/open-games')}
         />
       ) : null}
       <ProfileMenuItem
@@ -161,4 +205,5 @@ const styles = StyleSheet.create({
   },
   progressFill: { height: '100%' },
   creditsHint: { fontSize: 13, marginTop: Spacing.sm },
+  creditsExpiry: { fontSize: 12, marginTop: 4 },
 });

@@ -17,6 +17,7 @@ export async function createBookingApi(
   classId: string,
   paymentModel = 'per_class',
   periodType?: import('@/types/api').PassPeriodType,
+  useCredits = false,
 ): Promise<CreateBookingResponse> {
   return apiRequest<CreateBookingResponse>('/bookings', {
     method: 'POST',
@@ -24,6 +25,7 @@ export async function createBookingApi(
       classId,
       paymentModel,
       ...(periodType ? { periodType } : {}),
+      ...(useCredits ? { useCredits: true } : {}),
     },
   });
 }

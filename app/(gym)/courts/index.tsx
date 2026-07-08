@@ -1,30 +1,21 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { StyleSheet, Text } from 'react-native';
 
-import { Button } from '@/components/ui/button';
+import { CourtCard } from '@/components/courts/court-card';
+import { ActionHubGrid } from '@/components/ui/action-hub-grid';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
 import { useAppTheme } from '@/contexts/theme-context';
-import { Radius, Spacing } from '@/constants/fitnexia';
+import { Spacing } from '@/constants/fitnexia';
 import { LOADING_LABELS } from '@/constants/labels';
-import { fetchGymCourts, type Court } from '@/services/api/courts.api';
-
-const SPORT_LABELS: Record<string, string> = {
-  football_5: 'Fútbol 5',
-  football_7: 'Fútbol 7',
-  football_11: 'Fútbol 11',
-  padel: 'Pádel',
-  tennis: 'Tenis',
-  rugby: 'Rugby',
-  other: 'Otro',
-};
+import { fetchGymCourts } from '@/services/api/courts.api';
 
 export default function GymCourtsScreen() {
   const { colors } = useAppTheme();
-  const [courts, setCourts] = useState<Court[]>([]);
+  const [courts, setCourts] = useState<Awaited<ReturnType<typeof fetchGymCourts>>>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -44,47 +35,85 @@ export default function GymCourtsScreen() {
     }, [load]),
   );
 
+  const actions = useMemo(
+    () => [
+      {
+        id: 'create',
+        label: 'Nueva cancha',
+        subtitle: 'Alta con deporte, superficie e iluminación',
+        icon: 'add-circle-outline' as const,
+        tint: colors.primary,
+        iconColor: colors.surface,
+        featured: true,
+        onPress: () => router.push('/(gym)/courts/create'),
+      },
+      {
+        id: 'schedule',
+        label: 'Disponibilidad',
+        subtitle: 'Turnos libres y ocupados',
+        icon: 'calendar-outline' as const,
+        tint: colors.successMuted,
+        iconColor: colors.success,
+        onPress: () => router.push('/(gym)/courts/schedule'),
+      },
+      {
+        id: 'pricing',
+        label: 'Tarifas',
+        subtitle: 'Socios, peak y fin de semana',
+        icon: 'cash-outline' as const,
+        tint: colors.warningMuted,
+        iconColor: colors.warning,
+        onPress: () => router.push('/(gym)/courts/pricing'),
+      },
+      {
+        id: 'reservations',
+        label: 'Reservas',
+        subtitle: 'Reservas del club por día',
+        icon: 'clipboard-outline' as const,
+        tint: colors.primaryMuted,
+        iconColor: colors.primary,
+        onPress: () => router.push('/(gym)/courts/reservations'),
+      },
+      {
+        id: 'settings',
+        label: 'Configuración',
+        subtitle: 'Turnos y cancelación',
+        icon: 'settings-outline' as const,
+        tint: colors.surfaceMuted,
+        iconColor: colors.textSecondary,
+        onPress: () => router.push('/(gym)/courts/settings'),
+      },
+    ],
+    [colors],
+  );
+
   return (
     <Screen
       scroll
       loading={loading && courts.length === 0}
       loadingMessage={LOADING_LABELS.default}
       header={<Header title="Canchas y espacios" showBack />}>
-      <View style={styles.actions}>
-        <Button title="Nueva cancha" onPress={() => router.push('/(gym)/courts/create')} />
-        <Button
-          title="Horarios"
-          variant="secondary"
-          onPress={() => router.push('/(gym)/courts/schedule')}
-        />
-        <Button
-          title="Tarifas"
-          variant="secondary"
-          onPress={() => router.push('/(gym)/courts/pricing')}
-        />
-      </View>
+      <Text style={[styles.intro, { color: colors.textMuted }]}>
+        Gestioná canchas, horarios, tarifas y reservas desde un solo lugar.
+      </Text>
+
+      <ActionHubGrid actions={actions} />
+
+      <Text style={[styles.section, { color: colors.text }]}>Tus canchas ({courts.length})</Text>
 
       {courts.length === 0 && !loading ? (
         <EmptyState
           icon="football-outline"
           title="Sin canchas registradas"
-          description="Agregá canchas con tipo, superficie, iluminación y horarios."
+          description="Creá tu primera cancha para habilitar reservas con turnos y pagos."
         />
       ) : (
         courts.map((court) => (
-          <View
+          <CourtCard
             key={court.id}
-            style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <Text style={[styles.name, { color: colors.text }]}>{court.name}</Text>
-            <Text style={{ color: colors.textMuted }}>
-              {SPORT_LABELS[court.sportType] ?? court.sportType} ·{' '}
-              {court.locationType === 'indoor' ? 'Indoor' : 'Outdoor'} ·{' '}
-              {court.hasLighting ? 'Con luz' : 'Sin luz'}
-            </Text>
-            {!court.active ? (
-              <Text style={{ color: colors.textMuted, marginTop: 4 }}>Inactiva</Text>
-            ) : null}
-          </View>
+            court={court}
+            onPress={() => router.push(`/(gym)/courts/edit/${court.id}`)}
+          />
         ))
       )}
     </Screen>
@@ -92,12 +121,6 @@ export default function GymCourtsScreen() {
 }
 
 const styles = StyleSheet.create({
-  actions: { gap: Spacing.sm, marginBottom: Spacing.lg },
-  card: {
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    padding: Spacing.md,
-    marginBottom: Spacing.sm,
-  },
-  name: { fontWeight: '700', fontSize: 16 },
+  intro: { fontSize: 14, lineHeight: 20, marginBottom: Spacing.md },
+  section: { fontSize: 16, fontWeight: '700', marginBottom: Spacing.sm },
 });

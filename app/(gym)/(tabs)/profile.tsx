@@ -172,7 +172,7 @@ export default function GymProfileScreen() {
       <ProfileMenuItem
         icon="football-outline"
         label="Canchas y espacios"
-        onPress={() => router.push('/(gym)/courts/index')}
+        onPress={() => router.push('/(gym)/courts')}
       />
       <ProfileMenuItem
         icon="cash-outline"

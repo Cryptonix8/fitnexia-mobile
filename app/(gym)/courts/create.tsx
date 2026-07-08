@@ -1,27 +1,27 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert } from 'react-native';
 
+import { CourtFormFields } from '@/components/courts/court-form-fields';
 import { Button } from '@/components/ui/button';
-import { FilterSelect } from '@/components/ui/filter-select';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
-import { useAppTheme } from '@/contexts/theme-context';
-import { Spacing } from '@/constants/fitnexia';
+import { defaultCourtOperatingHours } from '@/constants/courts';
 import { createCourtApi, type CourtSportType } from '@/services/api/courts.api';
 import { getErrorMessage } from '@/services/api/errors';
 
 export default function CreateCourtScreen() {
-  const { colors } = useAppTheme();
   const [name, setName] = useState('');
   const [sportType, setSportType] = useState<CourtSportType>('padel');
+  const [surface, setSurface] = useState('synthetic');
   const [locationType, setLocationType] = useState<'indoor' | 'outdoor'>('outdoor');
   const [hasLighting, setHasLighting] = useState(false);
+  const [operatingHours, setOperatingHours] = useState(defaultCourtOperatingHours());
   const [loading, setLoading] = useState(false);
 
   const save = async () => {
     if (!name.trim()) {
-      Alert.alert('Nombre requerido');
+      Alert.alert('Nombre requerido', 'Ingresá un nombre para la cancha.');
       return;
     }
     setLoading(true);
@@ -29,18 +29,10 @@ export default function CreateCourtScreen() {
       await createCourtApi({
         name: name.trim(),
         sportType,
+        surface,
         locationType,
         hasLighting,
-        surface: 'synthetic',
-        operatingHours: {
-          mon: { open: '08:00', close: '22:00' },
-          tue: { open: '08:00', close: '22:00' },
-          wed: { open: '08:00', close: '22:00' },
-          thu: { open: '08:00', close: '22:00' },
-          fri: { open: '08:00', close: '22:00' },
-          sat: { open: '08:00', close: '22:00' },
-          sun: { open: '08:00', close: '22:00' },
-        },
+        operatingHours,
       });
       router.back();
     } catch (err) {
@@ -52,64 +44,21 @@ export default function CreateCourtScreen() {
 
   return (
     <Screen scroll header={<Header title="Nueva cancha" showBack />}>
-      <Text style={[styles.label, { color: colors.textMuted }]}>Nombre</Text>
-      <TextInput
-        value={name}
-        onChangeText={setName}
-        style={[styles.input, { borderColor: colors.border, color: colors.text }]}
-        placeholder="Cancha 1"
-        placeholderTextColor={colors.textMuted}
+      <CourtFormFields
+        name={name}
+        sportType={sportType}
+        surface={surface}
+        locationType={locationType}
+        hasLighting={hasLighting}
+        operatingHours={operatingHours}
+        onChangeName={setName}
+        onChangeSportType={setSportType}
+        onChangeSurface={setSurface}
+        onChangeLocationType={setLocationType}
+        onChangeLighting={setHasLighting}
+        onChangeHours={setOperatingHours}
       />
-
-      <FilterSelect
-        label="Deporte"
-        value={sportType}
-        options={[
-          { value: 'football_5', label: 'Fútbol 5' },
-          { value: 'football_7', label: 'Fútbol 7' },
-          { value: 'football_11', label: 'Fútbol 11' },
-          { value: 'padel', label: 'Pádel' },
-          { value: 'tennis', label: 'Tenis' },
-          { value: 'rugby', label: 'Rugby' },
-          { value: 'other', label: 'Otro' },
-        ]}
-        onChange={(v) => setSportType((v as CourtSportType) || 'other')}
-        placeholder="Tipo"
-      />
-
-      <FilterSelect
-        label="Ubicación"
-        value={locationType}
-        options={[
-          { value: 'outdoor', label: 'Outdoor' },
-          { value: 'indoor', label: 'Indoor' },
-        ]}
-        onChange={(v) => setLocationType((v as 'indoor' | 'outdoor') || 'outdoor')}
-        placeholder="Indoor/Outdoor"
-      />
-
-      <View style={styles.switchRow}>
-        <Text style={{ color: colors.text }}>Iluminación</Text>
-        <Switch value={hasLighting} onValueChange={setHasLighting} />
-      </View>
-
-      <Button title="Guardar" onPress={save} loading={loading} />
+      <Button title="Guardar cancha" onPress={save} loading={loading} />
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  label: { marginBottom: Spacing.xs, fontWeight: '600' },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.lg,
-  },
-});

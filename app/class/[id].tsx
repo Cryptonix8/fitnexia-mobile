@@ -44,6 +44,7 @@ export default function ClassDetailScreen() {
   const { getClassById, isLoading } = useClasses();
   const waitlistEnabled = useFeature('waitlist');
   const liveStreaming = useFeature('liveStreaming');
+  const courtsEnabled = useFeature('courts');
   const cls = getClassById(id ?? '');
   const instructorId = getLinkedInstructorId(user);
   const institutionId = resolveInstitutionId(user);
@@ -141,6 +142,32 @@ export default function ClassDetailScreen() {
         reviewCount={cls.reviewCount}
         onPress={() => router.push(`/instructor/${cls.instructor.id}`)}
       />
+
+      {cls.institution ? (
+        <View style={styles.instructorCard}>
+          <UserAvatar size={56} kind="institution" uri={cls.institution.logoUrl} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.instructorName}>{cls.institution.name}</Text>
+            {cls.institution.verified ? (
+              <Badge label={BADGE_LABELS.verified} variant="verified" />
+            ) : null}
+          </View>
+          <Button
+            title="Ver club"
+            variant="ghost"
+            size="sm"
+            onPress={() => router.push(`/institution/${cls.institution!.id}`)}
+          />
+        </View>
+      ) : null}
+
+      {cls.institution && courtsEnabled && canBook ? (
+        <Button
+          title="Reservar cancha"
+          variant="secondary"
+          onPress={() => router.push(`/courts/${cls.institution!.id}`)}
+        />
+      ) : null}
 
       <Text style={styles.section}>{CLASS_DETAIL_LABELS.about}</Text>
       <Text style={styles.desc}>
