@@ -118,7 +118,6 @@ export default function AthleteHomeScreen() {
         <EmptyState
           icon="calendar-outline"
           title="No hay clases disponibles"
-          description="Solo aparecen clases con horario futuro. Si creaste clases que ya empezaron, editá la fecha y hora desde el panel de instructor o gimnasio."
         />
       ) : (
         allClasses.map((c) => (

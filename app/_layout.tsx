@@ -48,6 +48,7 @@ function RootNavigator() {
         <Stack.Screen name="(instructor)" />
         <Stack.Screen name="(gym)" />
         <Stack.Screen name="class/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="live/[classId]" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
         <Stack.Screen name="instructor/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="institution/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="courts" options={{ headerShown: false }} />

@@ -5,6 +5,7 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { FilterSelect } from '@/components/ui/filter-select';
 import { AvatarPicker } from '@/components/avatar-picker';
 import { GoogleSignInButton } from '@/components/google-sign-in-button';
+import { AppleSignInButton } from '@/components/apple-sign-in-button';
 import { RoleCard } from '@/components/role-card';
 import { Button } from '@/components/ui/button';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
@@ -16,14 +17,19 @@ import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS, INSTRUCTOR_GENDER_OPTIONS } f
 import type { InstructorGender } from '@/types/api';
 import { useFeature } from '@/hooks/use-feature';
 import { useGoogleSignIn } from '@/hooks/use-google-sign-in';
+import { useAppleSignIn } from '@/hooks/use-apple-sign-in';
+import { useAppleSignInFeature } from '@/hooks/use-apple-sign-in-feature';
 import type { UserRole } from '@/types/api';
 import { completeGoogleSignIn } from '@/utils/google-auth';
+import { completeAppleSignIn } from '@/utils/apple-auth';
 import { validateRegisterForm } from '@/utils/validation';
 
 export default function RegisterScreen() {
   const googleSignIn = useFeature('googleSignIn');
-  const { register, loginWithGoogle } = useAuth();
+  const appleSignIn = useAppleSignInFeature();
+  const { register, loginWithGoogle, loginWithApple } = useAuth();
   const { signIn: getGoogleIdToken, pending: googlePending, ready: googleReady } = useGoogleSignIn();
+  const { signIn: appleSignInFn, pending: applePending, ready: appleReady } = useAppleSignIn();
   const [step, setStep] = useState<1 | 2>(1);
   const [role, setRole] = useState<UserRole>('athlete');
   const [firstName, setFirstName] = useState('');
@@ -53,6 +59,16 @@ export default function RegisterScreen() {
     await completeGoogleSignIn({
       loginWithGoogle,
       getIdToken: getGoogleIdToken,
+      role,
+      institutionName:
+        role === 'institution' && institutionName.trim() ? institutionName.trim() : undefined,
+    });
+  };
+
+  const handleAppleSignIn = async () => {
+    await completeAppleSignIn({
+      loginWithApple,
+      signIn: appleSignInFn,
       role,
       institutionName:
         role === 'institution' && institutionName.trim() ? institutionName.trim() : undefined,
@@ -126,7 +142,13 @@ export default function RegisterScreen() {
           {googleSignIn ? (
             <GoogleSignInButton
               onPress={handleGoogleSignIn}
-              disabled={!googleReady || loading || googlePending}
+              disabled={!googleReady || loading || googlePending || applePending}
+            />
+          ) : null}
+          {appleSignIn ? (
+            <AppleSignInButton
+              onPress={handleAppleSignIn}
+              disabled={!appleReady || loading || googlePending || applePending}
             />
           ) : null}
         </>
@@ -182,20 +204,28 @@ export default function RegisterScreen() {
           {googleSignIn ? (
             <GoogleSignInButton
               onPress={handleGoogleSignIn}
-              disabled={!googleReady || loading || googlePending}
+              disabled={!googleReady || loading || googlePending || applePending}
+            />
+          ) : null}
+          {appleSignIn ? (
+            <AppleSignInButton
+              onPress={handleAppleSignIn}
+              disabled={!appleReady || loading || googlePending || applePending}
             />
           ) : null}
         </>
       )}
 
       <LoadingOverlay
-        visible={loading || googlePending}
+        visible={loading || googlePending || applePending}
         message={
-          googlePending
-            ? 'Iniciando sesión con Google…'
-            : loading
-              ? 'Creando cuenta…'
-              : undefined
+          applePending
+            ? 'Iniciando sesión con Apple…'
+            : googlePending
+              ? 'Iniciando sesión con Google…'
+              : loading
+                ? 'Creando cuenta…'
+                : undefined
         }
       />
     </Screen>

@@ -311,6 +311,31 @@ export async function googleSignInApi(params: GoogleSignInParams): Promise<AuthU
   return persistAuthResponse(response);
 }
 
+export type AppleSignInParams = {
+  identityToken: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  role?: UserRole;
+  institutionName?: string;
+};
+
+export async function appleSignInApi(params: AppleSignInParams): Promise<AuthUser> {
+  const response = await apiRequest<AuthResponse>('/auth/oauth/apple', {
+    method: 'POST',
+    auth: false,
+    body: {
+      identityToken: params.identityToken,
+      email: params.email,
+      firstName: params.firstName,
+      lastName: params.lastName,
+      role: params.role,
+      institutionName: params.institutionName,
+    },
+  });
+  return persistAuthResponse(response);
+}
+
 export async function logoutApi(): Promise<void> {
   const refreshToken = await getRefreshToken();
   try {

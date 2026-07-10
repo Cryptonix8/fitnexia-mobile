@@ -15,7 +15,11 @@
     "google:verify": "node ./scripts/verify-google-config.mjs"
   },
   "dependencies": {
+    "@config-plugins/react-native-webrtc": "^13.0.0",
     "@expo/vector-icons": "^15.0.3",
+    "@livekit/react-native": "^2.11.1",
+    "@livekit/react-native-expo-plugin": "^1.0.2",
+    "@livekit/react-native-webrtc": "^144.1.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "8.4.4",
     "@react-native-firebase/analytics": "^24.1.1",
@@ -27,6 +31,7 @@
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
     "expo": "~54.0.34",
+    "expo-apple-authentication": "~8.0.8",
     "expo-auth-session": "~7.0.11",
     "expo-build-properties": "~0.14.8",
     "expo-constants": "~18.0.13",
@@ -49,6 +54,7 @@
     "expo-system-ui": "~6.0.9",
     "expo-web-browser": "~15.0.11",
     "i18next": "^26.3.1",
+    "livekit-client": "^2.20.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-i18next": "^17.0.8",

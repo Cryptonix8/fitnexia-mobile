@@ -418,6 +418,15 @@ export default function EditClassScreen() {
         <Input label="Ubicación" value={location} onChangeText={setLocation} />
       ) : null}
 
+      {modality === 'online' ? (
+        <View style={[styles.liveHint, { backgroundColor: colors.primaryMuted }]}>
+          <Text style={[styles.liveHintTitle, { color: colors.primary }]}>Clase en vivo en Fitnexia</Text>
+          <Text style={[styles.liveHintBody, { color: colors.text }]}>
+            La transmisión usa LiveKit integrado. Alumnos con reserva confirmada entran desde la app.
+          </Text>
+        </View>
+      ) : null}
+
       <Input label={`Precio (${DEFAULT_CURRENCY})`} value={price} onChangeText={setPrice} keyboardType="decimal-pad" />
 
       {(isGym || classFormat === 'group') ? (
@@ -488,4 +497,12 @@ const styles = StyleSheet.create({
   },
   seriesTitle: { fontSize: 15, fontWeight: '700', marginBottom: Spacing.xs },
   seriesHint: { fontSize: 13, lineHeight: 20 },
+  liveHint: {
+    padding: Spacing.md,
+    borderRadius: 12,
+    marginBottom: Spacing.md,
+    gap: 6,
+  },
+  liveHintTitle: { fontSize: 14, fontWeight: '700' },
+  liveHintBody: { fontSize: 13, lineHeight: 18 },
 });

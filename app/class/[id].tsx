@@ -15,6 +15,7 @@ import {
   formatMoney,
 } from '@/data/mock';
 import { useAuth } from '@/contexts/auth-context';
+import { useBookings } from '@/contexts/bookings-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useFeature } from '@/hooks/use-feature';
 import { canManageGymClass, resolveInstitutionId } from '@/utils/gym-classes';
@@ -42,6 +43,7 @@ export default function ClassDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
   const { getClassById, isLoading } = useClasses();
+  const { bookings } = useBookings();
   const waitlistEnabled = useFeature('waitlist');
   const liveStreaming = useFeature('liveStreaming');
   const courtsEnabled = useFeature('courts');
@@ -72,6 +74,14 @@ export default function ClassDetailScreen() {
   const onlineLabel = liveStreaming
     ? CLASS_DETAIL_LABELS.liveStream
     : CLASS_DETAIL_LABELS.onlineSessionLink;
+  const hasConfirmedBooking = bookings.some(
+    (b) => b.classId === cls.id && (b.status === 'confirmed' || b.status === 'completed'),
+  );
+  const canJoinLive =
+    liveStreaming &&
+    cls.modality === 'online' &&
+    (canManage || (canBook && hasConfirmedBooking));
+  const liveLabel = canManage ? BUTTON_LABELS.startLiveClass : BUTTON_LABELS.joinLiveClass;
 
   return (
     <Screen scroll header={<Header title={SCREEN_TITLES.classDetails} showBack />}>
@@ -177,6 +187,14 @@ export default function ClassDetailScreen() {
         Apto para todos los niveles. Traé agua y ropa cómoda.
       </Text>
 
+      {canJoinLive ? (
+        <Button
+          title={liveLabel}
+          onPress={() => router.push(`/live/${cls.id}`)}
+          style={{ marginBottom: Spacing.md }}
+        />
+      ) : null}
+
       {canManage ? (
         <Button
           title={BUTTON_LABELS.editClass}
@@ -194,7 +212,7 @@ export default function ClassDetailScreen() {
           ) : (
             <Button title={BUTTON_LABELS.classFull} disabled />
           )
-        ) : (
+        ) : hasConfirmedBooking ? null : (
           <Button title={BUTTON_LABELS.bookNow} onPress={() => router.push(`/book/${cls.id}`)} />
         )
       ) : null}

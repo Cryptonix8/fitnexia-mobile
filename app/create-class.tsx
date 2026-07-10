@@ -422,7 +422,15 @@ export default function CreateClassScreen() {
           onChangeText={setLocation}
           placeholder={isGym ? 'Dirección del gimnasio' : 'Sede, barrio o dirección'}
         />
-      ) : null}
+      ) : (
+        <View style={[styles.liveHint, { backgroundColor: colors.primaryMuted }]}>
+          <Text style={[styles.liveHintTitle, { color: colors.primary }]}>Clase en vivo en Fitnexia</Text>
+          <Text style={[styles.liveHintBody, { color: colors.text }]}>
+            Los alumnos entran desde la app con video y audio integrados (LiveKit). No hace falta Zoom
+            ni un enlace externo.
+          </Text>
+        </View>
+      )}
 
       <Input label={`Precio (${DEFAULT_CURRENCY})`} value={price} onChangeText={setPrice} keyboardType="decimal-pad" />
 
@@ -482,4 +490,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   individualCapText: { fontSize: 15, fontWeight: '500' },
+  liveHint: {
+    padding: Spacing.md,
+    borderRadius: 12,
+    marginBottom: Spacing.md,
+    gap: 6,
+  },
+  liveHintTitle: { fontSize: 14, fontWeight: '700' },
+  liveHintBody: { fontSize: 13, lineHeight: 18 },
 });

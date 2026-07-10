@@ -10,7 +10,9 @@ import React, {
 import {
   forgotPasswordApi,
   googleSignInApi,
+  appleSignInApi,
   type GoogleSignInParams,
+  type AppleSignInParams,
   closeAccountApi,
   loadCurrentUser,
   loginApi,
@@ -67,6 +69,7 @@ interface AuthContextValue {
   completeOnboarding: () => void;
   login: (email: string, password: string, role?: UserRole) => Promise<void>;
   loginWithGoogle: (params: GoogleSignInParams) => Promise<void>;
+  loginWithApple: (params: AppleSignInParams) => Promise<void>;
   register: (params: RegisterParams) => Promise<void>;
   updateProfile: (updates: UpdateProfileParams) => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -151,6 +154,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithGoogle = useCallback(async (params: GoogleSignInParams) => {
     const loggedIn = await googleSignInApi(params);
+    resetSessionExpiredFlag();
+    await markOnboardingComplete();
+    setUser(loggedIn);
+    startSessionMonitor();
+    registerForPushNotifications().catch((err) => {
+      console.warn('Push registration failed:', getErrorMessage(err));
+    });
+  }, [startSessionMonitor, markOnboardingComplete]);
+
+  const loginWithApple = useCallback(async (params: AppleSignInParams) => {
+    const loggedIn = await appleSignInApi(params);
     resetSessionExpiredFlag();
     await markOnboardingComplete();
     setUser(loggedIn);
@@ -270,6 +284,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       completeOnboarding,
       login,
       loginWithGoogle,
+      loginWithApple,
       register,
       updateProfile,
       refreshUser,
@@ -283,6 +298,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       completeOnboarding,
       login,
       loginWithGoogle,
+      loginWithApple,
       register,
       updateProfile,
       refreshUser,
