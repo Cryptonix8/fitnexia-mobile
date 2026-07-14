@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.fitnexia.app</string>
+	<string>com.fitunion.mobile</string>
 	<key>PROJECT_ID</key>
 	<string>fitnexia-dcd75</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,12 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1037870930377:ios:2b892af3042e63c4c0b018</string>
-	<key>CLIENT_ID</key>
-	<string>635752178238-ggnibnda2tseudchjo5nrsk1re55kcon.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.635752178238-ggnibnda2tseudchjo5nrsk1re55kcon</string>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>635752178238-kcg6ciem5sod24828g12l8bnacrallc7.apps.googleusercontent.com</string>
+	<string>1:1037870930377:ios:8200d00a63aec771c0b018</string>
 </dict>
 </plist>

@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.fitnexia.app",
+      "bundleIdentifier": "com.fitunion.mobile",
       "usesAppleSignIn": true,
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
@@ -108,7 +108,8 @@
       ],
       "@react-native-firebase/analytics",
       "@livekit/react-native-expo-plugin",
-      "@config-plugins/react-native-webrtc"
+      "@config-plugins/react-native-webrtc",
+      "./plugins/withRemoveAdId"
     ],
     "experiments": {
       "typedRoutes": true,
