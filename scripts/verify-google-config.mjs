@@ -53,7 +53,7 @@ const releaseSha1 = env.EXPO_PUBLIC_GOOGLE_ANDROID_SHA1 ?? '';
 const debugSha1 = '5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:76:BA:A6:F3:8C:AB:F6:25';
 
 if (pkg !== 'com.fitnexia.app') errors.push(`android.package debe ser com.fitnexia.app (actual: ${pkg})`);
-if (bundle !== 'com.fitnexia.app') errors.push(`ios.bundleIdentifier debe ser com.fitnexia.app (actual: ${bundle})`);
+if (bundle !== 'com.fitunion.mobile') errors.push(`ios.bundleIdentifier debe ser com.fitunion.mobile (actual: ${bundle})`);
 if (!webClientId) errors.push('Falta EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID en .env');
 if (!iosClientId) warnings.push('Falta EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID — obligatorio para iOS');
 
