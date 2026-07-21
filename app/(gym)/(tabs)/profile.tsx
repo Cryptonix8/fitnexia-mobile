@@ -22,7 +22,9 @@ export default function GymProfileScreen() {
   const { user } = useAuth();
   const { colors } = useAppTheme();
   const showSupport = useFeature('platformSupport');
-  const showPayoutAccount = useFeature('marketplacePayouts') || useFeature('integratedPayments');
+  const showMarketplacePayouts = useFeature('marketplacePayouts');
+  const showIntegratedPayments = useFeature('integratedPayments');
+  const showPayoutAccount = showMarketplacePayouts || showIntegratedPayments;
   const profile = user?.institutionProfile;
 
   if (!profile) {

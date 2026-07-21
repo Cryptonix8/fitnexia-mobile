@@ -1,27 +1,25 @@
 /** @type {import('expo/config').ExpoConfig} */
-const appJson = require('./app.json');
-
 // Set EXPO_PUBLIC_GOOGLE_MAPS_API_KEY in .env (Maps SDK for Android must be enabled in GCP).
 const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY?.trim() || '';
 
-module.exports = {
+module.exports = ({ config }) => ({
   expo: {
-    ...appJson.expo,
+    ...config,
     android: {
-      ...appJson.expo.android,
+      ...config.android,
       config: {
-        ...appJson.expo.android?.config,
+        ...config.android?.config,
         googleMaps: {
           apiKey: googleMapsApiKey,
         },
       },
     },
     ios: {
-      ...appJson.expo.ios,
+      ...config.ios,
       config: {
-        ...appJson.expo.ios?.config,
+        ...config.ios?.config,
         googleMapsApiKey,
       },
     },
   },
-};
+});

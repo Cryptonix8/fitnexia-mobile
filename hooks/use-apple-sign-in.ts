@@ -8,6 +8,8 @@ export type AppleSignInCredential = {
   lastName?: string;
 };
 
+const unavailableMessage = 'Apple Sign-In no está disponible en este simulador. Verificá que el simulador tenga una cuenta de Apple configurada.';
+
 export function useAppleSignIn() {
   const [pending, setPending] = useState(false);
   const [available, setAvailable] = useState(false);
@@ -35,6 +37,13 @@ export function useAppleSignIn() {
     setPending(true);
     try {
       const AppleAuthentication = await import('expo-apple-authentication');
+      const isAvailable = await AppleAuthentication.isAvailableAsync();
+      setAvailable(isAvailable);
+
+      if (!isAvailable) {
+        throw new Error(unavailableMessage);
+      }
+
       const credential = await AppleAuthentication.signInAsync({
         requestedScopes: [
           AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
@@ -42,7 +51,9 @@ export function useAppleSignIn() {
         ],
       });
 
-      if (!credential.identityToken) return null;
+      if (!credential.identityToken) {
+        throw new Error('Apple no devolvió un token de identidad. Intentá de nuevo o probalo en un dispositivo físico.');
+      }
 
       return {
         identityToken: credential.identityToken,

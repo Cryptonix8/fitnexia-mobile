@@ -1,3 +1,4 @@
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { Platform, StyleSheet, View } from 'react-native';
 
 import { Spacing } from '@/constants/fitnexia';
@@ -9,8 +10,6 @@ type AppleSignInButtonProps = {
 
 export function AppleSignInButton({ onPress, disabled = false }: AppleSignInButtonProps) {
   if (Platform.OS !== 'ios') return null;
-
-  const AppleAuthentication = require('expo-apple-authentication') as typeof import('expo-apple-authentication');
 
   return (
     <View style={[styles.wrap, disabled && styles.disabled]} pointerEvents={disabled ? 'none' : 'auto'}>

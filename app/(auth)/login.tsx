@@ -103,10 +103,10 @@ export default function LoginScreen() {
         />
       ) : null}
 
-      {appleSignIn ? (
+      {appleSignIn && appleReady ? (
         <AppleSignInButton
           onPress={handleAppleSignIn}
-          disabled={!appleReady || loading || googlePending || applePending}
+          disabled={loading || googlePending || applePending}
         />
       ) : null}
 

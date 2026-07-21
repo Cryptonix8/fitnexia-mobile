@@ -2,27 +2,33 @@
   "expo": {
     "name": "Fitnexia",
     "slug": "Fitnexia",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
-    "icon": "./assets/images/simbolo.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "fitnexia",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.fitunion.mobile",
+      "buildNumber": "2",
       "usesAppleSignIn": true,
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Fitnexia usa tu ubicación para mostrarte clases cerca tuyo en el mapa.",
         "NSCameraUsageDescription": "Fitnexia usa la cámara para las clases en vivo.",
-        "NSMicrophoneUsageDescription": "Fitnexia usa el micrófono para las clases en vivo."
-      }
+        "NSMicrophoneUsageDescription": "Fitnexia usa el micrófono para las clases en vivo.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "config": {
+        "googleMapsApiKey": ""
+      },
+      "bitcode": false
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
-        "foregroundImage": "./assets/images/simbolo.png"
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
       },
       "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
@@ -42,6 +48,7 @@
     },
     "plugins": [
       "expo-dev-client",
+      "expo-apple-authentication",
       "@react-native-firebase/app",
       [
         "expo-build-properties",

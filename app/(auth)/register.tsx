@@ -145,10 +145,10 @@ export default function RegisterScreen() {
               disabled={!googleReady || loading || googlePending || applePending}
             />
           ) : null}
-          {appleSignIn ? (
+          {appleSignIn && appleReady ? (
             <AppleSignInButton
               onPress={handleAppleSignIn}
-              disabled={!appleReady || loading || googlePending || applePending}
+              disabled={loading || googlePending || applePending}
             />
           ) : null}
         </>
@@ -207,10 +207,10 @@ export default function RegisterScreen() {
               disabled={!googleReady || loading || googlePending || applePending}
             />
           ) : null}
-          {appleSignIn ? (
+          {appleSignIn && appleReady ? (
             <AppleSignInButton
               onPress={handleAppleSignIn}
-              disabled={!appleReady || loading || googlePending || applePending}
+              disabled={loading || googlePending || applePending}
             />
           ) : null}
         </>

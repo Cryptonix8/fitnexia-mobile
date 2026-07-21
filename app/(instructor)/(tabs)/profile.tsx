@@ -28,7 +28,9 @@ export default function InstructorProfileScreen() {
   const { user, updateProfile } = useAuth();
   const { colors } = useAppTheme();
   const showSupport = useFeature('platformSupport');
-  const showPayoutAccount = useFeature('marketplacePayouts') || useFeature('integratedPayments');
+  const showMarketplacePayouts = useFeature('marketplacePayouts');
+  const showIntegratedPayments = useFeature('integratedPayments');
+  const showPayoutAccount = showMarketplacePayouts || showIntegratedPayments;
   const showReviewResponses = useFeature('reviewResponses');
   const profile = user?.instructorProfile;
   const [togglingAvailable, setTogglingAvailable] = useState(false);
