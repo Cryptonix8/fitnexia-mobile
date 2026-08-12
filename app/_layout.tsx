@@ -56,6 +56,8 @@ function RootNavigator() {
         <Stack.Screen name="court/complete" options={{ headerShown: false }} />
         <Stack.Screen name="book/[classId]" options={{ headerShown: false }} />
         <Stack.Screen name="booking/complete" options={{ headerShown: false }} />
+        <Stack.Screen name="profile/payout-connected" options={{ headerShown: false }} />
+        <Stack.Screen name="profile/billing-complete" options={{ headerShown: false }} />
         <Stack.Screen name="review/[bookingId]" options={{ headerShown: false }} />
         <Stack.Screen name="membership/index" options={{ headerShown: false }} />
         <Stack.Screen name="membership/join" options={{ headerShown: false }} />

@@ -162,6 +162,11 @@ export default function GymProfileScreen() {
         onPress={() => router.push('/(gym)/profile/subscription')}
       />
       <ProfileMenuItem
+        icon="stats-chart-outline"
+        label="Ingresos"
+        onPress={() => router.push('/(gym)/profile/earnings')}
+      />
+      <ProfileMenuItem
         icon="briefcase-outline"
         label={PROFILE_MENU_LABELS.jobPostings}
         onPress={() => router.push('/(gym)/jobs')}

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
+import { Header } from '@/components/ui/header';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
@@ -30,7 +31,7 @@ function formatPayoutDate(iso: string): string {
   return new Date(iso).toLocaleDateString(APP_LOCALE, { month: 'short', day: 'numeric' });
 }
 
-export default function EarningsScreen() {
+export default function GymEarningsScreen() {
   const { colors } = useAppTheme();
   const [summary, setSummary] = useState<PayoutSummary | null>(null);
   const [payouts, setPayouts] = useState<Payout[]>([]);
@@ -83,13 +84,20 @@ export default function EarningsScreen() {
     ? formatMoney({ amount: summary.net, currency: summary.currency })
     : '$0.00';
 
+  const automatic =
+    summary?.automaticPayouts || summary?.marketplace?.enabled;
+
   return (
-    <Screen scroll loading={loading} loadingMessage={LOADING_LABELS.earnings} header={<Text style={[styles.title, { color: colors.text }]}>Ingresos</Text>}>
+    <Screen
+      scroll
+      loading={loading}
+      loadingMessage={LOADING_LABELS.earnings}
+      header={<Header title="Ingresos" showBack />}>
       <View style={[styles.summary, { backgroundColor: colors.primary }]}>
         <Text style={styles.summaryLabel}>Este mes (neto)</Text>
         <Text style={styles.summaryValue}>{netDisplay}</Text>
         <Text style={styles.plan}>{summary ? formatPlanLabel(summary) : ''}</Text>
-        {summary?.marketplace?.enabled || summary?.automaticPayouts ? (
+        {automatic ? (
           <Text style={styles.marketplaceHint}>Cobros automáticos vía Mercado Pago</Text>
         ) : (
           <Text style={styles.marketplaceHint}>
@@ -112,13 +120,11 @@ export default function EarningsScreen() {
           compact
           icon="wallet-outline"
           title="Sin cobros todavía"
-          description="Los cobros aparecen cuando los atletas reservan y confirman tus clases."
+          description="Los cobros aparecen cuando los atletas reservan y confirman clases del gimnasio."
         />
       ) : (
         payouts.map((payout) => (
-          <View
-            key={payout.id}
-            style={[styles.row, { backgroundColor: colors.surface }]}>
+          <View key={payout.id} style={[styles.row, { backgroundColor: colors.surface }]}>
             <View>
               <Text style={[styles.rowTitle, { color: colors.text }]}>
                 {payout.classTitle ?? 'Reserva de clase'}
@@ -140,7 +146,6 @@ export default function EarningsScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: 26, fontWeight: '800', marginBottom: Spacing.md },
   summary: {
     borderRadius: Radius.lg,
     padding: Spacing.lg,

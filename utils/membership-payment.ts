@@ -1,9 +1,7 @@
-import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
 
 import { waitForMembershipPayment } from '@/services/api/memberships.api';
-
-WebBrowser.maybeCompleteAuthSession();
+import { openInAppBrowser } from '@/utils/in-app-browser';
 
 export async function openMembershipCheckout(
   checkoutUrl: string,
@@ -15,13 +13,10 @@ export async function openMembershipCheckout(
     return waitForMembershipPayment(memberId, paymentId);
   }
 
-  const result = await WebBrowser.openAuthSessionAsync(
-    checkoutUrl,
-    'fitnexia://membership/complete',
-  );
+  const result = await openInAppBrowser(checkoutUrl, 'fitnexia://membership/complete');
 
-  if (result.type === 'success' && result.url) {
-    const url = new URL(result.url);
+  if (result && 'type' in result && result.type === 'success' && 'url' in result && result.url) {
+    const url = new URL(String(result.url));
     const status = url.searchParams.get('status');
     if (status === 'failure') {
       throw new Error('El pago fue cancelado o falló.');
@@ -37,13 +32,10 @@ export async function openMembershipAuthorization(authorizationUrl: string, memb
     return memberId;
   }
 
-  const result = await WebBrowser.openAuthSessionAsync(
-    authorizationUrl,
-    'fitnexia://membership/complete',
-  );
+  const result = await openInAppBrowser(authorizationUrl, 'fitnexia://membership/complete');
 
-  if (result.type === 'success' && result.url) {
-    const url = new URL(result.url);
+  if (result && 'type' in result && result.type === 'success' && 'url' in result && result.url) {
+    const url = new URL(String(result.url));
     const status = url.searchParams.get('status');
     if (status === 'failure') {
       throw new Error('La autorización fue cancelada.');

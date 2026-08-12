@@ -1,9 +1,7 @@
-import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
 
 import { waitForBookingConfirmation } from '@/services/api/payments.api';
-
-WebBrowser.maybeCompleteAuthSession();
+import { openInAppBrowser } from '@/utils/in-app-browser';
 
 export async function openPaymentCheckout(checkoutUrl: string, bookingId: string) {
   if (Platform.OS === 'web') {
@@ -11,13 +9,10 @@ export async function openPaymentCheckout(checkoutUrl: string, bookingId: string
     return waitForBookingConfirmation(bookingId);
   }
 
-  const result = await WebBrowser.openAuthSessionAsync(
-    checkoutUrl,
-    'fitnexia://booking/complete',
-  );
+  const result = await openInAppBrowser(checkoutUrl, 'fitnexia://booking/complete');
 
-  if (result.type === 'success' && result.url) {
-    const url = new URL(result.url);
+  if (result && 'type' in result && result.type === 'success' && 'url' in result && result.url) {
+    const url = new URL(String(result.url));
     const status = url.searchParams.get('status');
     if (status === 'failure') {
       throw new Error('El pago fue cancelado o falló.');

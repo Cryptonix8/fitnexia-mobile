@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 
@@ -14,8 +13,7 @@ import {
   fetchMpConnectUrl,
   type MpConnectStatusResponse,
 } from '@/services/api/mp-connect.api';
-
-WebBrowser.maybeCompleteAuthSession();
+import { openInAppBrowser } from '@/utils/in-app-browser';
 
 function statusLabel(status: MpConnectStatusResponse['connection']['status'], connected: boolean) {
   if (connected) return 'Conectada';
@@ -49,7 +47,15 @@ export function MpPayoutConnect() {
     if (!data?.marketplace.configured) {
       Alert.alert(
         'Marketplace pendiente',
-        'Fitnexia aún no tiene credenciales de Marketplace de Mercado Pago. Cuando el cliente las entregue, podrás conectar tu cuenta aquí.',
+        'Las credenciales de Mercado Pago aún no están configuradas en el servidor.',
+      );
+      return;
+    }
+
+    if (!data?.marketplace.enabled) {
+      Alert.alert(
+        'Marketplace desactivado',
+        'El marketplace está configurado pero desactivado en el servidor. Contactá a soporte Fitnexia.',
       );
       return;
     }
@@ -66,8 +72,8 @@ export function MpPayoutConnect() {
         return;
       }
 
-      const result = await WebBrowser.openAuthSessionAsync(url, 'fitnexia://profile/payout-connected');
-      if (result.type === 'cancel') return;
+      const result = await openInAppBrowser(url, 'fitnexia://profile/payout-connected');
+      if (result && 'type' in result && result.type === 'cancel') return;
       await load();
       Alert.alert('Mercado Pago', 'Tu cuenta de cobro fue vinculada correctamente.');
     } catch (err) {
@@ -112,8 +118,8 @@ export function MpPayoutConnect() {
   return (
     <>
       <Text style={styles.hint}>
-        Conectá tu cuenta de Mercado Pago para recibir el neto de tus clases automáticamente cuando
-        el marketplace esté activo.
+        Conectá tu cuenta de cobros de Mercado Pago (no es crear cuenta Fitnexia). Así recibís el
+        neto de clases y reservas pagadas por atletas; Fitnexia retiene su comisión.
       </Text>
 
       <View style={styles.card}>
@@ -134,11 +140,11 @@ export function MpPayoutConnect() {
           ) : null}
           {!data?.marketplace.configured ? (
             <Text style={styles.pending}>
-              Marketplace en configuración — tu cliente debe entregar credenciales MP.
+              Marketplace sin credenciales en el servidor.
             </Text>
           ) : !marketplaceEnabled ? (
             <Text style={styles.pending}>
-              Marketplace configurado pero desactivado — se habilitará al confirmar reglas de cobro.
+              Marketplace configurado pero desactivado en el servidor.
             </Text>
           ) : null}
         </View>

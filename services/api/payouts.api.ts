@@ -12,6 +12,7 @@ export type PayoutSummary = {
   currency: string;
   commissionRate: number;
   plan: string;
+  automaticPayouts?: boolean;
   marketplace?: {
     enabled: boolean;
     configured: boolean;

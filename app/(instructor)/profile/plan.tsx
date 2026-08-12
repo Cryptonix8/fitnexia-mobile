@@ -9,7 +9,7 @@ export default function InstructorPlanScreen() {
     <PlanCommissionScreen
       currentPlan={currentPlan}
       planIds={['basic', 'pro']}
-      hint="La comisión de plataforma se descuenta automáticamente de cada cobro según tu plan."
+      hint="Freemium es gratis con 8% de comisión por clase. Pro cuesta $29/mes y no tiene comisión en tus cobros."
     />
   );
 }

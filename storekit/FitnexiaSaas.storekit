@@ -1,0 +1,123 @@
+{
+  "identifier" : "FitnexiaSaas",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21450001",
+      "localizations" : [
+
+      ],
+      "name" : "Fitnexia Plans",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "9.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6500000001",
+          "localizations" : [
+            {
+              "description" : "Instructor Pro — sin comisión en clases",
+              "displayName" : "Instructor Pro",
+              "locale" : "es_UY"
+            }
+          ],
+          "productID" : "fitnexia.instructor.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Instructor Pro Monthly",
+          "subscriptionGroupID" : "21450001",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6500000002",
+          "localizations" : [
+            {
+              "description" : "Gym Professional — hasta 500 socios",
+              "displayName" : "Gym Professional",
+              "locale" : "es_UY"
+            }
+          ],
+          "productID" : "fitnexia.gym.professional.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Gym Professional Monthly",
+          "subscriptionGroupID" : "21450001",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "6500000003",
+          "localizations" : [
+            {
+              "description" : "Gym Premium — hasta 1999 socios",
+              "displayName" : "Gym Premium",
+              "locale" : "es_UY"
+            }
+          ],
+          "productID" : "fitnexia.gym.premium.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Gym Premium Monthly",
+          "subscriptionGroupID" : "21450001",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "7.99",
+          "familyShareable" : false,
+          "groupNumber" : 4,
+          "internalID" : "6500000004",
+          "localizations" : [
+            {
+              "description" : "Gym Enterprise — socios ilimitados",
+              "displayName" : "Gym Enterprise",
+              "locale" : "es_UY"
+            }
+          ],
+          "productID" : "fitnexia.gym.enterprise.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Gym Enterprise Monthly",
+          "subscriptionGroupID" : "21450001",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

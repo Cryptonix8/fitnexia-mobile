@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Header } from '@/components/ui/header';
 import { Button } from '@/components/ui/button';
@@ -11,12 +11,18 @@ import { useAppTheme } from '@/contexts/theme-context';
 import { Radius, Spacing } from '@/constants/fitnexia';
 import { GYM_TIER_LABELS } from '@/constants/labels';
 import { DEFAULT_CURRENCY } from '@/constants/currency';
-import { fetchGymSubscription, updateGymSubscriptionApi } from '@/services/api/institutions.api';
+import { fetchGymSubscription } from '@/services/api/institutions.api';
 import { fetchGymTierCatalog } from '@/services/api/jobs.api';
 import type { GymSubscription, GymTierConfig } from '@/types/api';
 import { APP_LOCALE } from '@/utils/locale';
+import {
+  changeGymTier,
+  openGymMercadoPagoCheckout,
+  restoreGymApplePurchases,
+} from '@/utils/gym-plan-purchase';
 
 function formatFee(cents: number) {
+  if (cents === 0) return 'Gratis';
   try {
     return new Intl.NumberFormat(APP_LOCALE, {
       style: 'currency',
@@ -28,6 +34,18 @@ function formatFee(cents: number) {
   }
 }
 
+function billingLabel(status: string, isIos: boolean) {
+  if (status === 'active') return 'Facturación activa';
+  if (status === 'pending') {
+    return isIos
+      ? 'Pago pendiente — completá la compra In-App'
+      : 'Pago pendiente — autorizá Mercado Pago';
+  }
+  if (status === 'not_required') return 'Sin cargo mensual (comisión por transacción)';
+  if (status === 'past_due') return 'Pago atrasado';
+  return status;
+}
+
 export default function GymSubscriptionScreen() {
   const { refreshUser } = useAuth();
   const { colors } = useAppTheme();
@@ -35,6 +53,7 @@ export default function GymSubscriptionScreen() {
   const [tiers, setTiers] = useState<GymTierConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const isIos = Platform.OS === 'ios';
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -59,10 +78,25 @@ export default function GymSubscriptionScreen() {
     if (!subscription || tierId === subscription.tier) return;
     setSaving(true);
     try {
-      const next = await updateGymSubscriptionApi(tierId);
-      setSubscription(next);
-      await refreshUser();
-      Alert.alert('Plan actualizado', `Tu plan es ahora ${GYM_TIER_LABELS[next.tier] ?? next.tierName}.`);
+      const result = await changeGymTier(tierId, refreshUser);
+      setSubscription(result.subscription);
+
+      if (result.needsMpAuth && result.checkoutUrl) {
+        Alert.alert('Autorizar cobro mensual', result.message, [
+          { text: 'Más tarde', style: 'cancel' },
+          {
+            text: 'Continuar',
+            onPress: async () => {
+              await openGymMercadoPagoCheckout(result.checkoutUrl!);
+              await load();
+            },
+          },
+        ]);
+        return;
+      }
+
+      Alert.alert('Plan actualizado', result.message);
+      await load();
     } catch (err) {
       Alert.alert('No se pudo cambiar el plan', getErrorMessage(err));
     } finally {
@@ -70,9 +104,30 @@ export default function GymSubscriptionScreen() {
     }
   };
 
-  return (
-    <Screen scroll loading={loading && !subscription} loadingMessage="Cargando plan…" header={<Header title="Plan Fitnexia" showBack />}>
+  const restore = async () => {
+    setSaving(true);
+    try {
+      const count = await restoreGymApplePurchases(refreshUser);
+      await load();
+      Alert.alert(
+        'Restaurar compras',
+        count > 0
+          ? `Se restauraron ${count} suscripción(es).`
+          : 'No hay suscripciones de Fitnexia para restaurar en esta cuenta de Apple.',
+      );
+    } catch (err) {
+      Alert.alert('No se pudo restaurar', getErrorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  };
 
+  return (
+    <Screen
+      scroll
+      loading={loading && !subscription}
+      loadingMessage="Cargando plan…"
+      header={<Header title="Plan Fitnexia" showBack />}>
       {subscription ? (
         <>
           <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -80,8 +135,14 @@ export default function GymSubscriptionScreen() {
               {GYM_TIER_LABELS[subscription.tier] ?? subscription.tierName}
             </Text>
             <Text style={[styles.fee, { color: colors.primary }]}>
-              {formatFee(subscription.monthlyFeeCents)}/mes
+              {formatFee(subscription.monthlyFeeCents)}
+              {subscription.monthlyFeeCents > 0 ? '/mes' : ''}
             </Text>
+            {subscription.commissionPercent != null ? (
+              <Text style={[styles.usage, { color: colors.textMuted }]}>
+                Comisión Fitnexia: {subscription.commissionPercent}% por cobro de atletas
+              </Text>
+            ) : null}
             <Text style={[styles.usage, { color: colors.textMuted }]}>
               Socios: {subscription.memberCount}
               {subscription.memberLimit != null ? ` / ${subscription.memberLimit}` : ' (sin límite)'}
@@ -92,8 +153,31 @@ export default function GymSubscriptionScreen() {
               </Text>
             ) : null}
             <Text style={[styles.hint, { color: colors.textMuted }]}>
-              Facturación manual en MVP. El cobro automático llegará en una próxima versión.
+              {billingLabel(subscription.billingStatus, isIos)}
             </Text>
+            {isIos ? (
+              <Text style={[styles.hint, { color: colors.textMuted }]}>
+                En iOS los planes de pago se activan con In-App Purchase de Apple.
+              </Text>
+            ) : null}
+            {subscription.pendingTier ? (
+              <Text style={[styles.warn, { color: colors.warning }]}>
+                Pendiente de activar:{' '}
+                {GYM_TIER_LABELS[subscription.pendingTier] ?? subscription.pendingTier}
+              </Text>
+            ) : null}
+            {!isIos &&
+            subscription.authorizationUrl &&
+            subscription.billingStatus === 'pending' ? (
+              <Button
+                title="Completar pago del plan"
+                style={{ marginTop: Spacing.md }}
+                onPress={async () => {
+                  await openGymMercadoPagoCheckout(subscription.authorizationUrl!);
+                  await load();
+                }}
+              />
+            ) : null}
           </View>
 
           <Text style={[styles.section, { color: colors.text }]}>Cambiar plan</Text>
@@ -116,8 +200,12 @@ export default function GymSubscriptionScreen() {
                     {GYM_TIER_LABELS[tier.id] ?? tier.name}
                   </Text>
                   <Text style={[styles.tierMeta, { color: colors.textMuted }]}>
-                    {formatFee(tier.monthlyFeeCents)}/mes · hasta{' '}
+                    {formatFee(tier.monthlyFeeCents)}
+                    {tier.monthlyFeeCents > 0 ? '/mes' : ''}
+                    {tier.commissionPercent != null ? ` · ${tier.commissionPercent}% comisión` : ''}
+                    {' · hasta '}
                     {tier.memberLimit != null ? tier.memberLimit : '2.000+'} socios
+                    {isIos && tier.monthlyFeeCents > 0 ? ' · Apple IAP' : ''}
                   </Text>
                 </View>
                 {active ? (
@@ -126,6 +214,16 @@ export default function GymSubscriptionScreen() {
               </Pressable>
             );
           })}
+
+          {isIos ? (
+            <Button
+              title="Restaurar compras de Apple"
+              variant="outline"
+              onPress={restore}
+              disabled={saving}
+              style={{ marginTop: Spacing.md }}
+            />
+          ) : null}
         </>
       ) : null}
 

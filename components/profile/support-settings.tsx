@@ -51,8 +51,8 @@ export function SupportSettings() {
       />
       <View style={styles.faq}>
         <Text style={styles.faqTitle}>Respuestas rápidas</Text>
-        <Text style={styles.faqItem}>• Plan Pro: 8% de comisión en cobros</Text>
-        <Text style={styles.faqItem}>• Plan institucional: 5% de comisión</Text>
+        <Text style={styles.faqItem}>• Freemium: gratis con 8% de comisión por clase</Text>
+        <Text style={styles.faqItem}>• Plan Pro: $29/mes sin comisión en cobros</Text>
         <Text style={styles.faqItem}>• Los cobros llegan en 5–7 días hábiles</Text>
       </View>
       <Button title="Enviar ticket" onPress={submit} style={{ marginTop: Spacing.md }} />

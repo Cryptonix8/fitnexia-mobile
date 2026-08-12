@@ -392,7 +392,7 @@ export const AUTH_LABELS = {
 } as const;
 
 export const PLAN_LABELS = {
-  basic: 'Básico',
+  basic: 'Freemium',
   pro: 'Pro',
   institutional: 'Institucional',
 } as const;
@@ -411,17 +411,20 @@ export function formatGymTierSummary(tier: string, memberCount: number, memberLi
 }
 
 export const PLAN_COMMISSION_PERCENT: Record<keyof typeof PLAN_LABELS, number> = {
-  basic: 10,
-  pro: 8,
+  basic: 8,
+  pro: 0,
   institutional: 5,
 };
 
 export function formatPlanSummary(planId: keyof typeof PLAN_LABELS, commissionPercent: number): string {
+  if (commissionPercent === 0) {
+    return `${PLAN_LABELS[planId] ?? planId} · sin comisión`;
+  }
   return `${PLAN_LABELS[planId] ?? planId} · ${commissionPercent}%`;
 }
 
 export function formatUserPlanSummary(planId: keyof typeof PLAN_LABELS): string {
-  return formatPlanSummary(planId, PLAN_COMMISSION_PERCENT[planId] ?? 10);
+  return formatPlanSummary(planId, PLAN_COMMISSION_PERCENT[planId] ?? 8);
 }
 
 /** Legacy English location labels from older catalog / staging data. */

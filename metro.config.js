@@ -8,10 +8,12 @@ const config = getDefaultConfig(__dirname);
 config.resolver.unstable_enablePackageExports = false;
 config.resolver.sourceExts.push('cjs');
 
+// Worklets/Reanimated require inlineRequires so their init side-effects run
+// before module exports (see software-mansion/react-native-reanimated#8904).
 config.transformer.getTransformOptions = async () => ({
   transform: {
     experimentalImportSupport: false,
-    inlineRequires: false,
+    inlineRequires: true,
   },
 });
 

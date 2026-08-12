@@ -1,0 +1,34 @@
+App Store Review Notes — Fitnexia
+=================================
+
+Guideline 4 — Design (Sign in / Register)
+----------------------------------------
+• Sign in and account creation are fully in-app:
+  - Email / password on native Login and Register screens
+  - Sign in with Apple (native)
+  - Google Sign-In via the native Google SDK (no system Safari for Fitnexia account creation)
+• Account deletion: Profile → "Cerrar cuenta" (athlete, instructor, and gym profiles).
+
+Guideline 3.1.1 — In-App Purchase
+--------------------------------
+• Fitnexia platform SaaS subscriptions on iOS are sold only via Apple In-App Purchase:
+  - Instructor Pro: fitnexia.instructor.pro.monthly
+  - Gym Professional: fitnexia.gym.professional.monthly
+  - Gym Premium: fitnexia.gym.premium.monthly
+  - Gym Enterprise: fitnexia.gym.enterprise.monthly
+• Screens: Instructor → Perfil → Plan / Comisión; Gym → Perfil → Plan Fitnexia.
+• "Restaurar compras de Apple" is available on those screens.
+• Mercado Pago is NOT used on iOS to purchase Fitnexia digital subscriptions.
+
+Mercado Pago (real-world / marketplace only)
+--------------------------------------------
+Displayed with in-app browser (ASWebAuthenticationSession / Safari View Controller), not the
+system Safari app, for:
+• Athlete class bookings (real-world fitness instruction)
+• Court reservations (physical facility)
+• Club membership dues (gym socios)
+• Seller payout onboarding ("Conectar cuenta de cobros") — not Fitnexia account registration
+
+Test accounts
+-------------
+Provide your sandbox / demo instructor and gym accounts here for App Review.

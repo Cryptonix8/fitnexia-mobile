@@ -139,11 +139,17 @@ export interface GymSubscription {
   tier: GymSaasTier;
   tierName: string;
   monthlyFeeCents: number;
+  commissionPercent?: number;
   memberCount: number;
   memberLimit: number | null;
   membersRemaining: number | null;
   atLimit: boolean;
   billingStatus: string;
+  authorizationUrl?: string;
+  pendingTier?: GymSaasTier;
+  lastBilledAt?: string;
+  nextBillingAt?: string;
+  checkoutUrl?: string;
   entitlements: Record<string, boolean>;
 }
 
@@ -151,6 +157,7 @@ export interface GymTierConfig {
   id: GymSaasTier;
   name: string;
   monthlyFeeCents: number;
+  commissionPercent?: number;
   memberLimit: number | null;
   entitlements: Record<string, boolean>;
 }
