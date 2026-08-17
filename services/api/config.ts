@@ -27,10 +27,14 @@ function resolveDevHost(): string {
 }
 
 function buildApiBaseUrl(): string {
-  const envUrl = process.env.EXPO_PUBLIC_API_URL;
+  const rawEnvUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
+  const envUrl =
+    rawEnvUrl && !/^[a-z][a-z\d+\-.]*:\/\//i.test(rawEnvUrl)
+      ? `http://${rawEnvUrl}`
+      : rawEnvUrl;
 
   if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
-    return envUrl;
+    return envUrl.replace(/\/+$/, '');
   }
 
   const port = extractPort(envUrl);
