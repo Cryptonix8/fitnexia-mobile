@@ -14,6 +14,9 @@
       "buildNumber": "2",
       "usesAppleSignIn": true,
       "googleServicesFile": "./GoogleService-Info.plist",
+      "entitlements": {
+        "aps-environment": "production"
+      },
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Fitnexia usa tu ubicación para mostrarte clases cerca tuyo en el mapa.",
         "NSCameraUsageDescription": "Fitnexia usa la cámara para las clases en vivo.",
@@ -50,11 +53,19 @@
       "expo-dev-client",
       "expo-apple-authentication",
       "@react-native-firebase/app",
+      "@react-native-firebase/analytics",
       [
         "expo-build-properties",
         {
           "ios": {
-            "useFrameworks": "static"
+            "useFrameworks": "static",
+            "buildReactNativeFromSource": true,
+            "forceStaticLinking": [
+              "RNFBApp",
+              "RNFBAnalytics",
+              "RNFBInAppMessaging",
+              "RNFBInstallations"
+            ]
           }
         }
       ],
@@ -114,10 +125,10 @@
           "defaultChannel": "fitnexia_default"
         }
       ],
-      "@react-native-firebase/analytics",
       "@livekit/react-native-expo-plugin",
       "@config-plugins/react-native-webrtc",
-      "./plugins/withRemoveAdId"
+      "./plugins/withRemoveAdId",
+      "./plugins/withIosArchiveFixes"
     ],
     "experiments": {
       "typedRoutes": true,
