@@ -1,9 +1,11 @@
 import { API_BASE_URL } from './config';
 import { ApiError } from './errors';
 
-function networkErrorMessage(url?: string): string {
+function networkErrorMessage(url?: string, cause?: unknown): string {
   const target = url?.startsWith('http') ? url : API_BASE_URL;
-  return `Cannot reach the API at ${target}. Make sure the backend is running.`;
+  const extra =
+    __DEV__ && cause instanceof Error && cause.message ? ` (${cause.message})` : '';
+  return `Cannot reach the API at ${target}. Make sure the backend is running.${extra}`;
 }
 
 function isFetchFailure(err: unknown): boolean {
@@ -11,8 +13,8 @@ function isFetchFailure(err: unknown): boolean {
   if (err instanceof RangeError) {
     return /response|status/i.test(err.message);
   }
-  if (err instanceof TypeError) {
-    return /network|failed|fetch|aborted/i.test(err.message);
+  if (err instanceof Error) {
+    return /network|failed|fetch|aborted|ssl|certificat|trust|handshake/i.test(err.message);
   }
   return false;
 }
@@ -28,8 +30,11 @@ export async function safeFetch(input: RequestInfo | URL, init?: RequestInit): P
     return res;
   } catch (err) {
     if (err instanceof ApiError) throw err;
+    if (__DEV__) {
+      console.warn('[api] fetch failed', url, err);
+    }
     if (isFetchFailure(err)) {
-      throw new ApiError(0, 'NETWORK_ERROR', networkErrorMessage(url));
+      throw new ApiError(0, 'NETWORK_ERROR', networkErrorMessage(url, err));
     }
     throw err;
   }

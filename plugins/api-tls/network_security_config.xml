@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Let's Encrypt Generation Y (Root YE / YE1-YE3) is not in Android's
+         system trust store yet. iOS already accepts this chain. domain-config
+         does not apply to IP hosts for trust anchors, so extra CAs live in base-config. -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/isrg_root_ye" />
+            <certificates src="@raw/isrg_ye1" />
+            <certificates src="@raw/isrg_ye2" />
+            <certificates src="@raw/isrg_ye3" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Dev client: Metro via adb reverse (127.0.0.1) and local backend URLs. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

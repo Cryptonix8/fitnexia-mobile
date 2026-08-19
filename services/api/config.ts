@@ -33,7 +33,18 @@ function buildApiBaseUrl(): string {
       ? `http://${rawEnvUrl}`
       : rawEnvUrl;
 
-  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+  if (!envUrl) {
+    const port = extractPort(undefined);
+    const host = resolveDevHost();
+    return `http://${host}:${port}/v1`;
+  }
+
+  if (!envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    return envUrl.replace(/\/+$/, '');
+  }
+
+  // Preserve explicit localhost/127.0.0.1 URLs for adb reverse workflow.
+  if (/^https?:\/\//i.test(envUrl)) {
     return envUrl.replace(/\/+$/, '');
   }
 
@@ -43,3 +54,7 @@ function buildApiBaseUrl(): string {
 }
 
 export const API_BASE_URL = buildApiBaseUrl();
+
+if (__DEV__) {
+  console.log('[api] base URL:', API_BASE_URL);
+}
