@@ -3,7 +3,7 @@ const { AndroidConfig, withAndroidManifest, withDangerousMod, withMainApplicatio
 const fs = require('fs');
 const path = require('path');
 
-const CERT_FILES = ['isrg_root_ye.pem', 'isrg_ye1.pem', 'isrg_ye2.pem', 'isrg_ye3.pem'];
+const CERT_FILES = ['isrg_root_ye.crt', 'isrg_ye1.crt', 'isrg_ye2.crt', 'isrg_ye3.crt'];
 const INSTALL_LINE = '    ApiTls.install(this)';
 
 function copyFile(from, to) {

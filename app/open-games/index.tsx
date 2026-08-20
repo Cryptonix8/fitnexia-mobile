@@ -108,8 +108,8 @@ export default function OpenGamesScreen() {
       label: 'Mis partidos',
       subtitle: 'Organizados y a los que me sumé',
       icon: 'football',
-      tint: '#dbeafe',
-      iconColor: '#2563eb',
+      tint: colors.primaryMuted,
+      iconColor: colors.primary,
       onPress: () => router.push('/open-games?mine=1'),
     },
   ];

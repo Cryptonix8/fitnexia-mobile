@@ -8,12 +8,14 @@ import { Input } from '@/components/ui/input';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Screen } from '@/components/ui/screen';
 import { forgotPasswordApi } from '@/contexts/auth-context';
-import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
+import { Spacing } from '@/constants/fitnexia';
 import { AUTH_LABELS } from '@/constants/labels';
 import { getErrorMessage } from '@/services/api/errors';
 import { validateForgotPasswordForm } from '@/utils/validation';
 
 export default function ForgotPasswordScreen() {
+  const { colors } = useAppTheme();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +43,7 @@ export default function ForgotPasswordScreen() {
 
   return (
     <Screen scroll header={<Header title="Restablecer contraseña" showBack />}>
-      <Text style={styles.body}>
+      <Text style={[styles.body, { color: colors.textMuted }]}>
         Ingresá tu email y te enviaremos un enlace para restablecer tu contraseña. Si no lo ves en unos
         minutos, revisá la carpeta de spam.
       </Text>
@@ -59,5 +61,5 @@ export default function ForgotPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { fontSize: 15, color: FitnexiaColors.gray500, marginBottom: Spacing.lg, lineHeight: 22 },
+  body: { fontSize: 15, marginBottom: Spacing.lg, lineHeight: 22 },
 });

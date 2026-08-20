@@ -13,7 +13,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { useAuth } from '@/contexts/auth-context';
-import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
+import { Spacing } from '@/constants/fitnexia';
 
 const { width } = Dimensions.get('window');
 
@@ -36,6 +37,7 @@ const SLIDES = [
 ];
 
 export default function OnboardingScreen() {
+  const { colors } = useAppTheme();
   const { completeOnboarding } = useAuth();
   const [index, setIndex] = useState(0);
   const listRef = useRef<FlatList>(null);
@@ -61,7 +63,7 @@ export default function OnboardingScreen() {
   return (
     <Screen edges={['top', 'bottom']} padded={false}>
       <View style={styles.logoRow}>
-        <Text style={styles.logo}>Fitnexia</Text>
+        <Text style={[styles.logo, { color: colors.primary }]}>Fitnexia</Text>
       </View>
       <FlatList
         ref={listRef}
@@ -74,14 +76,21 @@ export default function OnboardingScreen() {
         renderItem={({ item }) => (
           <View style={[styles.slide, { width }]}>
             <Text style={styles.emoji}>{item.emoji}</Text>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.body}>{item.body}</Text>
+            <Text style={[styles.title, { color: colors.text }]}>{item.title}</Text>
+            <Text style={[styles.body, { color: colors.textMuted }]}>{item.body}</Text>
           </View>
         )}
       />
       <View style={styles.dots}>
         {SLIDES.map((_, i) => (
-          <View key={i} style={[styles.dot, i === index && styles.dotActive]} />
+          <View
+            key={i}
+            style={[
+              styles.dot,
+              { backgroundColor: i === index ? colors.primary : colors.border },
+              i === index && styles.dotActive,
+            ]}
+          />
         ))}
       </View>
       <View style={styles.actions}>
@@ -99,7 +108,7 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   logoRow: { paddingTop: Spacing.xl, paddingHorizontal: Spacing.lg },
-  logo: { fontSize: 28, fontWeight: '800', color: FitnexiaColors.primary },
+  logo: { fontSize: 28, fontWeight: '800' },
   slide: {
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.xxl,
@@ -109,13 +118,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: FitnexiaColors.gray900,
     textAlign: 'center',
     marginBottom: Spacing.md,
   },
   body: {
     fontSize: 16,
-    color: FitnexiaColors.gray500,
     textAlign: 'center',
     lineHeight: 24,
   },
@@ -129,8 +136,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: FitnexiaColors.gray200,
   },
-  dotActive: { backgroundColor: FitnexiaColors.primary, width: 24 },
+  dotActive: { width: 24 },
   actions: { paddingHorizontal: Spacing.lg, paddingBottom: Spacing.lg, gap: Spacing.sm },
 });

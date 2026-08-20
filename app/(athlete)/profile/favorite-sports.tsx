@@ -1,15 +1,18 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
+import { ToggleChip } from '@/components/ui/toggle-chip';
 import { useAuth } from '@/contexts/auth-context';
-import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS, BUTTON_LABELS, SCREEN_TITLES } from '@/constants/labels';
+import { useAppTheme } from '@/contexts/theme-context';
 
 export default function FavoriteSportsScreen() {
+  const { colors } = useAppTheme();
   const { user, updateProfile } = useAuth();
   const [selected, setSelected] = useState<string[]>(user?.favoriteSports ?? []);
 
@@ -28,21 +31,20 @@ export default function FavoriteSportsScreen() {
 
   return (
     <Screen scroll header={<Header title={SCREEN_TITLES.favoriteSports} showBack />}>
-      <Text style={styles.hint}>
+      <Text style={[styles.hint, { color: colors.textMuted }]}>
         Seleccioná los deportes que te gustan. Los usamos para personalizar tu feed.
       </Text>
       <View style={styles.grid}>
-        {DISCIPLINES.map((sport) => {
-          const active = selected.includes(sport);
-          return (
-            <Pressable
-              key={sport}
-              style={[styles.chip, active && styles.chipActive]}
-              onPress={() => toggle(sport)}>
-              <Text style={[styles.chipText, active && styles.chipTextActive]}>{sport}</Text>
-            </Pressable>
-          );
-        })}
+        {DISCIPLINES.map((sport) => (
+          <ToggleChip
+            key={sport}
+            label={sport}
+            active={selected.includes(sport)}
+            onPress={() => toggle(sport)}
+            textStyle={{ fontSize: 15, fontWeight: '500' }}
+            style={{ paddingHorizontal: 16, paddingVertical: 10 }}
+          />
+        ))}
       </View>
       <Button title={BUTTON_LABELS.save} onPress={save} style={{ marginTop: Spacing.lg }} />
     </Screen>
@@ -50,20 +52,6 @@ export default function FavoriteSportsScreen() {
 }
 
 const styles = StyleSheet.create({
-  hint: { fontSize: 15, color: FitnexiaColors.gray500, marginBottom: Spacing.lg },
+  hint: { fontSize: 15, marginBottom: Spacing.lg },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
-  chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: Radius.full,
-    backgroundColor: FitnexiaColors.white,
-    borderWidth: 1,
-    borderColor: FitnexiaColors.gray200,
-  },
-  chipActive: {
-    backgroundColor: FitnexiaColors.primary,
-    borderColor: FitnexiaColors.primary,
-  },
-  chipText: { fontSize: 15, fontWeight: '500', color: FitnexiaColors.gray700 },
-  chipTextActive: { color: FitnexiaColors.white },
 });

@@ -109,7 +109,7 @@ function AppBootstrap() {
     <View
       style={[
         styles.root,
-        { backgroundColor: showSplash ? '#ffffff' : colors.background },
+        { backgroundColor: colors.background },
       ]}>
       <RootNavigator />
       {showSplash ? <AppSplash /> : null}

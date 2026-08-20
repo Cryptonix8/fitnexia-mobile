@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
-import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { Radius, Spacing } from '@/constants/fitnexia';
 import { LOADING_LABELS } from '@/constants/labels';
+import { useAppTheme } from '@/contexts/theme-context';
 import { fetchClassById } from '@/services/api/classes.api';
 import {
   fetchBookingById,
@@ -20,6 +21,7 @@ import { useBookings } from '@/contexts/bookings-context';
 import type { Booking, ClassListItem } from '@/types/api';
 
 export default function ReviewScreen() {
+  const { colors } = useAppTheme();
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
   const { refreshBookings } = useBookings();
   const [booking, setBooking] = useState<Booking | null>(null);
@@ -82,7 +84,7 @@ export default function ReviewScreen() {
     return (
       <Screen>
         <Header title="Reseña" showBack />
-        <Text>{loadError || 'Reserva no encontrada'}</Text>
+        <Text style={{ color: colors.text }}>{loadError || 'Reserva no encontrada'}</Text>
       </Screen>
     );
   }
@@ -91,8 +93,10 @@ export default function ReviewScreen() {
     return (
       <Screen>
         <Header title="Dejar una reseña" showBack />
-        <Text style={styles.className}>{cls.title}</Text>
-        <Text style={styles.hint}>Ya publicaste una reseña para esta clase. Las reseñas no se pueden editar.</Text>
+        <Text style={[styles.className, { color: colors.text }]}>{cls.title}</Text>
+        <Text style={[styles.hint, { color: colors.textMuted }]}>
+          Ya publicaste una reseña para esta clase. Las reseñas no se pueden editar.
+        </Text>
       </Screen>
     );
   }
@@ -101,8 +105,8 @@ export default function ReviewScreen() {
     return (
       <Screen>
         <Header title="Dejar una reseña" showBack />
-        <Text style={styles.className}>{cls.title}</Text>
-        <Text style={styles.hint}>
+        <Text style={[styles.className, { color: colors.text }]}>{cls.title}</Text>
+        <Text style={[styles.hint, { color: colors.textMuted }]}>
           Solo podés reseñar clases completadas. Esta reserva todavía no es elegible.
         </Text>
       </Screen>
@@ -111,28 +115,37 @@ export default function ReviewScreen() {
 
   return (
     <Screen scroll header={<Header title="Dejar una reseña" showBack />}>
-      <Text style={styles.className}>{cls.title}</Text>
-      <Text style={styles.hint}>Solo los asistentes verificados pueden reseñar. Las reseñas no se pueden editar.</Text>
+      <Text style={[styles.className, { color: colors.text }]}>{cls.title}</Text>
+      <Text style={[styles.hint, { color: colors.textMuted }]}>
+        Solo los asistentes verificados pueden reseñar. Las reseñas no se pueden editar.
+      </Text>
 
-      <Text style={styles.label}>Calificación</Text>
+      <Text style={[styles.label, { color: colors.text }]}>Calificación</Text>
       <View style={styles.stars}>
         {[1, 2, 3, 4, 5].map((n) => (
           <Pressable key={n} onPress={() => setRating(n)}>
             <Ionicons
               name={n <= rating ? 'star' : 'star-outline'}
               size={40}
-              color={FitnexiaColors.warning}
+              color={colors.warning}
             />
           </Pressable>
         ))}
       </View>
 
-      <Text style={styles.label}>Comentario (opcional)</Text>
+      <Text style={[styles.label, { color: colors.text }]}>Comentario (opcional)</Text>
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: colors.input,
+            borderColor: colors.border,
+            color: colors.text,
+          },
+        ]}
         multiline
         placeholder="Contanos tu experiencia..."
-        placeholderTextColor={FitnexiaColors.gray400}
+        placeholderTextColor={colors.textMuted}
         value={comment}
         onChangeText={setComment}
       />
@@ -162,19 +175,17 @@ export default function ReviewScreen() {
 }
 
 const styles = StyleSheet.create({
-  className: { fontSize: 20, fontWeight: '700', color: FitnexiaColors.gray900 },
-  hint: { fontSize: 13, color: FitnexiaColors.gray500, marginVertical: Spacing.md },
+  className: { fontSize: 20, fontWeight: '700' },
+  hint: { fontSize: 13, marginVertical: Spacing.md },
   label: { fontSize: 16, fontWeight: '600', marginBottom: Spacing.sm },
   stars: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg },
   input: {
-    backgroundColor: FitnexiaColors.white,
-    borderRadius: 12,
+    borderRadius: Radius.md,
     padding: Spacing.md,
     minHeight: 120,
     textAlignVertical: 'top',
     fontSize: 16,
     marginBottom: Spacing.lg,
     borderWidth: 1,
-    borderColor: FitnexiaColors.gray200,
   },
 });

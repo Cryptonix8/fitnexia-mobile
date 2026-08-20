@@ -8,7 +8,8 @@ import { ClassCard } from '@/components/class-card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Screen } from '@/components/ui/screen';
 import { useClasses } from '@/contexts/classes-context';
-import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
+import { Radius, Spacing } from '@/constants/fitnexia';
 import { LOADING_LABELS } from '@/constants/labels';
 import { useFeature } from '@/hooks/use-feature';
 import { fetchUnreadNotificationCount } from '@/services/api/v2-features.api';
@@ -20,6 +21,7 @@ import {
 } from '@/utils/geo';
 
 export default function AthleteHomeScreen() {
+  const { colors } = useAppTheme();
   const { classes, isLoading, error, refreshClasses } = useClasses();
   const geoEnabled = useFeature('geolocationMap');
   const inboxEnabled = useFeature('inAppNotificationCenter');
@@ -58,8 +60,8 @@ export default function AthleteHomeScreen() {
           label: 'Partidos abiertos',
           subtitle: 'Pádel y fútbol — buscá jugadores',
           icon: 'people',
-          tint: '#dbeafe',
-          iconColor: '#2563eb',
+          tint: colors.primaryMuted,
+          iconColor: colors.primary,
           featured: true,
           onPress: () => router.push('/open-games'),
         },
@@ -74,32 +76,34 @@ export default function AthleteHomeScreen() {
       header={
         <View style={styles.top}>
           <View>
-            <Text style={styles.greet}>Buenos días 👋</Text>
-            <Text style={styles.headline}>Encontrá tu próxima clase</Text>
+            <Text style={[styles.greet, { color: colors.textMuted }]}>Buenos días 👋</Text>
+            <Text style={[styles.headline, { color: colors.text }]}>Encontrá tu próxima clase</Text>
           </View>
           {inboxEnabled ? (
-            <Pressable style={styles.bell} onPress={() => router.push('/(athlete)/notifications')}>
-              <Ionicons name="notifications-outline" size={24} color={FitnexiaColors.gray900} />
+            <Pressable
+              style={[styles.bell, { backgroundColor: colors.surface, borderColor: colors.border }]}
+              onPress={() => router.push('/(athlete)/notifications')}>
+              <Ionicons name="notifications-outline" size={24} color={colors.text} />
               {unreadCount > 0 ? (
-                <View style={styles.badge}>
+                <View style={[styles.badge, { backgroundColor: colors.error }]}>
                   <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
                 </View>
               ) : null}
             </Pressable>
           ) : (
-            <View style={styles.bell}>
-              <Ionicons name="notifications-outline" size={24} color={FitnexiaColors.gray900} />
+            <View style={[styles.bell, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Ionicons name="notifications-outline" size={24} color={colors.text} />
             </View>
           )}
         </View>
       }>
 
-      <View style={styles.searchBox}>
-        <Ionicons name="search" size={20} color={FitnexiaColors.gray400} />
+      <View style={[styles.searchBox, { backgroundColor: colors.input, borderColor: colors.border }]}>
+        <Ionicons name="search" size={20} color={colors.textMuted} />
         <TextInput
           placeholder="Buscar clases, coaches, gimnasios..."
-          placeholderTextColor={FitnexiaColors.gray400}
-          style={styles.searchInput}
+          placeholderTextColor={colors.textMuted}
+          style={[styles.searchInput, { color: colors.text }]}
           onFocus={() => router.push('/(athlete)/(tabs)/search')}
         />
       </View>
@@ -146,13 +150,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: Spacing.md,
   },
-  greet: { fontSize: 14, color: FitnexiaColors.gray500 },
-  headline: { fontSize: 26, fontWeight: '800', color: FitnexiaColors.gray900, marginTop: 4 },
+  greet: { fontSize: 14 },
+  headline: { fontSize: 26, fontWeight: '800', marginTop: 4 },
   bell: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: FitnexiaColors.white,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -163,21 +167,20 @@ const styles = StyleSheet.create({
     minWidth: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: FitnexiaColors.error,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  badgeText: { color: FitnexiaColors.white, fontSize: 10, fontWeight: '700' },
+  badgeText: { color: '#FFFFFF', fontSize: 10, fontWeight: '700' },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: FitnexiaColors.white,
+    borderWidth: 1,
     borderRadius: Radius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
     gap: Spacing.sm,
     marginBottom: Spacing.lg,
   },
-  searchInput: { flex: 1, fontSize: 16, color: FitnexiaColors.gray900 },
+  searchInput: { flex: 1, fontSize: 16 },
 });

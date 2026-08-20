@@ -3,8 +3,9 @@ import * as ImagePicker from 'expo-image-picker';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { UserAvatar, type AvatarKind } from '@/components/user-avatar';
-import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS, AUTH_LABELS } from '@/constants/labels';
+import { useAppTheme } from '@/contexts/theme-context';
 
 type AvatarPickerProps = {
   uri?: string | null;
@@ -21,6 +22,8 @@ export function AvatarPicker({
   kind = 'user',
   label = AUTH_LABELS.profilePhoto,
 }: AvatarPickerProps) {
+  const { colors } = useAppTheme();
+
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -49,20 +52,22 @@ export function AvatarPicker({
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
       <Pressable onPress={pickImage} style={styles.avatarBtn}>
         <UserAvatar size={size} kind={kind} uri={uri} />
-        <View style={styles.badge}>
-          <Ionicons name="camera" size={16} color={FitnexiaColors.white} />
+        <View style={[styles.badge, { backgroundColor: colors.primary, borderColor: colors.surface }]}>
+          <Ionicons name="camera" size={16} color={colors.onPrimary} />
         </View>
       </Pressable>
       <View style={styles.actions}>
         <Pressable onPress={pickImage}>
-          <Text style={styles.actionText}>{uri ? 'Cambiar foto' : 'Subir foto'}</Text>
+          <Text style={[styles.actionText, { color: colors.primary }]}>
+            {uri ? 'Cambiar foto' : 'Subir foto'}
+          </Text>
         </Pressable>
         {uri ? (
           <Pressable onPress={removePhoto}>
-            <Text style={styles.removeText}>Eliminar</Text>
+            <Text style={[styles.removeText, { color: colors.error }]}>Eliminar</Text>
           </Pressable>
         ) : null}
       </View>
@@ -76,7 +81,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     fontSize: 14,
     fontWeight: '600',
-    color: FitnexiaColors.gray700,
     marginBottom: Spacing.sm,
   },
   avatarBtn: { position: 'relative' },
@@ -87,13 +91,11 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: FitnexiaColors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: FitnexiaColors.white,
   },
   actions: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.sm },
-  actionText: { color: FitnexiaColors.primary, fontWeight: '600', fontSize: 14 },
-  removeText: { color: FitnexiaColors.error, fontWeight: '600', fontSize: 14 },
+  actionText: { fontWeight: '600', fontSize: 14 },
+  removeText: { fontWeight: '600', fontSize: 14 },
 });

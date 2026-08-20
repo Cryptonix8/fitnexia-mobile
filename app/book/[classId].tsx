@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
+import { SurfaceCard } from '@/components/ui/surface-card';
 import { formatMoney } from '@/data/mock';
 import { useBookings } from '@/contexts/bookings-context';
 import { useClasses } from '@/contexts/classes-context';
@@ -14,8 +15,9 @@ import { joinWaitlistApi } from '@/services/api/v2-features.api';
 import { fetchMyActivePasses, fetchPassProducts } from '@/services/api/passes.api';
 import { fetchMyCredits } from '@/services/api/credits.api';
 import { useFeature } from '@/hooks/use-feature';
+import { useAppTheme } from '@/contexts/theme-context';
 import { openPaymentCheckout } from '@/utils/booking-payment';
-import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { Radius, Spacing } from '@/constants/fitnexia';
 import { BUTTON_LABELS, LOADING_LABELS, SCREEN_TITLES } from '@/constants/labels';
 import type { AthletePass, CreditBalance, PassPeriodType, PassProducts, PaymentModel } from '@/types/api';
 
@@ -45,6 +47,7 @@ function findActivePass(
 }
 
 export default function BookScreen() {
+  const { colors } = useAppTheme();
   const { classId, waitlist } = useLocalSearchParams<{ classId: string; waitlist?: string }>();
   const { getClassById, isLoading: classesLoading, refreshClasses } = useClasses();
   const { createBooking, refreshBookings } = useBookings();
@@ -231,39 +234,45 @@ export default function BookScreen() {
           showBack
         />
       }>
-      <View style={styles.summary}>
-        <Text style={styles.className}>{cls.title}</Text>
-        <Text style={styles.instructor}>{cls.instructor.displayName}</Text>
+      <SurfaceCard style={styles.summary}>
+        <Text style={[styles.className, { color: colors.text }]}>{cls.title}</Text>
+        <Text style={[styles.instructor, { color: colors.textMuted }]}>{cls.instructor.displayName}</Text>
         {!isWaitlist ? (
           activePass ? (
-            <Text style={styles.passBanner}>Incluido en tu pase activo</Text>
+            <Text style={[styles.passBanner, { color: colors.primary }]}>Incluido en tu pase activo</Text>
           ) : checkoutPrice ? (
-            <Text style={styles.price}>{formatMoney(checkoutPrice)}</Text>
+            <Text style={[styles.price, { color: colors.primary }]}>{formatMoney(checkoutPrice)}</Text>
           ) : (
-            <Text style={styles.price}>{formatMoney(cls.price)}</Text>
+            <Text style={[styles.price, { color: colors.primary }]}>{formatMoney(cls.price)}</Text>
           )
         ) : null}
-      </View>
+      </SurfaceCard>
 
       {!isWaitlist ? (
         integratedPayments ? (
           <>
             {subscriptionModels ? (
               <>
-                <Text style={styles.section}>Modelo de pago</Text>
+                <Text style={[styles.section, { color: colors.text }]}>Modelo de pago</Text>
                 {paymentOptions.map((opt) => (
                   <Pressable
                     key={opt.id}
-                    style={[styles.option, paymentModel === opt.id && styles.optionActive]}
+                    style={[
+                      styles.option,
+                      { backgroundColor: colors.surface },
+                      paymentModel === opt.id && { borderColor: colors.primary },
+                    ]}
                     onPress={() => setPaymentModel(opt.id)}>
-                    <View style={styles.radio}>
-                      {paymentModel === opt.id ? <View style={styles.radioInner} /> : null}
+                    <View style={[styles.radio, { borderColor: colors.primary }]}>
+                      {paymentModel === opt.id ? (
+                        <View style={[styles.radioInner, { backgroundColor: colors.primary }]} />
+                      ) : null}
                     </View>
                     <View style={styles.optionBody}>
-                      <Text style={styles.optionLabel}>{opt.label}</Text>
-                      <Text style={styles.optionDesc}>{opt.desc}</Text>
+                      <Text style={[styles.optionLabel, { color: colors.text }]}>{opt.label}</Text>
+                      <Text style={[styles.optionDesc, { color: colors.textMuted }]}>{opt.desc}</Text>
                       {opt.id !== 'per_class' && passProducts ? (
-                        <Text style={styles.optionPrice}>
+                        <Text style={[styles.optionPrice, { color: colors.primary }]}>
                           {opt.id === 'monthly_unlimited'
                             ? formatMoney(passProducts.monthly_unlimited.price)
                             : `Desde ${formatMoney(passProducts.per_period.week.price)}`}
@@ -275,26 +284,34 @@ export default function BookScreen() {
 
                 {paymentModel === 'per_period' && passProducts ? (
                   <>
-                    <Text style={styles.section}>Período del pase</Text>
+                    <Text style={[styles.section, { color: colors.text }]}>Período del pase</Text>
                     {PERIOD_OPTIONS.map((opt) => {
                       const product = passProducts.per_period[opt.id];
                       const periodPass = findActivePass(activePasses, 'per_period', opt.id);
                       return (
                         <Pressable
                           key={opt.id}
-                          style={[styles.option, periodType === opt.id && styles.optionActive]}
+                          style={[
+                            styles.option,
+                            { backgroundColor: colors.surface },
+                            periodType === opt.id && { borderColor: colors.primary },
+                          ]}
                           onPress={() => setPeriodType(opt.id)}>
-                          <View style={styles.radio}>
-                            {periodType === opt.id ? <View style={styles.radioInner} /> : null}
+                          <View style={[styles.radio, { borderColor: colors.primary }]}>
+                            {periodType === opt.id ? (
+                              <View style={[styles.radioInner, { backgroundColor: colors.primary }]} />
+                            ) : null}
                           </View>
                           <View style={styles.optionBody}>
-                            <Text style={styles.optionLabel}>{product.name}</Text>
-                            <Text style={styles.optionDesc}>
+                            <Text style={[styles.optionLabel, { color: colors.text }]}>{product.name}</Text>
+                            <Text style={[styles.optionDesc, { color: colors.textMuted }]}>
                               {product.classCredits} clases · {product.periodDays} días
                             </Text>
-                            <Text style={styles.optionPrice}>{formatMoney(product.price)}</Text>
+                            <Text style={[styles.optionPrice, { color: colors.primary }]}>
+                              {formatMoney(product.price)}
+                            </Text>
                             {periodPass ? (
-                              <Text style={styles.activePassHint}>
+                              <Text style={[styles.activePassHint, { color: colors.success }]}>
                                 Pase activo
                                 {periodPass.classCreditsRemaining != null
                                   ? ` · ${periodPass.classCreditsRemaining} créditos`
@@ -309,10 +326,12 @@ export default function BookScreen() {
                 ) : null}
 
                 {paymentModel === 'monthly_unlimited' && activePass ? (
-                  <View style={styles.activePassCard}>
-                    <Text style={styles.activePassTitle}>Pase ilimitado activo</Text>
+                  <View style={[styles.activePassCard, { backgroundColor: colors.successMuted }]}>
+                    <Text style={[styles.activePassTitle, { color: colors.success }]}>
+                      Pase ilimitado activo
+                    </Text>
                     {activePass.expiresAt ? (
-                      <Text style={styles.activePassMeta}>
+                      <Text style={[styles.activePassMeta, { color: colors.success }]}>
                         Vence {new Date(activePass.expiresAt).toLocaleDateString()}
                       </Text>
                     ) : null}
@@ -321,24 +340,28 @@ export default function BookScreen() {
               </>
             ) : null}
 
-            <Text style={styles.section}>Método de pago</Text>
-            <View style={styles.method}>
-              <Text style={styles.methodText}>Mercado Pago</Text>
+            <Text style={[styles.section, { color: colors.text }]}>Método de pago</Text>
+            <SurfaceCard padding="md" style={styles.method}>
+              <Text style={[styles.methodText, { color: colors.text }]}>Mercado Pago</Text>
               {digitalWallets ? (
-                <Text style={styles.methodSub}>Card · Apple Pay · Google Pay</Text>
+                <Text style={[styles.methodSub, { color: colors.textMuted }]}>
+                  Card · Apple Pay · Google Pay
+                </Text>
               ) : (
-                <Text style={styles.methodSub}>Tarjeta de crédito o débito</Text>
+                <Text style={[styles.methodSub, { color: colors.textMuted }]}>
+                  Tarjeta de crédito o débito
+                </Text>
               )}
-            </View>
+            </SurfaceCard>
 
             {needsPassCheckout ? (
-              <Text style={styles.checkoutHint}>
+              <Text style={[styles.checkoutHint, { color: colors.textMuted }]}>
                 Pagás el pase ahora. La reserva se confirma al completar el pago.
               </Text>
             ) : null}
           </>
         ) : (
-          <Text style={styles.mvpHint}>
+          <Text style={[styles.mvpHint, { color: colors.textMuted }]}>
             El pago está deshabilitado. La reserva se confirmará sin cobrar.
           </Text>
         )
@@ -346,12 +369,20 @@ export default function BookScreen() {
 
       {!isWaitlist && loyaltyCredits && canRedeemCredits && paymentModel === 'per_class' && !activePass ? (
         <Pressable
-          style={[styles.loyaltyCard, useCredits && styles.loyaltyCardActive]}
+          style={[
+            styles.loyaltyCard,
+            { backgroundColor: colors.warningMuted },
+            useCredits && { borderColor: colors.primary },
+          ]}
           onPress={() => setUseCredits((v) => !v)}>
-          <View style={styles.radio}>{useCredits ? <View style={styles.radioInner} /> : null}</View>
+          <View style={[styles.radio, { borderColor: colors.primary }]}>
+            {useCredits ? (
+              <View style={[styles.radioInner, { backgroundColor: colors.primary }]} />
+            ) : null}
+          </View>
           <View style={styles.optionBody}>
-            <Text style={styles.optionLabel}>Usar clase gratis (10 créditos)</Text>
-            <Text style={styles.optionDesc}>
+            <Text style={[styles.optionLabel, { color: colors.text }]}>Usar clase gratis (10 créditos)</Text>
+            <Text style={[styles.optionDesc, { color: colors.textMuted }]}>
               Tenés {credits?.balance ?? 0} créditos. Fitnexia cubre hasta{' '}
               {credits ? formatMoney(credits.maxFreeClassValue) : ''}.
             </Text>
@@ -381,37 +412,30 @@ export default function BookScreen() {
 
 const styles = StyleSheet.create({
   summary: {
-    backgroundColor: FitnexiaColors.white,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
     marginBottom: Spacing.lg,
   },
-  className: { fontSize: 20, fontWeight: '700', color: FitnexiaColors.gray900 },
-  instructor: { fontSize: 14, color: FitnexiaColors.gray500, marginTop: 4 },
-  price: { fontSize: 24, fontWeight: '800', color: FitnexiaColors.primary, marginTop: Spacing.md },
+  className: { fontSize: 20, fontWeight: '700' },
+  instructor: { fontSize: 14, marginTop: 4 },
+  price: { fontSize: 24, fontWeight: '800', marginTop: Spacing.md },
   passBanner: {
     fontSize: 16,
     fontWeight: '600',
-    color: FitnexiaColors.primary,
     marginTop: Spacing.md,
   },
   section: { fontSize: 16, fontWeight: '700', marginBottom: Spacing.md },
   mvpHint: {
     fontSize: 14,
-    color: FitnexiaColors.gray500,
     lineHeight: 22,
     marginBottom: Spacing.sm,
   },
   checkoutHint: {
     fontSize: 13,
-    color: FitnexiaColors.gray500,
     lineHeight: 20,
     marginBottom: Spacing.sm,
   },
   option: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: FitnexiaColors.white,
     borderRadius: Radius.md,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
@@ -419,14 +443,12 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     gap: Spacing.md,
   },
-  optionActive: { borderColor: FitnexiaColors.primary },
   optionBody: { flex: 1 },
   radio: {
     width: 22,
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: FitnexiaColors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
@@ -435,42 +457,34 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: FitnexiaColors.primary,
   },
-  optionLabel: { fontSize: 16, fontWeight: '600', color: FitnexiaColors.gray900 },
-  optionDesc: { fontSize: 13, color: FitnexiaColors.gray500, marginTop: 2 },
+  optionLabel: { fontSize: 16, fontWeight: '600' },
+  optionDesc: { fontSize: 13, marginTop: 2 },
   optionPrice: {
     fontSize: 14,
     fontWeight: '700',
-    color: FitnexiaColors.primary,
     marginTop: 4,
   },
   activePassHint: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#15803d',
     marginTop: 4,
   },
   activePassCard: {
-    backgroundColor: '#ecfdf5',
     borderRadius: Radius.md,
     padding: Spacing.md,
     marginBottom: Spacing.md,
   },
-  activePassTitle: { fontSize: 15, fontWeight: '700', color: '#166534' },
-  activePassMeta: { fontSize: 13, color: '#166534', marginTop: 4 },
+  activePassTitle: { fontSize: 15, fontWeight: '700' },
+  activePassMeta: { fontSize: 13, marginTop: 4 },
   method: {
-    backgroundColor: FitnexiaColors.white,
-    borderRadius: Radius.md,
-    padding: Spacing.md,
     marginBottom: Spacing.md,
   },
   methodText: { fontSize: 16, fontWeight: '600' },
-  methodSub: { fontSize: 13, color: FitnexiaColors.gray500, marginTop: 4 },
+  methodSub: { fontSize: 13, marginTop: 4 },
   loyaltyCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#fef3c7',
     borderRadius: Radius.md,
     padding: Spacing.md,
     marginTop: Spacing.md,
@@ -478,5 +492,4 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     gap: Spacing.md,
   },
-  loyaltyCardActive: { borderColor: FitnexiaColors.primary },
 });

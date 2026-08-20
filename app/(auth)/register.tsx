@@ -12,7 +12,8 @@ import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { getErrorMessage, useAuth } from '@/contexts/auth-context';
-import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
+import { Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS, INSTRUCTOR_GENDER_OPTIONS } from '@/constants/labels';
 import type { InstructorGender } from '@/types/api';
 import { useFeature } from '@/hooks/use-feature';
@@ -25,6 +26,7 @@ import { completeAppleSignIn } from '@/utils/apple-auth';
 import { validateRegisterForm } from '@/utils/validation';
 
 export default function RegisterScreen() {
+  const { colors } = useAppTheme();
   const googleSignIn = useFeature('googleSignIn');
   const appleSignIn = useAppleSignInFeature();
   const { register, loginWithGoogle, loginWithApple } = useAuth();
@@ -116,12 +118,12 @@ export default function RegisterScreen() {
   return (
     <Screen scroll>
       <Pressable onPress={() => (step === 1 ? router.back() : setStep(1))}>
-        <Text style={styles.back}>← Volver</Text>
+        <Text style={[styles.back, { color: colors.primary }]}>← Volver</Text>
       </Pressable>
-      <Text style={styles.title}>
+      <Text style={[styles.title, { color: colors.text }]}>
         {step === 1 ? AUTH_LABELS.chooseProfile : AUTH_LABELS.createAccount}
       </Text>
-      <Text style={styles.sub}>
+      <Text style={[styles.sub, { color: colors.textMuted }]}>
         {step === 1 ? AUTH_LABELS.howWillYouUse : AUTH_LABELS.completeProfile}
       </Text>
 
@@ -233,30 +235,17 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  back: { color: FitnexiaColors.primary, fontWeight: '600', marginTop: Spacing.md },
+  back: { fontWeight: '600', marginTop: Spacing.md },
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: FitnexiaColors.gray900,
     marginTop: Spacing.md,
   },
-  sub: { fontSize: 15, color: FitnexiaColors.gray500, marginBottom: Spacing.lg },
+  sub: { fontSize: 15, marginBottom: Spacing.lg },
   sportsLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: FitnexiaColors.gray700,
     marginBottom: Spacing.sm,
   },
   sportsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.lg },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: Radius.full,
-    backgroundColor: FitnexiaColors.white,
-    borderWidth: 1,
-    borderColor: FitnexiaColors.gray200,
-  },
-  chipActive: { backgroundColor: FitnexiaColors.primary, borderColor: FitnexiaColors.primary },
-  chipText: { fontSize: 14, color: FitnexiaColors.gray700 },
-  chipTextActive: { color: FitnexiaColors.white, fontWeight: '600' },
 });

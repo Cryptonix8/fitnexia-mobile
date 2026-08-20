@@ -1,21 +1,24 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { AvatarPicker } from '@/components/avatar-picker';
 import { FilterSelect } from '@/components/ui/filter-select';
+import { ToggleChip } from '@/components/ui/toggle-chip';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { useAuth, getErrorMessage } from '@/contexts/auth-context';
-import { DISCIPLINES, FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
+import { DISCIPLINES, Spacing } from '@/constants/fitnexia';
 import { DEFAULT_CURRENCY } from '@/constants/currency';
 import { AUTH_LABELS, BUTTON_LABELS, SCREEN_TITLES, ALERT_LABELS, PROFILE_MENU_LABELS, INSTRUCTOR_GENDER_OPTIONS } from '@/constants/labels';
 import type { InstructorGender } from '@/types/api';
 import { validateInstructorProfileForm } from '@/utils/validation';
 
 export default function InstructorEditProfileScreen() {
+  const { colors } = useAppTheme();
   const { user, updateProfile } = useAuth();
   const profile = user?.instructorProfile;
 
@@ -92,19 +95,16 @@ export default function InstructorEditProfileScreen() {
         style={styles.filterSelect}
       />
 
-      <Text style={styles.label}>{PROFILE_MENU_LABELS.disciplines}</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>{PROFILE_MENU_LABELS.disciplines}</Text>
       <View style={styles.grid}>
-        {DISCIPLINES.map((sport) => {
-          const active = disciplines.includes(sport);
-          return (
-            <Pressable
-              key={sport}
-              style={[styles.chip, active && styles.chipActive]}
-              onPress={() => toggleDiscipline(sport)}>
-              <Text style={[styles.chipText, active && styles.chipTextActive]}>{sport}</Text>
-            </Pressable>
-          );
-        })}
+        {DISCIPLINES.map((sport) => (
+          <ToggleChip
+            key={sport}
+            label={sport}
+            active={disciplines.includes(sport)}
+            onPress={() => toggleDiscipline(sport)}
+          />
+        ))}
       </View>
 
       <Button title={BUTTON_LABELS.saveChanges} onPress={save} style={{ marginTop: Spacing.md }} />
@@ -113,18 +113,7 @@ export default function InstructorEditProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  label: { fontSize: 14, fontWeight: '600', color: FitnexiaColors.gray700, marginBottom: Spacing.sm },
+  label: { fontSize: 14, fontWeight: '600', marginBottom: Spacing.sm },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.md },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: Radius.full,
-    backgroundColor: FitnexiaColors.white,
-    borderWidth: 1,
-    borderColor: FitnexiaColors.gray200,
-  },
-  chipActive: { backgroundColor: FitnexiaColors.primary, borderColor: FitnexiaColors.primary },
-  chipText: { fontSize: 14, color: FitnexiaColors.gray700 },
-  chipTextActive: { color: FitnexiaColors.white, fontWeight: '600' },
   filterSelect: { marginBottom: Spacing.md },
 });

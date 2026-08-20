@@ -21,7 +21,7 @@ export function DateTimeField({
   onChange,
   minimumDate,
 }: DateTimeFieldProps) {
-  const { colors } = useAppTheme();
+  const { colors, isDark } = useAppTheme();
   const [open, setOpen] = useState(false);
 
   const display =
@@ -54,13 +54,20 @@ export function DateTimeField({
         <Text style={[styles.value, { color: colors.text }]}>{display}</Text>
       </Pressable>
       {open ? (
-        <DateTimePicker
-          value={value}
-          mode={mode}
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          minimumDate={minimumDate}
-          onChange={onPickerChange}
-        />
+        <View
+          style={[
+            styles.pickerWrap,
+            Platform.OS === 'ios' ? { backgroundColor: colors.surface, borderColor: colors.border } : null,
+          ]}>
+          <DateTimePicker
+            value={value}
+            mode={mode}
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            themeVariant={isDark ? 'dark' : 'light'}
+            minimumDate={minimumDate}
+            onChange={onPickerChange}
+          />
+        </View>
       ) : null}
       {open && Platform.OS === 'ios' ? (
         <Pressable onPress={() => setOpen(false)} style={styles.done}>
@@ -81,6 +88,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   value: { fontSize: 16 },
+  pickerWrap: {
+    marginTop: Spacing.sm,
+    borderRadius: Radius.md,
+    overflow: 'hidden',
+    borderWidth: Platform.OS === 'ios' ? 1 : 0,
+  },
   done: { alignItems: 'flex-end', marginTop: Spacing.xs },
   doneText: { fontSize: 16, fontWeight: '600' },
 });

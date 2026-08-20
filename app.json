@@ -4,7 +4,7 @@
     "slug": "Fitnexia",
     "version": "1.1.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/simbolo-icon.png",
     "scheme": "fitnexia",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -31,7 +31,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
-        "foregroundImage": "./assets/images/android-icon-foreground.png"
+        "foregroundImage": "./assets/images/simbolo-icon.png"
       },
       "googleServicesFile": "./google-services.json",
       "edgeToEdgeEnabled": true,
@@ -81,18 +81,18 @@
         {
           "backgroundColor": "#ffffff",
           "ios": {
-            "image": "./assets/images/splash-full.png",
+            "image": "./assets/images/simbolo.png",
             "imageWidth": 280,
             "resizeMode": "contain",
             "backgroundColor": "#ffffff",
             "dark": {
-              "image": "./assets/images/splash-full.png",
+              "image": "./assets/images/simbolo.png",
               "backgroundColor": "#ffffff"
             }
           },
           "android": {
             "image": "./assets/images/simbolo.png",
-            "imageWidth": 200,
+            "imageWidth": 280,
             "resizeMode": "contain",
             "backgroundColor": "#ffffff",
             "dark": {

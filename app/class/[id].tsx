@@ -10,17 +10,19 @@ import { StarRating } from '@/components/star-rating';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/ui/header';
 import { Screen } from '@/components/ui/screen';
+import { SurfaceCard } from '@/components/ui/surface-card';
 import {
   formatClassDate,
   formatMoney,
 } from '@/data/mock';
 import { useAuth } from '@/contexts/auth-context';
+import { useAppTheme } from '@/contexts/theme-context';
 import { useBookings } from '@/contexts/bookings-context';
 import { useClasses } from '@/contexts/classes-context';
 import { useFeature } from '@/hooks/use-feature';
 import { canManageGymClass, resolveInstitutionId } from '@/utils/gym-classes';
 import { getLinkedInstructorId } from '@/utils/instructor';
-import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { Spacing } from '@/constants/fitnexia';
 import {
   BADGE_LABELS,
   BUTTON_LABELS,
@@ -40,6 +42,7 @@ import {
 } from '@/constants/labels';
 
 export default function ClassDetailScreen() {
+  const { colors } = useAppTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
   const { getClassById, isLoading } = useClasses();
@@ -86,7 +89,7 @@ export default function ClassDetailScreen() {
   return (
     <Screen scroll header={<Header title={SCREEN_TITLES.classDetails} showBack />}>
       <View style={styles.hero}>
-        <Text style={styles.title}>{cls.title}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{cls.title}</Text>
         <View style={styles.tags}>
           <Badge label={translateDisciplineLabel(cls.discipline)} />
           <RecurringClassBadge item={cls} />
@@ -102,7 +105,7 @@ export default function ClassDetailScreen() {
         </View>
       </View>
 
-      <View style={styles.card}>
+      <SurfaceCard style={styles.card}>
         <Row icon="calendar-outline" label={CLASS_DETAIL_LABELS.when} value={formatClassDate(cls.startAt)} />
         <Row icon="time-outline" label={CLASS_DETAIL_LABELS.duration} value={`${cls.durationMinutes} min`} />
         <Row
@@ -143,7 +146,7 @@ export default function ClassDetailScreen() {
             value={classSpotsLabel(cls.spotsLeft ?? 0, cls.capacity ?? 0, { waitlistEnabled })}
           />
         ) : null}
-      </View>
+      </SurfaceCard>
 
       <PressableInstructor
         name={cls.instructor.displayName}
@@ -154,10 +157,10 @@ export default function ClassDetailScreen() {
       />
 
       {cls.institution ? (
-        <View style={styles.instructorCard}>
+        <SurfaceCard style={styles.instructorCard}>
           <UserAvatar size={56} kind="institution" uri={cls.institution.logoUrl} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.instructorName}>{cls.institution.name}</Text>
+            <Text style={[styles.instructorName, { color: colors.text }]}>{cls.institution.name}</Text>
             {cls.institution.verified ? (
               <Badge label={BADGE_LABELS.verified} variant="verified" />
             ) : null}
@@ -168,7 +171,7 @@ export default function ClassDetailScreen() {
             size="sm"
             onPress={() => router.push(`/institution/${cls.institution!.id}`)}
           />
-        </View>
+        </SurfaceCard>
       ) : null}
 
       {cls.institution && courtsEnabled && canBook ? (
@@ -179,8 +182,8 @@ export default function ClassDetailScreen() {
         />
       ) : null}
 
-      <Text style={styles.section}>{CLASS_DETAIL_LABELS.about}</Text>
-      <Text style={styles.desc}>
+      <Text style={[styles.section, { color: colors.text }]}>{CLASS_DETAIL_LABELS.about}</Text>
+      <Text style={[styles.desc, { color: colors.textMuted }]}>
         {classFormat === 'individual'
           ? `Reservá una sesión privada 1 a 1 de ${translateDisciplineLabel(cls.discipline).toLowerCase()} con ${cls.instructor.displayName}.`
           : `Unite a ${cls.instructor.displayName} en una sesión grupal de ${translateDisciplineLabel(cls.discipline).toLowerCase()}.`}{' '}
@@ -229,12 +232,14 @@ function Row({
   label: string;
   value: string;
 }) {
+  const { colors } = useAppTheme();
+
   return (
     <View style={styles.row}>
-      <Ionicons name={icon} size={20} color={FitnexiaColors.primary} />
+      <Ionicons name={icon} size={20} color={colors.primary} />
       <View style={styles.rowText}>
-        <Text style={styles.rowLabel}>{label}</Text>
-        <Text style={styles.rowValue}>{value}</Text>
+        <Text style={[styles.rowLabel, { color: colors.textMuted }]}>{label}</Text>
+        <Text style={[styles.rowValue, { color: colors.text }]}>{value}</Text>
       </View>
     </View>
   );
@@ -255,47 +260,49 @@ function PressableInstructor({
   reviewCount?: number;
   onPress: () => void;
 }) {
+  const { colors } = useAppTheme();
+
   return (
-    <View style={styles.instructorCard}>
+    <SurfaceCard style={styles.instructorCard}>
       <UserAvatar size={56} kind="instructor" uri={photoUrl} />
       <View style={{ flex: 1 }}>
-        <Text style={styles.instructorName}>{name}</Text>
+        <Text style={[styles.instructorName, { color: colors.text }]}>{name}</Text>
         {verified ? <Badge label={BADGE_LABELS.verified} variant="verified" /> : null}
         {rating != null && reviewCount != null && reviewCount > 0 ? (
           <StarRating rating={rating} reviewCount={reviewCount} size={16} showCount />
         ) : null}
       </View>
       <Button title={BUTTON_LABELS.viewProfile} variant="ghost" size="sm" onPress={onPress} />
-    </View>
+    </SurfaceCard>
   );
 }
 
 const styles = StyleSheet.create({
   hero: { marginBottom: Spacing.md },
-  title: { fontSize: 26, fontWeight: '800', color: FitnexiaColors.gray900 },
-  tags: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm },
+  title: { fontSize: 26, fontWeight: '800' },
+  tags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
   card: {
-    backgroundColor: FitnexiaColors.white,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
     marginBottom: Spacing.md,
     gap: Spacing.md,
   },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md },
   rowText: { flex: 1 },
-  rowLabel: { fontSize: 12, color: FitnexiaColors.gray500 },
-  rowValue: { fontSize: 15, fontWeight: '600', color: FitnexiaColors.gray900, marginTop: 2 },
+  rowLabel: { fontSize: 12 },
+  rowValue: { fontSize: 15, fontWeight: '600', marginTop: 2 },
   instructorCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: FitnexiaColors.white,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
     marginBottom: Spacing.md,
     gap: Spacing.md,
   },
-  instructorName: { fontSize: 17, fontWeight: '700', color: FitnexiaColors.gray900 },
-  rating: { fontSize: 14, color: FitnexiaColors.gray500, marginTop: 4 },
+  instructorName: { fontSize: 17, fontWeight: '700' },
+  rating: { fontSize: 14, marginTop: 4 },
   section: { fontSize: 18, fontWeight: '700', marginBottom: Spacing.sm },
-  desc: { fontSize: 15, color: FitnexiaColors.gray500, lineHeight: 22, marginBottom: Spacing.lg },
+  desc: { fontSize: 15, lineHeight: 22, marginBottom: Spacing.lg },
 });

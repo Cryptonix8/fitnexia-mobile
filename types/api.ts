@@ -474,6 +474,6 @@ export interface MembershipSettings {
   dueReminderDays: number;
 }
 
-/** Default API base — override per environment */
+/** Default API base — always set EXPO_PUBLIC_API_URL via .env or eas.json */
 export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL ?? 'https://api.staging.fitnexia.com/v1';
+  process.env.EXPO_PUBLIC_API_URL ?? 'https://46.183.25.232:46000/v1';

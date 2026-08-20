@@ -8,12 +8,14 @@ import { Input } from '@/components/ui/input';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Screen } from '@/components/ui/screen';
 import { resetPasswordApi } from '@/contexts/auth-context';
-import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
+import { Spacing } from '@/constants/fitnexia';
 import { AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
 import { getErrorMessage } from '@/services/api/errors';
 import { validateResetPasswordForm } from '@/utils/validation';
 
 export default function ResetPasswordScreen() {
+  const { colors } = useAppTheme();
   const { token } = useLocalSearchParams<{ token?: string }>();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,7 +26,7 @@ export default function ResetPasswordScreen() {
   if (!resetToken) {
     return (
       <Screen scroll header={<Header title="Nueva contraseña" showBack />}>
-        <Text style={styles.body}>
+        <Text style={[styles.body, { color: colors.textMuted }]}>
           El enlace de restablecimiento no es válido. Pedí uno nuevo desde la pantalla de inicio de
           sesión.
         </Text>
@@ -55,7 +57,7 @@ export default function ResetPasswordScreen() {
 
   return (
     <Screen scroll header={<Header title="Nueva contraseña" showBack />}>
-      <Text style={styles.body}>Elegí una contraseña nueva para tu cuenta.</Text>
+      <Text style={[styles.body, { color: colors.textMuted }]}>Elegí una contraseña nueva para tu cuenta.</Text>
       <Input
         label={AUTH_LABELS.password}
         value={password}
@@ -77,5 +79,5 @@ export default function ResetPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { fontSize: 15, color: FitnexiaColors.gray500, marginBottom: Spacing.lg, lineHeight: 22 },
+  body: { fontSize: 15, marginBottom: Spacing.lg, lineHeight: 22 },
 });

@@ -9,7 +9,8 @@ import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { getErrorMessage, useAuth } from '@/contexts/auth-context';
-import { FitnexiaColors, Spacing } from '@/constants/fitnexia';
+import { useAppTheme } from '@/contexts/theme-context';
+import { Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS, AUTH_LABELS, BUTTON_LABELS } from '@/constants/labels';
 import { consumeSessionExpiredAlertPending } from '@/utils/auth-navigation';
 import { useFeature } from '@/hooks/use-feature';
@@ -21,6 +22,7 @@ import { completeAppleSignIn } from '@/utils/apple-auth';
 import { validateLoginForm } from '@/utils/validation';
 
 export default function LoginScreen() {
+  const { colors } = useAppTheme();
   const { expired } = useLocalSearchParams<{ expired?: string }>();
   const googleSignIn = useFeature('googleSignIn');
   const appleSignIn = useAppleSignInFeature();
@@ -70,9 +72,9 @@ export default function LoginScreen() {
 
   return (
     <Screen scroll>
-      <Text style={styles.logo}>Fitnexia</Text>
-      <Text style={styles.title}>{AUTH_LABELS.welcomeBack}</Text>
-      <Text style={styles.sub}>{AUTH_LABELS.signInSubtitle}</Text>
+      <Text style={[styles.logo, { color: colors.primary }]}>Fitnexia</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{AUTH_LABELS.welcomeBack}</Text>
+      <Text style={[styles.sub, { color: colors.textMuted }]}>{AUTH_LABELS.signInSubtitle}</Text>
 
       <Input
         label={AUTH_LABELS.email}
@@ -90,7 +92,7 @@ export default function LoginScreen() {
 
       {passwordRecovery ? (
         <Pressable onPress={() => router.push('/forgot-password')}>
-          <Text style={styles.forgot}>¿Olvidaste tu contraseña?</Text>
+          <Text style={[styles.forgot, { color: colors.primary }]}>¿Olvidaste tu contraseña?</Text>
         </Pressable>
       ) : null}
 
@@ -111,9 +113,9 @@ export default function LoginScreen() {
       ) : null}
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>¿Sos nuevo? </Text>
+        <Text style={[styles.footerText, { color: colors.textMuted }]}>¿Sos nuevo? </Text>
         <Pressable onPress={() => router.push('/register')}>
-          <Text style={styles.link}>Crear cuenta</Text>
+          <Text style={[styles.link, { color: colors.primary }]}>Crear cuenta</Text>
         </Pressable>
       </View>
 
@@ -135,14 +137,12 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 32,
     fontWeight: '800',
-    color: FitnexiaColors.primary,
     marginTop: Spacing.xl,
     marginBottom: Spacing.lg,
   },
-  title: { fontSize: 28, fontWeight: '800', color: FitnexiaColors.gray900 },
-  sub: { fontSize: 15, color: FitnexiaColors.gray500, marginBottom: Spacing.lg },
+  title: { fontSize: 28, fontWeight: '800' },
+  sub: { fontSize: 15, marginBottom: Spacing.lg },
   forgot: {
-    color: FitnexiaColors.primary,
     fontWeight: '600',
     textAlign: 'right',
     marginBottom: Spacing.lg,
@@ -150,13 +150,12 @@ const styles = StyleSheet.create({
   },
   demoLabel: {
     fontSize: 12,
-    color: FitnexiaColors.gray500,
     textAlign: 'center',
     marginTop: Spacing.lg,
     marginBottom: Spacing.sm,
   },
   demoRow: { flexDirection: 'row', gap: Spacing.sm, justifyContent: 'center' },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: Spacing.xl },
-  footerText: { color: FitnexiaColors.gray500 },
-  link: { color: FitnexiaColors.primary, fontWeight: '700' },
+  footerText: {},
+  link: { fontWeight: '700' },
 });

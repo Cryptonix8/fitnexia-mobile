@@ -4,8 +4,10 @@ import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
-import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { SurfaceCard } from '@/components/ui/surface-card';
+import { Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS } from '@/constants/labels';
+import { useAppTheme } from '@/contexts/theme-context';
 import { getErrorMessage } from '@/services/api/errors';
 import {
   disconnectMpAccount,
@@ -23,6 +25,7 @@ function statusLabel(status: MpConnectStatusResponse['connection']['status'], co
 }
 
 export function MpPayoutConnect() {
+  const { colors } = useAppTheme();
   const [data, setData] = useState<MpConnectStatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -107,7 +110,7 @@ export function MpPayoutConnect() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.hint}>Cargando cuenta de cobro…</Text>
+        <Text style={[styles.hint, { color: colors.textMuted }]}>Cargando cuenta de cobro…</Text>
       </View>
     );
   }
@@ -117,38 +120,38 @@ export function MpPayoutConnect() {
 
   return (
     <>
-      <Text style={styles.hint}>
+      <Text style={[styles.hint, { color: colors.textMuted }]}>
         Conectá tu cuenta de cobros de Mercado Pago (no es crear cuenta Fitnexia). Así recibís el
         neto de clases y reservas pagadas por atletas; Fitnexia retiene su comisión.
       </Text>
 
-      <View style={styles.card}>
+      <SurfaceCard style={styles.card}>
         <Ionicons
           name={connected ? 'checkmark-circle' : 'wallet-outline'}
           size={32}
-          color={connected ? '#15803d' : FitnexiaColors.primary}
+          color={connected ? colors.success : colors.primary}
         />
         <View style={styles.cardBody}>
-          <Text style={styles.cardTitle}>Mercado Pago</Text>
-          <Text style={styles.cardMeta}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Mercado Pago</Text>
+          <Text style={[styles.cardMeta, { color: colors.textMuted }]}>
             Estado: {statusLabel(data?.connection.status ?? 'disconnected', connected)}
           </Text>
           {data?.connection.connectedAt ? (
-            <Text style={styles.cardMeta}>
+            <Text style={[styles.cardMeta, { color: colors.textMuted }]}>
               Conectada el {new Date(data.connection.connectedAt).toLocaleDateString()}
             </Text>
           ) : null}
           {!data?.marketplace.configured ? (
-            <Text style={styles.pending}>
+            <Text style={[styles.pending, { color: colors.primary }]}>
               Marketplace sin credenciales en el servidor.
             </Text>
           ) : !marketplaceEnabled ? (
-            <Text style={styles.pending}>
+            <Text style={[styles.pending, { color: colors.primary }]}>
               Marketplace configurado pero desactivado en el servidor.
             </Text>
           ) : null}
         </View>
-      </View>
+      </SurfaceCard>
 
       {connected ? (
         <Button title="Desconectar cuenta" variant="outline" onPress={disconnect} disabled={busy} />
@@ -163,22 +166,18 @@ export function MpPayoutConnect() {
 
 const styles = StyleSheet.create({
   centered: { paddingVertical: Spacing.lg },
-  hint: { fontSize: 15, color: FitnexiaColors.gray500, marginBottom: Spacing.lg, lineHeight: 22 },
+  hint: { fontSize: 15, marginBottom: Spacing.lg, lineHeight: 22 },
   card: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: FitnexiaColors.white,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
     marginBottom: Spacing.lg,
     gap: Spacing.md,
   },
   cardBody: { flex: 1 },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: FitnexiaColors.gray900 },
-  cardMeta: { fontSize: 13, color: FitnexiaColors.gray500, marginTop: 4 },
+  cardTitle: { fontSize: 16, fontWeight: '700' },
+  cardMeta: { fontSize: 13, marginTop: 4 },
   pending: {
     fontSize: 13,
-    color: FitnexiaColors.primary,
     marginTop: Spacing.sm,
     lineHeight: 20,
   },

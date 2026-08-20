@@ -4,11 +4,14 @@ import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
+import { SurfaceCard } from '@/components/ui/surface-card';
 import { useAuth, type PaymentMethod } from '@/contexts/auth-context';
-import { FitnexiaColors, Radius, Spacing } from '@/constants/fitnexia';
+import { Spacing } from '@/constants/fitnexia';
 import { ALERT_LABELS } from '@/constants/labels';
+import { useAppTheme } from '@/contexts/theme-context';
 
 export function PaymentMethodsSettings() {
+  const { colors } = useAppTheme();
   const { user, updateProfile } = useAuth();
   const methods = user?.paymentMethods ?? [];
 
@@ -49,7 +52,7 @@ export function PaymentMethodsSettings() {
 
   return (
     <>
-      <Text style={styles.hint}>
+      <Text style={[styles.hint, { color: colors.textMuted }]}>
         Las tarjetas se almacenan de forma segura en Mercado Pago. Esta es una interfaz simulada hasta conectar la API.
       </Text>
       {methods.length === 0 ? (
@@ -62,26 +65,28 @@ export function PaymentMethodsSettings() {
         />
       ) : (
         methods.map((m) => (
-          <View key={m.id} style={styles.card}>
-            <Ionicons name="card" size={28} color={FitnexiaColors.primary} />
+          <SurfaceCard key={m.id} style={styles.card}>
+            <Ionicons name="card" size={28} color={colors.primary} />
             <View style={styles.cardBody}>
-              <Text style={styles.cardTitle}>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>
                 {m.brand} ·••• {m.last4}
               </Text>
-              <Text style={styles.cardMeta}>Vence {m.expiry}</Text>
-              {m.isDefault ? <Text style={styles.defaultBadge}>Predeterminada</Text> : null}
+              <Text style={[styles.cardMeta, { color: colors.textMuted }]}>Vence {m.expiry}</Text>
+              {m.isDefault ? (
+                <Text style={[styles.defaultBadge, { color: colors.primary }]}>Predeterminada</Text>
+              ) : null}
             </View>
             <View style={styles.cardActions}>
               {!m.isDefault ? (
                 <Pressable onPress={() => setDefault(m.id)}>
-                  <Text style={styles.link}>Usar por defecto</Text>
+                  <Text style={[styles.link, { color: colors.primary }]}>Usar por defecto</Text>
                 </Pressable>
               ) : null}
               <Pressable onPress={() => remove(m.id)}>
-                <Text style={styles.remove}>Eliminar</Text>
+                <Text style={[styles.remove, { color: colors.error }]}>Eliminar</Text>
               </Pressable>
             </View>
-          </View>
+          </SurfaceCard>
         ))
       )}
       <Button title="Agregar tarjeta" onPress={addMockCard} style={{ marginTop: Spacing.md }} />
@@ -91,21 +96,18 @@ export function PaymentMethodsSettings() {
 }
 
 const styles = StyleSheet.create({
-  hint: { fontSize: 15, color: FitnexiaColors.gray500, marginBottom: Spacing.lg },
+  hint: { fontSize: 15, marginBottom: Spacing.lg },
   card: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: FitnexiaColors.white,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
     marginBottom: Spacing.sm,
     gap: Spacing.md,
   },
   cardBody: { flex: 1 },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: FitnexiaColors.gray900 },
-  cardMeta: { fontSize: 13, color: FitnexiaColors.gray500, marginTop: 2 },
-  defaultBadge: { fontSize: 12, fontWeight: '600', color: FitnexiaColors.primary, marginTop: 4 },
+  cardTitle: { fontSize: 16, fontWeight: '700' },
+  cardMeta: { fontSize: 13, marginTop: 2 },
+  defaultBadge: { fontSize: 12, fontWeight: '600', marginTop: 4 },
   cardActions: { alignItems: 'flex-end', gap: 4 },
-  link: { color: FitnexiaColors.primary, fontWeight: '600', fontSize: 13 },
-  remove: { color: FitnexiaColors.error, fontWeight: '600', fontSize: 13 },
+  link: { fontWeight: '600', fontSize: 13 },
+  remove: { fontWeight: '600', fontSize: 13 },
 });

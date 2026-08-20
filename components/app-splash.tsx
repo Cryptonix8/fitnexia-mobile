@@ -3,13 +3,17 @@ import { Image, StyleSheet, View } from 'react-native';
 const LOGO_ASPECT = 1144 / 866;
 const WORDMARK_ASPECT = 1144 / 866;
 
+import { useAppTheme } from '@/contexts/theme-context';
+
 type AppSplashProps = {
   onLayout?: () => void;
 };
 
 export function AppSplash({ onLayout }: AppSplashProps) {
+  const { colors } = useAppTheme();
+
   return (
-    <View style={styles.container} onLayout={onLayout}>
+    <View style={[styles.container, { backgroundColor: colors.background }]} onLayout={onLayout}>
       <Image
         source={require('@/assets/images/simbolo.png')}
         style={styles.logo}
@@ -31,7 +35,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ffffff',
   },
   logo: {
     width: 200,

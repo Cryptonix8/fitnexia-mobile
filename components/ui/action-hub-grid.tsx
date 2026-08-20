@@ -37,10 +37,10 @@ export function ActionHubGrid({ actions }: Props) {
             },
           ]}>
           <View style={[styles.featuredIcon, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-            <Ionicons name={featured.icon} size={26} color={colors.surface} />
+            <Ionicons name={featured.icon} size={26} color={colors.onPrimary} />
           </View>
           <View style={styles.featuredText}>
-            <Text style={[styles.featuredLabel, { color: colors.surface }]}>{featured.label}</Text>
+            <Text style={[styles.featuredLabel, { color: colors.onPrimary }]}>{featured.label}</Text>
             <Text style={[styles.featuredSub, { color: 'rgba(255,255,255,0.85)' }]}>
               {featured.subtitle}
             </Text>
@@ -57,12 +57,12 @@ export function ActionHubGrid({ actions }: Props) {
             style={({ pressed }) => [
               styles.tile,
               {
-                backgroundColor: action.tint,
+                backgroundColor: colors.surface,
                 borderColor: colors.border,
                 opacity: pressed ? 0.9 : 1,
               },
             ]}>
-            <View style={[styles.tileIcon, { backgroundColor: colors.surface }]}>
+            <View style={[styles.tileIcon, { backgroundColor: action.tint }]}>
               <Ionicons name={action.icon} size={22} color={action.iconColor} />
             </View>
             <Text style={[styles.tileLabel, { color: colors.text }]}>{action.label}</Text>
